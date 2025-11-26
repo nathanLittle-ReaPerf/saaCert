@@ -318,4 +318,193 @@ Any colder tier → Any warmer tier ❌
 
 ---
 
-**You've got this. Now go memorize it.** 💪
+## 🆕 NEW WEAK AREAS (Nov 25 Quiz - 14/20, 70%)
+
+### 🚨 CRITICAL: ALB Cross-Zone Costs (STILL GETTING THIS WRONG!)
+
+**You got this wrong AGAIN. This is now on the "never miss again" list.**
+
+| Load Balancer | Cross-Zone Default | Cost for Cross-Zone |
+|--------------|-------------------|-------------------|
+| **ALB** | ✅ Enabled by default | **FREE** ✅ (NO CHARGES) |
+| **NLB** | ❌ Disabled by default | **COSTS MONEY** 💰 |
+| **GLB** | ❌ Disabled by default | **COSTS MONEY** 💰 |
+
+**Your mistake:** You keep thinking ALB cross-zone costs money (it does NOT - it's FREE)
+
+**Memory trick:**
+- **ALB = Always free** (cross-zone enabled by default, NO COST)
+- **NLB/GLB = Not free** (cross-zone disabled, costs extra if enabled)
+
+**Exam pattern:** "Additional charges for cross-zone load balancing" → **NLB or GLB** (NOT ALB!)
+
+---
+
+### 🚨 S3 Encryption: SSE-KMS vs SSE-C Audit Trail
+
+**You picked SSE-C when the question asked about audit trail. WRONG.**
+
+| Encryption Type | Audit Trail (CloudTrail Logs)? | Who Manages Keys? |
+|----------------|-------------------------------|-------------------|
+| **SSE-S3** | ❌ NO | AWS (fully managed) |
+| **SSE-KMS** | ✅ **YES** (CloudTrail logs KMS API calls) | AWS KMS (you control) |
+| **SSE-C** | ❌ NO | Customer (you provide with each request) |
+| **Client-Side** | ❌ NO | Customer (encrypt before upload) |
+
+**Your mistake:** SSE-C = Customer-provided keys, but NO audit trail
+- SSE-C: You provide keys, AWS encrypts, no CloudTrail logs
+- SSE-KMS: AWS KMS manages keys, CloudTrail logs all key usage
+
+**Memory trick:**
+- **SSE-KMS = Audit trail** (CloudTrail logs KMS API calls)
+- **SSE-C = Customer keys only** (no audit trail)
+
+**Exam keywords:** "Audit trail" or "CloudTrail logs for encryption" → **SSE-KMS** (NOT SSE-C)
+
+---
+
+### 🚨 S3 Bucket Policies vs Security Groups (Cross-Account Access)
+
+**You picked Security Groups for cross-account S3 access. WRONG.**
+
+**What Works for S3 Access Control:**
+
+| Method | Use Case | Can Do Cross-Account? |
+|--------|----------|---------------------|
+| **Bucket Policies** | S3 access control (JSON, IAM-like) | ✅ YES |
+| **IAM Policies** | User/Role permissions | ✅ YES (with bucket policy) |
+| **Access Points** | Multi-team access patterns | ✅ YES |
+| **Security Groups** | **EC2/VPC network traffic ONLY** | ❌ N/A (not for S3!) |
+
+**Your mistake:** Security Groups are for EC2/VPC network-level access control, NOT S3
+- Security Groups = Layer 4 network firewall (EC2, RDS, ELB)
+- Bucket Policies = S3 access control (JSON policy document)
+
+**Memory trick:**
+- **Security Groups = Servers** (EC2, RDS, ELB network access)
+- **Bucket Policies = Buckets** (S3 object/bucket access)
+
+**Exam keywords:** "Cross-account S3 access" → **Bucket Policy** (NOT Security Groups!)
+
+---
+
+### 🚨 Storage Optimized Instance Types: i3 vs d2
+
+**You picked i3 when the question asked for HDD-based storage. WRONG.**
+
+**Storage Optimized Instance Types:**
+
+| Instance Family | Storage Type | IOPS | Use Case |
+|----------------|--------------|------|----------|
+| **i3/i3en** | **NVMe SSD** | Very High (millions) | NoSQL databases, real-time analytics, caching |
+| **d2** | **HDD** (spinning disks) | Moderate | Large sequential reads/writes (data warehouses, Hadoop, MapReduce) |
+| **h1** | **HDD** | Moderate | MapReduce, HDFS, distributed file systems |
+
+**Your mistake:** i3 = SSD (fast random access), d2 = HDD (large sequential datasets)
+- i3: High IOPS, low latency, expensive (SSDs)
+- d2: High throughput, lower cost, large capacity (HDDs)
+
+**Memory trick:**
+- **i3 = I/O intensive** (SSDs for databases, analytics)
+- **d2 = Data warehouses** (HDDs for large sequential data)
+
+**Exam keywords:** "Large datasets", "HDD-based", "sequential reads" → **d2** (NOT i3)
+
+---
+
+### 🚨 Partition Placement Groups (Hadoop/Kafka)
+
+**You picked Cluster when the question mentioned Hadoop/Kafka. WRONG.**
+
+**Placement Group Types:**
+
+| Type | Use Case | Max Instances per AZ | Benefit |
+|------|----------|---------------------|---------|
+| **Cluster** | HPC, low-latency, single AZ | Limited | Lowest latency (10 Gbps network) |
+| **Partition** | **Distributed apps (Hadoop, Kafka, Cassandra)** | 7 partitions per AZ | Fault isolation (each partition on separate rack) |
+| **Spread** | Critical instances, max 7 per AZ | 7 per AZ | Strict isolation (each instance on separate hardware) |
+
+**Your mistake:** Cluster = single rack (high performance), Partition = separate racks (fault tolerance)
+- Cluster: All instances close together, low latency, but single point of failure
+- Partition: Each partition on different rack, fault isolation for distributed systems
+
+**Memory trick:**
+- **Cluster = Close together** (HPC, low latency, single rack)
+- **Partition = Partitioned across racks** (Hadoop/Kafka, fault tolerance)
+- **Spread = Spread apart** (max 7, critical instances)
+
+**Exam keywords:** "Hadoop", "Kafka", "HDFS", "distributed system" → **Partition** (NOT Cluster!)
+
+---
+
+### 🚨 Sticky Sessions: Duration-Based vs Application Cookie
+
+**You picked session cookie when ALB uses duration-based. WRONG.**
+
+**ALB Sticky Session Types:**
+
+| Cookie Type | Who Creates? | Duration | Use Case |
+|-------------|--------------|----------|----------|
+| **Duration-Based (AWSALB)** | **Load balancer** | 1 second - 7 days | Default, simple sticky sessions |
+| **Application-Based** | Your application | Custom (app-defined) | App needs custom session data in cookie |
+
+**Your mistake:** ALB uses duration-based cookies by default (load balancer-generated)
+- Duration-based: ALB creates cookie (`AWSALB`), simple duration setting
+- Application-based: Your app creates cookie, ALB reads it for routing
+
+**Memory trick:**
+- **Duration-based = Default** (ALB creates AWSALB cookie, set duration)
+- **Application-based = App creates** (custom app cookie)
+
+**Exam keywords:** "Sticky sessions" + "ALB" → **Duration-based (AWSALB)** by default
+
+---
+
+## 📝 Updated Quick Self-Test (Answer Without Looking!)
+
+**Original 10 questions (from before):**
+1. Does ALB support static IP addresses? **Answer: NO**
+2. Which load balancer can target Lambda functions? **Answer: ALB (only ALB)**
+3. What's the retrieval time for S3 Standard-IA? **Answer: Milliseconds**
+4. What's the retrieval time for S3 Glacier Deep Archive? **Answer: 12-48 hours**
+5. Can you create a lifecycle rule to transition from Glacier to Standard? **Answer: NO (one-way only)**
+6. To minimize Spot interruptions, should you use single AZ or multiple AZs? **Answer: Multiple AZs (diversify)**
+7. Which health check detects application crashes: EC2 or ELB? **Answer: ELB**
+8. Is cross-zone load balancing free for NLB? **Answer: NO (costs money)**
+9. Is cross-zone load balancing free for ALB? **Answer: YES (FREE - never costs money!)**
+10. Which RI type allows changing instance family? **Answer: Convertible RI**
+
+**NEW questions (from latest quiz mistakes):**
+11. Which encryption type provides audit trail via CloudTrail? **Answer: SSE-KMS**
+12. For cross-account S3 access, use Security Groups or Bucket Policy? **Answer: Bucket Policy**
+13. For HDD-based large datasets, use i3 or d2? **Answer: d2**
+14. For Hadoop/Kafka distributed systems, use Cluster or Partition placement? **Answer: Partition**
+15. ALB sticky sessions use which cookie type by default? **Answer: Duration-based (AWSALB)**
+
+**If you got less than 13/15 correct, read the NEW sections again.**
+
+---
+
+## ⚡ Updated "Can't Get This Wrong" List
+
+**MEMORIZE THESE FACTS (including new ones):**
+
+1. **ALB has NO static IP** (dynamic DNS only) - If question needs static IP, ALB is eliminated
+2. **Only ALB can target Lambda** - No other load balancer can do this
+3. **S3 Standard-IA retrieval = milliseconds** - NOT minutes, NOT hours
+4. **S3 Glacier Deep Archive = cheapest** - Always the answer for "MOST cost-effective" long-term archive
+5. **Lifecycle transitions are one-way** - Can't automate Glacier → Standard
+6. **Spot diversification = multiple types + multiple AZs** - NOT single AZ
+7. **ELB health checks detect app crashes, EC2 checks don't** - "App crashed but instance running" = use ELB checks
+8. **NLB cross-zone costs money, ALB cross-zone is FREE** - ⚠️ **YOU KEEP GETTING THIS WRONG!**
+9. **Convertible RI can change instance family, Standard RI cannot** - "May need to change types" = Convertible
+10. **Target Tracking = least overhead** - Simplest scaling policy
+11. **SSE-KMS provides audit trail (CloudTrail logs), SSE-C does NOT** - ⚠️ **NEW: "Audit trail" = SSE-KMS**
+12. **Bucket Policies for S3 cross-account, NOT Security Groups** - ⚠️ **NEW: Security Groups are for EC2/VPC only**
+13. **d2 instances = HDD-based (data warehouses), i3 = SSD-based (databases)** - ⚠️ **NEW**
+14. **Partition placement = Hadoop/Kafka, Cluster = HPC low latency** - ⚠️ **NEW**
+15. **ALB sticky sessions = Duration-based (AWSALB) by default** - ⚠️ **NEW**
+
+---
+
+**You've got this. Now go memorize the NEW sections.** 💪
