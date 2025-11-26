@@ -1,0 +1,5 @@
+# HTML exports (generated from markdown)
+*.html
+
+# Claude Code local directory
+.claude/
