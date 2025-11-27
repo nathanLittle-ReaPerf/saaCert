@@ -508,3 +508,355 @@ Any colder tier → Any warmer tier ❌
 ---
 
 **You've got this. Now go memorize the NEW sections.** 💪
+
+---
+
+## 🆕 NEWEST WEAK AREAS (Nov 26 Day 6 Catchup Quiz - 15/20, 75%)
+
+**You scored exactly at the passing threshold. These 5 mistakes could be the difference between pass and fail.**
+
+---
+
+### 🚨 CRITICAL: S3 Lifecycle - "Rarely Accessed" vs "Almost Never Accessed"
+
+**You picked Glacier Flexible at Day 30 when Standard-IA was correct.**
+
+**The Pattern You're Missing:**
+
+| Access Pattern | Days 0-30 | Days 31-90 | Days 91+ |
+|---------------|-----------|------------|----------|
+| **Frequently accessed** | Standard | → Standard-IA | → Glacier Deep Archive |
+| **Rarely accessed** | Standard | → **Standard-IA** ⚠️ | → Glacier Deep Archive |
+| **Almost never accessed** | Standard | → Glacier Flexible | → Glacier Deep Archive |
+
+**Your mistake:** You see "rarely accessed" and jump to Glacier too quickly
+- **"Rarely accessed"** = might still need occasional quick access → **Standard-IA** (millisecond retrieval)
+- **"Almost never accessed"** = can wait hours for retrieval → **Glacier Flexible** (3-5 hour retrieval)
+
+**Key Decision Points:**
+- If data might be accessed occasionally (even if rare) → **Standard-IA** (instant access, no retrieval fee surprise)
+- If data is truly archived and 3-5 hours is fine → **Glacier Flexible**
+- If data is for compliance and 12+ hours is fine → **Glacier Deep Archive**
+
+**Memory trick:**
+- **Standard-IA = Rare but Quick** (might need it, can't wait)
+- **Glacier Flexible = Archive, can wait hours** (truly rare access)
+- **Glacier Deep Archive = Compliance, cheapest** (almost never accessed)
+
+**Exam keywords:**
+- "Rarely accessed" + no retrieval time mentioned → **Standard-IA** (safe default)
+- "Almost never accessed" → **Glacier Flexible or Deep Archive**
+
+---
+
+### 🚨 CRITICAL: S3 Encryption - "AWS Should NOT Have Access to Keys"
+
+**You picked SSE-KMS when Client-side encryption with CloudHSM was correct.**
+
+**The CRITICAL Distinction:**
+
+| Encryption Type | Who Encrypts/Decrypts? | AWS Has Access to Keys? | FIPS 140-2 Level |
+|----------------|----------------------|----------------------|------------------|
+| **SSE-S3** | AWS (fully managed) | ✅ YES (AWS manages everything) | Level 2/3 |
+| **SSE-KMS** | AWS using KMS | ✅ YES (AWS performs operations) | Level 2/3 |
+| **SSE-C** | AWS with your keys | ⚠️ NO (but you send keys with each request) | Level 2/3 |
+| **Client-Side + CloudHSM** | **YOU (before upload)** | ❌ **NO** (AWS never sees keys or unencrypted data) | **Level 3** ✅ |
+
+**Your mistake:** SSE-KMS = AWS KMS performs encryption/decryption operations
+- Even with customer-managed CMKs, **AWS KMS has operational access**
+- AWS manages the encryption/decryption process
+- If requirement says "AWS should NOT have access to keys" → SSE-KMS is **ELIMINATED**
+
+**The Only True "AWS Has NO Access" Options:**
+1. **Client-side encryption** (encrypt before upload) + **CloudHSM** (for FIPS 140-2 Level 3)
+2. **Client-side encryption** with customer-managed keys (non-AWS HSM)
+
+**Decision Tree:**
+```
+Question: "AWS should NOT have access to keys"
+└─> SSE-KMS? ❌ NO (AWS performs operations)
+└─> SSE-C? ❌ NO (you send keys with each request, no HSM storage)
+└─> Client-side + CloudHSM? ✅ YES (AWS never sees keys or data)
+
+Question: "FIPS 140-2 Level 3 required"
+└─> KMS? ❌ NO (Level 2/3 hybrid)
+└─> CloudHSM? ✅ YES (Level 3)
+```
+
+**Memory trick:**
+- **SSE-anything = AWS Sees Encryption** (AWS performs encryption)
+- **Client-side = Customer Fully Controls** (AWS gets pre-encrypted data)
+- **CloudHSM = Level 3 + NO AWS access**
+
+**Exam keywords:**
+- "AWS should NOT have access to keys" → **Client-side encryption** (NOT SSE-KMS!)
+- "FIPS 140-2 Level 3" → **CloudHSM** (NOT KMS)
+- "Audit trail via CloudTrail" → **SSE-KMS** (different use case!)
+
+---
+
+### 🚨 CRITICAL: VPC NACLs - Stateless Return Traffic (Ephemeral Ports)
+
+**You picked routing issue when NACL stateless was the correct answer.**
+
+**The STATEFUL vs STATELESS Trap:**
+
+| Security Control | Stateful? | Return Traffic Behavior |
+|-----------------|-----------|------------------------|
+| **Security Groups** | ✅ STATEFUL | Automatically allowed (no explicit inbound rule needed) |
+| **NACLs** | ❌ STATELESS | **Must explicitly allow return traffic on ephemeral ports** |
+
+**The Scenario That Traps You:**
+- Application makes outbound HTTPS request to external API (port 443 outbound)
+- API responds on **ephemeral port** (typically 1024-65535)
+- Security Group allows all outbound → return traffic automatically allowed ✅
+- **NACL inbound rules must explicitly allow ephemeral ports** (1024-65535)
+- If NACL doesn't allow ephemeral ports inbound → **connection timeout** ❌
+
+**Why Your Answer Was Wrong:**
+- "Private subnet route table doesn't have route to NAT Gateway"
+  - If this was the issue, requests wouldn't leave the subnet at all (immediate failure, not timeout)
+  - **Connection timeout** = requests ARE leaving, responses AREN'T coming back
+  - This is a **return traffic problem**, not a routing problem
+
+**The Error Pattern Recognition:**
+```
+Symptom: "Connection timeout when making outbound requests"
++ Security Group allows all outbound: ✅
++ NACL "allows all traffic": ⚠️ (vague - check details)
+= MOST LIKELY: NACL blocking return traffic on ephemeral ports
+```
+
+**NACL Rules Required for Outbound Internet Access:**
+```
+OUTBOUND Rules (Private Subnet → Internet):
+- Allow 0.0.0.0/0 on port 443 (HTTPS)
+- Allow 0.0.0.0/0 on port 80 (HTTP)
+
+INBOUND Rules (Internet → Private Subnet - RETURN TRAFFIC):
+- Allow 0.0.0.0/0 on ports 1024-65535 (ephemeral ports) ⚠️ CRITICAL
+```
+
+**Memory trick:**
+- **Security Groups = Stateful = Smart** (remembers connections, allows return)
+- **NACLs = Stateless = Strict** (must explicitly allow return traffic on ephemeral ports)
+- **Connection timeout + "SG allows outbound" = Check NACL inbound for ephemeral ports**
+
+**Exam keywords:**
+- "Connection timeout" + "Security Group allows all outbound" → **NACL blocking ephemeral ports**
+- "Stateless" → **NACLs** (must configure return traffic)
+- "Stateful" → **Security Groups** (automatic return traffic)
+
+---
+
+### 🚨 CRITICAL: Auto Scaling - Combining Policies (Scheduled + Target Tracking)
+
+**You picked Target Tracking only when the question had BOTH predictable and unpredictable patterns.**
+
+**The Policy Combination Pattern You're Missing:**
+
+| Traffic Pattern | Best Policy | Why |
+|----------------|------------|-----|
+| **Predictable time-based** (9 AM spike, 8 PM drop) | **Scheduled Actions** | Proactive, capacity ready BEFORE traffic arrives |
+| **Unpredictable load** (flash sales, random spikes) | **Target Tracking** | Reactive, responds to actual load |
+| **BOTH predictable AND unpredictable** | **Scheduled + Target Tracking** ⚠️ | Combines proactive and reactive scaling |
+
+**Your mistake:** You chose reactive-only approach (Target Tracking only)
+- Target Tracking is reactive → waits for CPU/load to spike
+- Instances take 2-5 minutes to launch and warm up
+- By the time instances are ready, users already experiencing slow performance (cold start problem)
+- **If traffic is predictable, why wait for the spike?**
+
+**The Winning Combination:**
+```
+Scheduled Actions (Proactive):
+- 8:00 AM: Scale up to 10 instances (traffic increase starts)
+- 12:00 PM: Scale up to 15 instances (peak traffic)
+- 8:00 PM: Scale down to 5 instances (traffic drops)
+
+Target Tracking (Reactive):
+- Target CPU: 70%
+- Handles unpredictable flash sales
+- Scales beyond scheduled capacity if needed
+```
+
+**Why You CAN and SHOULD Combine Policies:**
+- AWS Auto Scaling allows multiple policies on the same ASG
+- When multiple policies trigger, ASG chooses the one that provides **more capacity** (safer)
+- Scheduled actions provide **baseline capacity** for known patterns
+- Target Tracking provides **elastic capacity** for unknown spikes
+
+**Memory trick:**
+- **Predictable patterns = Scheduled** (proactive, avoid cold start)
+- **Unpredictable patterns = Target Tracking** (reactive, least overhead)
+- **Both patterns in question = Combine both policies** ⚠️
+
+**Exam keywords:**
+- "Predictable daily spikes at 9 AM" → **Scheduled actions**
+- "Unpredictable promotional campaigns" → **Target Tracking**
+- **BOTH mentioned in same question** → **Combine Scheduled + Target Tracking** ⚠️
+
+---
+
+### 🚨 S3 Access Control - Pre-signed URLs vs Access Points
+
+**You picked S3 Access Points when Pre-signed URLs was correct.**
+
+**The Access Method Decision Tree:**
+
+| Method | Use Case | Requires IAM Credentials? | Time-Based Expiration? |
+|--------|----------|-------------------------|----------------------|
+| **Pre-signed URLs** | **Temporary access to specific objects** | ❌ NO | ✅ YES (automatic) |
+| **IAM Users** | Long-term access, programmable | ✅ YES (access keys) | ❌ NO |
+| **IAM Roles** | AWS service access, temporary credentials | ✅ YES (STS tokens) | ⚠️ Manual (via STS) |
+| **S3 Access Points** | **Multi-tenant, long-term structured access** | ✅ YES | ❌ NO (policy-based) |
+
+**Your mistake:** S3 Access Points don't natively support time-based expiration
+- Access Points simplify access for **multiple teams/applications** with different permissions
+- Still require IAM credentials (access keys or roles)
+- Not designed for temporary, time-limited external vendor access
+- Operationally complex for simple "24-hour access" requirement
+
+**When to Use Pre-signed URLs:**
+- ✅ Temporary access (hours to days)
+- ✅ No AWS credentials for recipients
+- ✅ Specific objects (not entire bucket)
+- ✅ Simple to generate and share
+- ✅ Works with SSE-KMS encrypted objects
+
+**When to Use S3 Access Points:**
+- ✅ Multiple teams/apps accessing same bucket with different permissions
+- ✅ Long-term structured access patterns
+- ✅ Simplify bucket policy management (separate policies per access point)
+- ❌ NOT for temporary external vendor access
+
+**Pre-signed URL Generation Example:**
+```bash
+# Generate pre-signed URL valid for 24 hours (86400 seconds)
+aws s3 presign s3://bucket/object.pdf --expires-in 86400
+
+# Result: URL that grants temporary access without AWS credentials
+# URL automatically expires after 24 hours
+```
+
+**Decision Tree:**
+```
+Question: "Grant third-party vendors temporary access for 24 hours"
+├─> Create IAM users? ❌ NO (operational overhead, credential distribution)
+├─> S3 Access Points? ❌ NO (requires IAM credentials, no time-based expiration)
+├─> Make objects public? ❌ NO (security risk, exposed to everyone)
+└─> Pre-signed URLs? ✅ YES (temporary, no credentials, automatic expiration)
+```
+
+**Memory trick:**
+- **Pre-signed URLs = Temporary Sharing** (hours/days, no credentials)
+- **Access Points = Permanent Partitions** (multi-tenant, long-term access)
+- **IAM Users = Identity Management** (long-term, programmatic)
+
+**Exam keywords:**
+- "Temporary access" + "limited time" + "no AWS credentials" → **Pre-signed URLs**
+- "Third-party vendors" + "24 hours" → **Pre-signed URLs**
+- "Multi-tenant access" + "separate permissions per team" → **S3 Access Points**
+
+---
+
+## 📝 UPDATED Quick Self-Test (Nov 26 Edition)
+
+**Test yourself - answer WITHOUT looking:**
+
+**Original 10 (from previous quizzes):**
+1. Does ALB support static IP addresses? **Answer: NO**
+2. Which load balancer can target Lambda functions? **Answer: ALB (only ALB)**
+3. What's the retrieval time for S3 Standard-IA? **Answer: Milliseconds**
+4. What's the retrieval time for S3 Glacier Deep Archive? **Answer: 12-48 hours**
+5. Can you create a lifecycle rule to transition from Glacier to Standard? **Answer: NO (one-way only)**
+6. To minimize Spot interruptions, should you use single AZ or multiple AZs? **Answer: Multiple AZs**
+7. Which health check detects application crashes: EC2 or ELB? **Answer: ELB**
+8. Is cross-zone load balancing free for NLB? **Answer: NO (costs money)**
+9. Is cross-zone load balancing free for ALB? **Answer: YES (FREE)**
+10. Which RI type allows changing instance family? **Answer: Convertible RI**
+
+**New 10 (from Nov 25 quiz):**
+11. Which encryption type provides audit trail via CloudTrail? **Answer: SSE-KMS**
+12. For cross-account S3 access, use Security Groups or Bucket Policy? **Answer: Bucket Policy**
+13. For HDD-based large datasets, use i3 or d2? **Answer: d2**
+14. For Hadoop/Kafka, use Cluster or Partition placement? **Answer: Partition**
+15. ALB sticky sessions use which cookie by default? **Answer: Duration-based (AWSALB)**
+
+**NEWEST 5 (from Nov 26 quiz - DON'T MISS THESE AGAIN!):**
+16. For "rarely accessed" data (Days 31-90), transition to Standard-IA or Glacier? **Answer: Standard-IA**
+17. For "AWS should NOT have access to keys", use SSE-KMS or Client-side encryption? **Answer: Client-side encryption (+ CloudHSM for Level 3)**
+18. Are Security Groups stateful or stateless? **Answer: Stateful**
+19. Are NACLs stateful or stateless? **Answer: Stateless (must allow return traffic on ephemeral ports)**
+20. For predictable + unpredictable load patterns, use Target Tracking only or Scheduled + Target Tracking? **Answer: Scheduled + Target Tracking (COMBINE)**
+21. For temporary 24-hour vendor access, use Pre-signed URLs or Access Points? **Answer: Pre-signed URLs**
+
+**Scoring:**
+- 20-21/21 (95%+): Excellent, ready for Day 6
+- 18-19/21 (86-90%): Good, review missed items
+- 16-17/21 (76-85%): Passing but shaky, study weak areas
+- <16/21 (<76%): Re-read this entire document
+
+---
+
+## ⚡ FINAL "Never Miss Again" List (Updated Nov 26)
+
+**COMMIT THESE TO MEMORY:**
+
+### Load Balancing:
+1. **ALB has NO static IP** - If question needs static IP, ALB is eliminated
+2. **Only ALB can target Lambda** - No other LB type
+3. **NLB cross-zone costs money, ALB cross-zone is FREE**
+
+### S3 Storage & Lifecycle:
+4. **S3 Standard-IA retrieval = milliseconds** - NOT minutes or hours
+5. **"Rarely accessed" = Standard-IA** (might need quick access)
+6. **"Almost never accessed" = Glacier Flexible/Deep Archive**
+7. **Glacier Deep Archive = cheapest** - Always for "MOST cost-effective" long-term
+8. **Lifecycle transitions are one-way** - Can't automate Glacier → Standard
+
+### S3 Security & Access:
+9. **SSE-KMS = Audit trail (CloudTrail logs)**
+10. **"AWS should NOT have access to keys" = Client-side encryption** (NOT SSE-KMS!)
+11. **CloudHSM = FIPS 140-2 Level 3** (KMS = Level 2/3)
+12. **Pre-signed URLs = Temporary access without credentials**
+13. **S3 Access Points = Long-term multi-tenant access** (NOT temporary)
+14. **Bucket Policies for S3, Security Groups for EC2/VPC**
+
+### VPC & Networking:
+15. **Security Groups = Stateful** (return traffic automatic)
+16. **NACLs = Stateless** (must allow ephemeral ports 1024-65535 for return traffic)
+17. **Connection timeout + "SG allows outbound" = NACL blocking ephemeral ports**
+
+### Auto Scaling:
+18. **Predictable patterns = Scheduled actions** (proactive)
+19. **Unpredictable patterns = Target Tracking** (reactive, least overhead)
+20. **BOTH patterns = Combine Scheduled + Target Tracking**
+
+### EC2:
+21. **Spot diversification = multiple types + multiple AZs**
+22. **ELB health checks detect app crashes, EC2 checks don't**
+23. **Convertible RI can change instance family, Standard RI cannot**
+
+---
+
+## 🚀 Your Updated Action Plan (Nov 26)
+
+**Before Day 6:**
+1. Read the 5 NEW weak areas above (20 minutes)
+2. Take the 21-question self-test without looking (10 minutes)
+3. Target: 19/21 or better (90%+)
+
+**If you score below 19/21:**
+- Re-read the sections you missed
+- Don't move to Day 6 until you're solid
+
+**Critical for Exam:**
+- You're at 75% (exactly passing threshold)
+- One bad day = fail
+- These 5 new weak areas could cost you 25% of the exam
+- **MEMORIZE THEM**
+
+---
+
+**Now go study this before Day 6. You're on the edge - time to sharpen up.** ⚠️
