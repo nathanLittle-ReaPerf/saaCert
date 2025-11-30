@@ -82,7 +82,7 @@ The quick reference guides emphasize these memorizable facts:
 - **S3 storage classes**: Retrieval times, minimum storage durations, cost hierarchy
 - **EBS volume types**: IOPS and throughput limits for each type
 - **DR strategies**: RPO/RTO requirements mapped to Backup/Restore, Pilot Light, Warm Standby, Multi-Site
-- **Auto Scaling policies**: Target Tracking (least overhead) > Step > Scheduled
+- **Auto Scaling policies**: Combine Scheduled (predictable patterns) + Target Tracking (unpredictable spikes); use Target Tracking alone only for purely reactive workloads
 - **Database options**: RDS Multi-AZ (failover 60-120 sec), Read Replicas (async replication)
 
 ### Exam Strategy Keywords
