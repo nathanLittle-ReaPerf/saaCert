@@ -6,9 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a study materials repository for the AWS Certified Solutions Architect - Associate (SAA-C03) exam. The repository contains:
 - Study schedule with a 26-day preparation plan leading to exam date (December 17, 2025)
-- Quick reference guides organized by AWS service categories (Compute, Storage, Networking, Databases, Security/IAM, Monitoring/DR)
+- Quick reference guides organized by AWS service categories (Compute, Storage, Networking, Databases, Security/IAM, Monitoring/DR, Migration, Analytics)
 - Practice scenarios with detailed explanations mimicking real exam questions
-- Reference materials for AWS storage comparisons
+- Daily progress tracking documents with quiz results and weakness analysis
+- Flashcards for key concepts and patterns
+- Recovery schedules for addressing identified weaknesses
 
 ## Special Instructions
 
@@ -24,7 +26,7 @@ This is a study materials repository for the AWS Certified Solutions Architect -
 All files are markdown documents at the root level:
 
 - **SAA-C03-Study-Schedule.md**: 26-day study plan with daily topics, practice questions, and progress tracking
-- **Practice-Scenarios.md**: Exam-style scenario questions with detailed answer explanations and exam tips
+- **Practice-Scenarios*.md**: Exam-style scenario questions with detailed answer explanations and exam tips (includes Additional scenarios and Hard Mode)
 - **Quick-Reference-*.md**: Service-specific cheat sheets covering:
   - Compute: EC2, Lambda, ECS, EKS, Elastic Beanstalk, Batch
   - Storage: S3, EBS, EFS, FSx, Storage Gateway, Snow Family
@@ -32,6 +34,14 @@ All files are markdown documents at the root level:
   - Databases: RDS, Aurora, DynamoDB, ElastiCache, Redshift
   - Security-IAM: IAM, KMS, Secrets Manager, WAF, Shield, GuardDuty
   - Monitoring-DR-Other: CloudWatch, CloudTrail, Config, Backup strategies
+  - Migration: Snow Family, DataSync, Transfer Family, Migration Hub
+  - Analytics: Athena, QuickSight, Kinesis, EMR
+- **Day-X-*.md**: Daily progress tracking with quiz results, session summaries, and weakness analysis
+- **Week-1-Flashcards-Print-Template.md**: 42 flashcards covering all Week 1 topics for daily review
+- **Recovery-Schedule-*.md**: Emergency recovery plans when quiz scores fall below target
+- **Weak-Areas-*.md**: Ongoing tracking of identified weaknesses and improvement strategies
+- **Exam-Strategy-Tips.md**: Pattern recognition and keyword strategies for the exam
+- **Serverless-Architecture-Patterns.md**: Common serverless patterns and anti-patterns
 - **aws-storage-comparison.md**: Comparison table of AWS storage types with IOPS, throughput, and use cases
 
 ## Working with This Repository
@@ -84,6 +94,12 @@ The quick reference guides emphasize these memorizable facts:
 - **DR strategies**: RPO/RTO requirements mapped to Backup/Restore, Pilot Light, Warm Standby, Multi-Site
 - **Auto Scaling policies**: Combine Scheduled (predictable patterns) + Target Tracking (unpredictable spikes); use Target Tracking alone only for purely reactive workloads
 - **Database options**: RDS Multi-AZ (failover 60-120 sec), Read Replicas (async replication)
+- **EC2 Placement Groups**: Cluster (HPC/ML, low latency, single AZ), Partition (Kafka/Hadoop/Cassandra, large distributed systems), Spread (max 7 per AZ, critical instances)
+- **DynamoDB capacity**: On-Demand (unpredictable/new apps), Provisioned (predictable traffic)
+- **Load balancer cross-zone**: ALB = FREE, NLB/GWLB = COSTS MONEY
+- **VPC Endpoints**: Gateway (S3/DynamoDB, FREE), Interface (other services, costs money)
+- **Data migration**: Large data (>10 TB) + tight deadline + slow internet = Snowball
+- **Route 53 routing**: Geolocation (data residency by location), Latency (performance/fastest region)
 
 ### Exam Strategy Keywords
 
@@ -116,18 +132,46 @@ When adding or updating study materials:
 - Include practice question counts for each day
 - Preserve progress tracking checkboxes
 
-## Git Workflow
+## Progress Tracking Workflow
 
-This repository is not currently a git repository. If version control is needed:
+### Daily Study Sessions
 
+When conducting daily study sessions:
+1. Create Day-X prefix documents for the current day's work
+2. Track quiz results with score breakdowns by topic
+3. Document weaknesses immediately after identifying them
+4. Create targeted drill quizzes for weak areas (10 questions, 100% accuracy target)
+5. Update weakness tracking documents with progress
+
+### Recovery Protocol
+
+When quiz scores fall below 80% target:
+1. Create comprehensive failure analysis document
+2. Generate recovery schedule with daily targets
+3. Drill weak topics until achieving 100% on targeted quizzes
+4. Retake comprehensive quiz to validate improvement
+5. Only proceed to next topic after hitting 80%+ target
+
+### Git Workflow
+
+This repository uses feature branches for daily progress:
 ```bash
-git init
-git add .
-git commit -m "Initial commit: AWS SAA-C03 study materials"
+# Create branch for each day's work
+git checkout -b dayX
+
+# Commit with comprehensive messages including quiz scores
+git commit -m "Day X: [Topic] - [Score] with [specific achievements]"
+
+# Push and merge to master when day is complete
+git push -u origin dayX
+git checkout master
+git merge dayX
+git push origin master
+git branch -d dayX
 ```
 
-When updating materials as you study, use descriptive commit messages:
-```bash
-git commit -m "Update Week 1 Day 3: Complete S3 storage classes practice"
-git commit -m "Add 5 new practice scenarios for serverless architecture"
-```
+Use descriptive commit messages that include:
+- Day number and topic
+- Quiz scores and performance metrics
+- Key weaknesses addressed
+- Materials created
