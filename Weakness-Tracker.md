@@ -8,36 +8,62 @@
 
 ## 🎯 Current Active Weaknesses (Need Attention)
 
-| Topic | Current Status | Last Quiz Score | Target | Priority | Next Action |
-|-------|---------------|----------------|--------|----------|-------------|
-| **DynamoDB GSI vs LSI** | 🔴 CRITICAL | 0% (0/2) | 90% | URGENT | Understand: GSI = different partition key, LSI = same partition key |
-| **Athena vs Redshift (Query Frequency)** | 🟡 Improving | 67% | 90% | MEDIUM | Infrequent (weekly/monthly) = Athena, Frequent (daily) = Redshift |
-| **Reading Comprehension** | 🟡 Watch | 85% | 95% | MEDIUM | Catch engine types (MySQL vs PostgreSQL), deadline constraints |
+### 🔴 CRITICAL Priority (0-50% accuracy - Never or rarely correct)
+
+| Topic | Accuracy | Questions | Status | Next Action |
+|-------|----------|-----------|--------|-------------|
+| **DynamoDB GSI vs LSI** | 0% | 0/2 correct | 🔴 Never mastered | URGENT: Drill partition key differences (GSI = different, LSI = same) |
+
+### 🟠 HIGH Priority (51-75% accuracy - Inconsistent, need drilling)
+
+| Topic | Accuracy | Questions | Status | Next Action |
+|-------|----------|-----------|--------|-------------|
+| **Athena vs Redshift (Query Frequency)** | 67% | 2/3 correct | 🟡 Inconsistent | Pattern: Infrequent (weekly/monthly) = Athena, Frequent (daily) = Redshift |
+| **Aurora Serverless v2 Scaling** | 50% | 1/2 correct | 🟡 Needs verification | Remember: Scales in SECONDS (not instant), brief latency during scaling |
+| **Migration Timeline Decisions** | 50% | 1/2 correct | 🟡 Needs verification | Pattern: Tight deadline = simple now, optimize later (phased approach) |
+| **Overengineering (One vs Two Services)** | 67% | 2/3 correct | 🟡 Improving | Principle: When one service meets all needs, don't add a second |
+
+### 🟡 MEDIUM Priority (76-89% accuracy - Mostly correct, polish needed)
+
+| Topic | Accuracy | Questions | Status | Next Action |
+|-------|----------|-----------|--------|-------------|
+| **Reading Comprehension (Engine Types)** | 50% | 1/2 correct | 🟡 Watch for traps | Always check: MySQL vs PostgreSQL engine-specific features |
+| **Session Storage (Redis vs DynamoDB)** | 50% | 1/2 correct | 🟡 Needs verification | Pattern: Ephemeral data (sessions) = Redis, Persistent data = DynamoDB |
 
 ---
 
-## ✅ Resolved Weaknesses (Mastered - 90%+ Accuracy)
+## ✅ Resolved Weaknesses (Mastered - Consistent 90%+ Accuracy)
 
-| Topic | Resolution Date | Final Score | Days to Master |
-|-------|----------------|-------------|----------------|
-| **S3 Storage Classes ("very rarely" = Glacier)** | Dec 9, 2025 | 100% | 12 days |
-| **Aurora Multi-Master (RTO <30 sec)** | Dec 9, 2025 | 100% | 1 day |
-| **Aurora Serverless v2 (Multi-tenant SaaS)** | Dec 9, 2025 | 100% | 1 day |
-| **RDS Encryption Migration (Phased Approach)** | Dec 9, 2025 | 100% | 1 day |
-| **DynamoDB Consistency (Eventually = 50%)** | Dec 9, 2025 | 100% | 1 day |
-| **Session Storage (Redis vs DynamoDB)** | Dec 9, 2025 | 100% | 1 day |
-| **Overengineering (One vs Two Services)** | Dec 9, 2025 | 100% | 1 day |
-| **DynamoDB Capacity Modes (Known vs Unknown)** | Dec 9, 2025 | 100% | 1 day |
-| **VPC NACLs (Stateless)** | Dec 8, 2025 | 100% | 3 days |
-| **Auto Scaling Policy Combinations** | Dec 8, 2025 | 100% | 5 days |
-| **EC2 Placement Groups** | Dec 8, 2025 | 100% | 5 days |
-| **VPC Endpoints (Gateway vs Interface)** | Dec 8, 2025 | 100% | 5 days |
-| **RDS Multi-AZ vs Read Replicas** | Dec 8, 2025 | 100% | 1 day |
-| **Aurora Serverless Use Cases** | Dec 8, 2025 | 100% | 1 day |
-| **RDS Proxy (Lambda + RDS)** | Dec 8, 2025 | 100% | 1 day |
-| **Aurora Backtrack (MySQL-only)** | Dec 8, 2025 | 100% | 1 day |
-| **DynamoDB Streams** | Dec 8, 2025 | 100% | 1 day |
-| **QLDB (Immutable Ledger)** | Dec 8, 2025 | 100% | 1 day |
+**Criteria for "Resolved":** Must get correct on 3+ questions across multiple quizzes, OR 100% across 2+ separate quiz sessions
+
+| Topic | Resolution Date | Final Score | Days to Master | Verification |
+|-------|----------------|-------------|----------------|--------------|
+| **S3 Storage Classes ("very rarely" = Glacier)** | Dec 9, 2025 | 100% | 12 days | ✅ 3/3 correct (Q7 afternoon) |
+| **Aurora Multi-Master (RTO <30 sec)** | Dec 9, 2025 | 100% | 1 day | ✅ 2/2 correct (Q4 afternoon, Q12 afternoon) |
+| **DynamoDB Consistency (Eventually = 50%)** | Dec 9, 2025 | 100% | 1 day | ✅ 3/3 correct (Q6 morning, Q6 afternoon, Q14 afternoon) |
+| **DynamoDB Capacity Modes (Known vs Unknown)** | Dec 9, 2025 | 100% | 1 day | ✅ 2/2 correct (Q13 afternoon, Q19 afternoon) |
+| **DynamoDB Extreme Write Throughput (100K+/sec)** | Dec 9, 2025 | 100% | 1 day | ✅ 3/3 correct (Q1, Q3, Q11 afternoon) |
+| **Redshift for Frequent Analytics** | Dec 9, 2025 | 100% | 1 day | ✅ 2/2 correct (Q9 afternoon, Q14 morning) |
+| **RDS Proxy (Lambda + RDS)** | Dec 9, 2025 | 100% | 2 days | ✅ 3/3 correct (Day 8, Q19 morning, Q20 afternoon) |
+| **QLDB (Immutable Ledger)** | Dec 9, 2025 | 100% | 2 days | ✅ 2/2 correct (Q17 morning, Q17 afternoon) |
+| **VPC NACLs (Stateless)** | Dec 8, 2025 | 100% | 3 days | ✅ Multiple quizzes |
+| **Auto Scaling Policy Combinations** | Dec 8, 2025 | 100% | 5 days | ✅ Multiple quizzes |
+| **EC2 Placement Groups** | Dec 8, 2025 | 100% | 5 days | ✅ Multiple quizzes |
+| **VPC Endpoints (Gateway vs Interface)** | Dec 8, 2025 | 100% | 5 days | ✅ Multiple quizzes |
+| **RDS Multi-AZ vs Read Replicas** | Dec 8, 2025 | 100% | 1 day | ✅ Multiple quizzes |
+| **Aurora Backtrack (MySQL-only)** | Dec 8, 2025 | 100% | 1 day | ✅ Multiple quizzes |
+| **DynamoDB Streams** | Dec 8, 2025 | 100% | 1 day | ✅ Multiple quizzes |
+
+### ⏳ Under Observation (Need More Data - Got Right Once or Twice)
+
+These were marked "resolved" prematurely. Need verification across more quizzes:
+
+| Topic | Current Score | Status | Verification Needed |
+|-------|--------------|--------|---------------------|
+| **Aurora Serverless v2 (Multi-tenant SaaS)** | 100% (1/1) | ⏳ Need more questions | Got right Q15 afternoon, need 2+ more |
+| **RDS Encryption Migration (Phased)** | 100% (1/1) | ⏳ Need more questions | Got right Q6 afternoon, need 2+ more |
+| **Session Storage (Redis for ephemeral)** | 50% (1/2) | ⏳ Moved to Active | Wrong Q15 morning, right Q5 afternoon - INCONSISTENT |
+| **Overengineering (One vs Two)** | 67% (2/3) | ⏳ Moved to Active | Wrong Q12 morning, right Q7/Q18 afternoon - NEEDS DRILLING |
 
 ---
 
