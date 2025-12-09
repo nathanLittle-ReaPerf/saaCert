@@ -1,7 +1,7 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** December 8, 2025
-**Exam Date:** January 5, 2026 (28 days remaining)
+**Last Updated:** December 9, 2025, 12:30 PM
+**Exam Date:** January 5, 2026 (27 days remaining)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
 
 ---
@@ -10,10 +10,9 @@
 
 | Topic | Current Status | Last Quiz Score | Target | Priority | Next Action |
 |-------|---------------|----------------|--------|----------|-------------|
-| **S3 Storage Classes** | 🟡 Improving | 75% | 90% | HIGH | Drill "rarely" vs "very rarely" patterns |
-| **Aurora Multi-Master** | 🔴 Need Review | 0% | 80% | HIGH | Study fast failover scenarios (<30 sec RTO) |
-| **RDS Encryption Migration** | 🟡 Improving | 67% | 80% | MEDIUM | Review snapshot/restore vs DMS decision tree |
-| **DynamoDB Consistency Models** | 🟡 Improving | 67% | 80% | MEDIUM | Study eventually consistent = 50% cost savings |
+| **DynamoDB GSI vs LSI** | 🔴 CRITICAL | 0% (0/2) | 90% | URGENT | Understand: GSI = different partition key, LSI = same partition key |
+| **Athena vs Redshift (Query Frequency)** | 🟡 Improving | 67% | 90% | MEDIUM | Infrequent (weekly/monthly) = Athena, Frequent (daily) = Redshift |
+| **Reading Comprehension** | 🟡 Watch | 85% | 95% | MEDIUM | Catch engine types (MySQL vs PostgreSQL), deadline constraints |
 
 ---
 
@@ -21,6 +20,14 @@
 
 | Topic | Resolution Date | Final Score | Days to Master |
 |-------|----------------|-------------|----------------|
+| **S3 Storage Classes ("very rarely" = Glacier)** | Dec 9, 2025 | 100% | 12 days |
+| **Aurora Multi-Master (RTO <30 sec)** | Dec 9, 2025 | 100% | 1 day |
+| **Aurora Serverless v2 (Multi-tenant SaaS)** | Dec 9, 2025 | 100% | 1 day |
+| **RDS Encryption Migration (Phased Approach)** | Dec 9, 2025 | 100% | 1 day |
+| **DynamoDB Consistency (Eventually = 50%)** | Dec 9, 2025 | 100% | 1 day |
+| **Session Storage (Redis vs DynamoDB)** | Dec 9, 2025 | 100% | 1 day |
+| **Overengineering (One vs Two Services)** | Dec 9, 2025 | 100% | 1 day |
+| **DynamoDB Capacity Modes (Known vs Unknown)** | Dec 9, 2025 | 100% | 1 day |
 | **VPC NACLs (Stateless)** | Dec 8, 2025 | 100% | 3 days |
 | **Auto Scaling Policy Combinations** | Dec 8, 2025 | 100% | 5 days |
 | **EC2 Placement Groups** | Dec 8, 2025 | 100% | 5 days |
@@ -28,76 +35,128 @@
 | **RDS Multi-AZ vs Read Replicas** | Dec 8, 2025 | 100% | 1 day |
 | **Aurora Serverless Use Cases** | Dec 8, 2025 | 100% | 1 day |
 | **RDS Proxy (Lambda + RDS)** | Dec 8, 2025 | 100% | 1 day |
-| **Aurora Backtrack** | Dec 8, 2025 | 100% | 1 day |
+| **Aurora Backtrack (MySQL-only)** | Dec 8, 2025 | 100% | 1 day |
 | **DynamoDB Streams** | Dec 8, 2025 | 100% | 1 day |
 | **QLDB (Immutable Ledger)** | Dec 8, 2025 | 100% | 1 day |
 
 ---
 
-## 📊 Weakness #1: S3 Storage Classes (ACTIVE - HIGH PRIORITY)
+## 📊 Weakness #1: DynamoDB GSI vs LSI (CRITICAL - URGENT PRIORITY)
 
 ### Current Performance
-- **Accuracy:** 75% (3/4 questions correct on recent quizzes)
-- **First Identified:** Nov 27 (Day 7 comprehensive quiz - 4 questions missed)
-- **Progress:** 40% → 75% (improved but not mastered)
-- **Status:** 🟡 Improving, still need polish
+- **Accuracy:** 0% (0/2 questions missed on Dec 9)
+- **First Identified:** Dec 9 (Mixed weakness + DynamoDB quiz)
+- **Progress:** New weakness (never seen before)
+- **Status:** 🔴 CRITICAL - Fundamental misunderstanding
 
 ### The Problem Pattern
-You keep defaulting to **Glacier** when you see "rarely accessed" WITHOUT checking the retrieval time requirement.
+You confused **LSI (Local Secondary Index)** with **GSI (Global Secondary Index)** and don't understand when to use each.
 
-### The Decision Tree You MUST Memorize
+### The CRITICAL Difference You MUST Memorize
+
+| Feature | **LSI (Local Secondary Index)** | **GSI (Global Secondary Index)** |
+|---------|-------------------------------|--------------------------------|
+| **Partition Key** | **SAME as base table** | **DIFFERENT from base table** |
+| **Use Case** | Alternative sort key on SAME partition | **Query by DIFFERENT attribute** |
+| **Cross-Partition Query** | ❌ NO (tied to partition key) | ✅ YES (new partition key) |
+| **Creation** | ONLY at table creation | Anytime (even after table exists) |
+| **Limit** | Max 5 per table | Max 20 per table |
+
+### The Questions You Missed (Dec 9)
+
+**Question 4 - Product Catalog:**
+- **Access Patterns:** Look up by product_id + Query by category + Query by brand
+- **Your Answer:** Partition key: product_id, Sort key: category, LSI on brand ❌
+- **Correct Answer:** Partition key: product_id, GSI on category, GSI on brand ✅
+- **Why Wrong:**
+  - LSI on brand still requires knowing product_id first
+  - Can't query "all Nike products" without product_ids
+  - Need GSI (different partition key) to query by brand across all products
+
+**Question 10 - Player Inventory:**
+- **Access Patterns:** Look up player inventory + Find all players with specific item
+- **Your Answer:** Partition key: player_id, LSI on item_name ❌
+- **Correct Answer:** Partition key: player_id, Sort key: item_id, GSI on item_name ✅
+- **Why Wrong:**
+  - Same mistake! LSI can't query "all players with Legendary Sword"
+  - LSI shares partition key (player_id), can't do cross-partition queries
+  - Need GSI with item_name as partition key
+
+### The Decision Tree
 
 ```
-Question about S3 storage?
+Need to query by different attribute than partition key?
 │
-├─ Step 1: How often accessed?
-│  ├─ FREQUENTLY (daily/weekly) → S3 Standard or Intelligent-Tiering
-│  ├─ INFREQUENTLY (monthly) → Check retrieval time ↓
-│  └─ RARELY (1-2 times/year) → Archive pattern ↓
+├─ YES (e.g., query by "category" when partition key is "product_id")
+│  └─ Use GSI (Global Secondary Index)
+│     - GSI can have DIFFERENT partition key
+│     - Enables cross-partition queries
+│     - Example: Query all products in "Electronics" category
 │
-├─ Step 2: What's the retrieval time requirement?
-│  ├─ IMMEDIATE (milliseconds, "within seconds") → Standard-IA or Glacier Instant
-│  ├─ MINUTES (1-5 min acceptable) → Glacier Flexible (Expedited)
-│  ├─ HOURS (3-12 hours acceptable) → Glacier Flexible or Deep Archive
-│  └─ NO TIME MENTIONED → Default to Standard-IA (safe choice)
-│
-└─ Step 3: Cost requirement?
-   ├─ "MOST cost-effective" → Pick cheapest that meets above
-   └─ Check minimum storage duration (IA=30d, Glacier=90d, Deep=180d)
+└─ NO (just need alternative sort key on SAME partition)
+   └─ Use LSI (Local Secondary Index)
+      - LSI shares SAME partition key as base table
+      - Only changes sort key
+      - Rare use case (most scenarios need GSI)
 ```
 
-### Critical Keywords to Watch For
+### Real-World Examples
 
-| Keyword in Question | What It Actually Means | Correct Answer |
-|-------------------|----------------------|----------------|
-| "**immediately**" or "**within seconds**" | 0-second retrieval (milliseconds) | Standard-IA, NOT Glacier |
-| "**rarely accessed**" (alone) | Monthly access | Standard-IA (if immediate needed) |
-| "**very rarely**" or "**1-2 times/year**" | Archive pattern | Glacier family |
-| "**can wait 5 minutes**" | Glacier Expedited works | Glacier Flexible |
-| "**can wait 12 hours**" | Slowest archive acceptable | Glacier Deep Archive |
-| "**unknown access patterns**" | Can't predict when/how often | Intelligent-Tiering |
+**When to use GSI:**
+- Base table: product_id → Want to query by category → GSI with category as partition key ✅
+- Base table: user_id → Want to query by email → GSI with email as partition key ✅
+- Base table: order_id → Want to query by status → GSI with status as partition key ✅
 
-### Recent Mistakes
+**When to use LSI (rare):**
+- Base table: user_id (partition), timestamp (sort) → Want alternative sort by score → LSI with score as sort key
+- You're ALREADY querying by partition key, just need different sort order
 
-**Day 8, Question 10 (Dec 8):**
-- **Scenario:** Media files accessed frequently for 30 days, then "very rarely" (1-2 times/year), can wait 5 minutes
-- **Your Answer:** Standard-IA ❌
-- **Correct Answer:** Glacier Flexible Retrieval
-- **Why Wrong:** You saw "rarely" and went to Standard-IA without noticing "VERY rarely (1-2 times/year)" = archive pattern
+### Mnemonic to Remember
 
-**The Fix:** Check THREE things before answering:
-1. Access frequency (infrequent vs rarely)
-2. Retrieval time requirement
-3. Cost optimization need
+**GSI = Global = GO anywhere** (different partition key, query across all items)
+**LSI = Local = LOCKED to partition** (same partition key, can't escape)
 
 ### Next Steps
-- [ ] Re-read S3 storage class decision tree (5 min)
-- [ ] Take 10-question drill on ONLY S3 storage classes
+- [ ] Memorize: GSI = different partition key, LSI = same partition key
+- [ ] Take 10-question drill on ONLY DynamoDB index design
 - [ ] Target: 9/10 (90%)
+- [ ] Review every GSI/LSI question in practice materials
 
 ---
 
-## 📊 Weakness #2: Aurora Multi-Master (ACTIVE - HIGH PRIORITY)
+## 📈 December 9, 2025 Progress Summary
+
+### Morning Session: RDS/Aurora Review Quiz
+- **Score:** 13/20 (65%) ❌ Below 80% target
+- **New weaknesses identified:** Aurora Serverless scaling, Athena vs Redshift, overengineering
+- **Status:** Struggling with Week 2 Day 1 content
+
+### Afternoon Session: Mixed Weakness + DynamoDB Quiz
+- **Score:** 17/20 (85%) ✅ CRUSHED IT!
+- **Improvement:** +20% from morning session
+- **Mastered today (7 topics):**
+  - S3 Storage Classes (40% → 100% over 12 days)
+  - Aurora Multi-Master (0% → 100% in 1 day)
+  - Aurora Serverless v2 for SaaS (0% → 100% in 1 day)
+  - RDS Encryption phased migration (67% → 100% in 1 day)
+  - DynamoDB eventually consistent = 50% (67% → 100% in 1 day)
+  - Session storage: Redis vs DynamoDB (0% → 100% in 1 day)
+  - DynamoDB capacity modes: Known vs Unknown patterns (0% → 100% in 1 day)
+
+### Critical New Weakness
+- **DynamoDB GSI vs LSI:** 0% accuracy (missed 2/2 questions)
+  - Fundamental misunderstanding of partition key differences
+  - URGENT priority for tomorrow's DynamoDB study
+
+### Key Learnings
+- ✅ Learning from mistakes works (65% → 85% same day)
+- ✅ Stopped overengineering (one service vs two)
+- ✅ Mastered phased approach patterns (meet deadline, optimize later)
+- ❌ Need to drill GSI vs LSI before deep DynamoDB dive
+
+---
+
+## 📊 Weakness #2 (ARCHIVED): Aurora Multi-Master
 
 ### Current Performance
 - **Accuracy:** 0% (1/1 question missed on Day 8)
@@ -359,5 +418,24 @@ Question about reducing DynamoDB read costs?
 
 ---
 
-**Last Updated:** December 8, 2025, 9:45 AM
-**Next Review:** December 9, 2025 (after DynamoDB quiz)
+**Last Updated:** December 9, 2025, 12:30 PM
+**Next Review:** December 10, 2025 (after DynamoDB deep dive)
+
+---
+
+## 🎯 Tomorrow's Focus (Dec 10)
+
+1. **URGENT:** 30-min drill on DynamoDB GSI vs LSI
+   - 10-question targeted quiz
+   - Memorize: GSI = different partition key, LSI = same partition key
+   - Target: 9/10 (90%)
+
+2. **DynamoDB Deep Dive** (Week 2 Day 2 content)
+   - Partition keys, sort keys, design patterns
+   - Capacity modes, pricing, optimization
+   - Build on today's strong foundation (85%)
+
+3. **Maintain Momentum**
+   - You went 65% → 85% in one day
+   - Keep this energy for DynamoDB
+   - Target: 16+/20 (80%+) on DynamoDB quiz
