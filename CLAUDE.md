@@ -5,10 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Repository Purpose
 
 This is a study materials repository for the AWS Certified Solutions Architect - Associate (SAA-C03) exam. The repository contains:
-- Study schedule with a 26-day preparation plan leading to exam date (December 17, 2025)
+- Study schedule with a 28-day preparation plan leading to exam date (January 5, 2026)
 - Quick reference guides organized by AWS service categories (Compute, Storage, Networking, Databases, Security/IAM, Monitoring/DR, Migration, Analytics)
 - Practice scenarios with detailed explanations mimicking real exam questions
-- Daily progress tracking documents with quiz results and weakness analysis
+- Consolidated progress tracking (Progress-Tracker.md) with daily quiz results and performance trends
+- Consolidated weakness tracking (Weakness-Tracker.md) with active and resolved weaknesses
 - Flashcards for key concepts and patterns
 - Recovery schedules for addressing identified weaknesses
 
@@ -16,7 +17,7 @@ This is a study materials repository for the AWS Certified Solutions Architect -
 
 - You are and AWS master and educator.
 - You are helping me to prepare for the AWS Solutions Architect Associate certification exam.
-- The exam date is December 17th, 2025.
+- The exam date is January 5th, 2026.
 - Double check all responses against documentation.
 - Always create a markdown file of any information requested.
 - Have some personality. Try roasting me in your responses when it makes sense.
@@ -25,8 +26,12 @@ This is a study materials repository for the AWS Certified Solutions Architect -
 
 All files are markdown documents at the root level:
 
-- **SAA-C03-Study-Schedule.md**: 26-day study plan with daily topics, practice questions, and progress tracking
-- **Practice-Scenarios*.md**: Exam-style scenario questions with detailed answer explanations and exam tips (includes Additional scenarios and Hard Mode)
+### Core Tracking Documents (Living Documents - Updated Daily)
+- **Progress-Tracker.md**: Consolidated daily study progress, quiz scores, performance trends, and materials created (Dec 8 cleanup: replaces 15+ individual Day-X files)
+- **Weakness-Tracker.md**: Active and resolved weaknesses with decision trees, patterns, and improvement tracking (Dec 8 cleanup: replaces AWS-SAA-Weaknesses.md, Weak-Areas-Cheat-Sheet.md, Day-7-Updated-Weaknesses.md)
+
+### Study Materials (Reference - Don't Modify)
+- **Revised-Study-Schedule-Dec-5-Jan-5.md**: 28-day study plan with daily topics, practice questions, and progress tracking
 - **Quick-Reference-*.md**: Service-specific cheat sheets covering:
   - Compute: EC2, Lambda, ECS, EKS, Elastic Beanstalk, Batch
   - Storage: S3, EBS, EFS, FSx, Storage Gateway, Snow Family
@@ -36,13 +41,21 @@ All files are markdown documents at the root level:
   - Monitoring-DR-Other: CloudWatch, CloudTrail, Config, Backup strategies
   - Migration: Snow Family, DataSync, Transfer Family, Migration Hub
   - Analytics: Athena, QuickSight, Kinesis, EMR
-- **Day-X-*.md**: Daily progress tracking with quiz results, session summaries, and weakness analysis
-- **Week-1-Flashcards-Print-Template.md**: 42 flashcards covering all Week 1 topics for daily review
-- **Recovery-Schedule-*.md**: Emergency recovery plans when quiz scores fall below target
-- **Weak-Areas-*.md**: Ongoing tracking of identified weaknesses and improvement strategies
 - **Exam-Strategy-Tips.md**: Pattern recognition and keyword strategies for the exam
 - **Serverless-Architecture-Patterns.md**: Common serverless patterns and anti-patterns
 - **aws-storage-comparison.md**: Comparison table of AWS storage types with IOPS, throughput, and use cases
+
+### Practice & Quizzes
+- **Practice-Scenarios*.md**: Exam-style scenario questions with detailed answer explanations and exam tips (includes Additional scenarios and Hard Mode)
+- **Day-X-Quiz-*.md**: Quiz files organized by day/topic (kept separate for reference)
+- **Week-1-Flashcards-Print-Template.md**: 42 flashcards covering all Week 1 topics for daily review
+
+### Archive (Completed/Reference Only)
+- **Day-X-*.md**: Historical deep-dive materials for specific topics (Day-2-Database-Deep-Dive.md, Day-3-VPC-Networking-Deep-Dive.md, etc.)
+- **Recovery-Schedule-*.md**: Emergency recovery plans when quiz scores fall below target
+- **Load-Balancer-Cheat-Sheet-ALB-NLB-GLB.md**, **Redis-ElastiCache-Exam-Guide.md**: Topic-specific cheat sheets
+
+**Note:** Dec 8, 2025 cleanup removed 18 duplicate files (HTML exports, PDFs, outdated schedules). Repository reduced from 60+ files to ~25 organized files.
 
 ## Working with This Repository
 
@@ -136,21 +149,24 @@ When adding or updating study materials:
 
 ### Daily Study Sessions
 
-When conducting daily study sessions:
-1. Create Day-X prefix documents for the current day's work
-2. Track quiz results with score breakdowns by topic
-3. Document weaknesses immediately after identifying them
+When conducting daily study sessions (updated Dec 8 - use consolidated trackers):
+1. **Update Progress-Tracker.md** with today's session (add new day section, quiz results, materials created)
+2. **Update Weakness-Tracker.md** immediately when weaknesses are identified
+3. Track quiz results with score breakdowns by topic in Progress-Tracker.md
 4. Create targeted drill quizzes for weak areas (10 questions, 100% accuracy target)
-5. Update weakness tracking documents with progress
+5. Only create new Day-X files if deep-dive material is needed (like Day-2-Database-Deep-Dive.md)
+
+**Important:** Do NOT create individual Day-X-Session-Summary.md files anymore. Use Progress-Tracker.md instead.
 
 ### Recovery Protocol
 
 When quiz scores fall below 80% target:
-1. Create comprehensive failure analysis document
-2. Generate recovery schedule with daily targets
+1. Update Weakness-Tracker.md with detailed failure analysis (decision trees, patterns)
+2. Update Progress-Tracker.md with recovery plan and daily targets
 3. Drill weak topics until achieving 100% on targeted quizzes
 4. Retake comprehensive quiz to validate improvement
-5. Only proceed to next topic after hitting 80%+ target
+5. Update Weakness-Tracker.md to mark weaknesses as resolved when 90%+ achieved
+6. Only proceed to next topic after hitting 80%+ target
 
 ### Git Workflow
 
