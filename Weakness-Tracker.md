@@ -1,7 +1,7 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** December 10, 2025, 10:45 AM
-**Exam Date:** January 5, 2026 (26 days remaining)
+**Last Updated:** December 11, 2025, 9:00 AM
+**Exam Date:** January 5, 2026 (25 days remaining)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
 
 ---
@@ -12,26 +12,24 @@
 
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
+| **DynamoDB Query vs Scan** | 40% | 2/5 correct | 🔴 CRITICAL FAILURE | URGENT: When to use Scan (infrequent queries, non-key attributes) vs when to build GSI |
+| **Session Storage (Ephemeral vs Persistent)** | 20% | 1/5 correct | 🔴 ABSOLUTE DISASTER | URGENT: Duration-based decisions (minutes=Redis, days=DynamoDB, "must survive"=durable) |
 | **DynamoDB GSI vs LSI** | 0% | 0/2 correct | 🔴 Never mastered | URGENT: Drill partition key differences (GSI = different, LSI = same) |
-| **DynamoDB Partition Key Design** | 25% | 1/4 correct | 🔴 Fundamental gap | URGENT: Hash distribution, hot partitions, composite keys |
 
 ### 🟠 HIGH Priority (51-75% accuracy - Inconsistent, need drilling)
 
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
-| **Athena vs Redshift (Query Frequency)** | 67% | 2/3 correct | 🟡 Inconsistent | Pattern: Infrequent (weekly/monthly) = Athena, Frequent (daily) = Redshift |
-| **DynamoDB Query vs Scan** | 67% | 2/3 correct | 🟡 Improving | Pattern: Non-key attributes across table = Scan (rare but necessary) |
 | **Aurora Serverless v2 Scaling** | 50% | 1/2 correct | 🟡 Needs verification | Remember: Scales in SECONDS (not instant), brief latency during scaling |
 | **Migration Timeline Decisions** | 50% | 1/2 correct | 🟡 Needs verification | Pattern: Tight deadline = simple now, optimize later (phased approach) |
 | **Overengineering (One vs Two Services)** | 67% | 2/3 correct | 🟡 Improving | Principle: When one service meets all needs, don't add a second |
+| **Reading Comprehension (Engine Types)** | 50% | 1/2 correct | 🟡 Watch for traps | Always check: MySQL vs PostgreSQL engine-specific features |
 
 ### 🟡 MEDIUM Priority (76-89% accuracy - Mostly correct, polish needed)
 
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
 | **DynamoDB Operations (GetItem/Query/BatchGetItem)** | 80% | 8/10 correct | ✅ MASSIVE improvement | Dec 10 drill: 0% → 80% in one session! Polish to 90%+ |
-| **Reading Comprehension (Engine Types)** | 50% | 1/2 correct | 🟡 Watch for traps | Always check: MySQL vs PostgreSQL engine-specific features |
-| **Session Storage (Redis vs DynamoDB)** | 50% | 1/2 correct | 🟡 Needs verification | Pattern: Ephemeral data (sessions) = Redis, Persistent data = DynamoDB |
 
 ---
 
@@ -41,6 +39,8 @@
 
 | Topic | Resolution Date | Final Score | Days to Master | Verification |
 |-------|----------------|-------------|----------------|--------------|
+| **Athena vs Redshift (Query Frequency)** | Dec 11, 2025 | 100% | 2 days | ✅ 5/5 correct (Final Boss Q1-5) |
+| **DynamoDB Partition Key Design** | Dec 10, 2025 | 100% | 1 day | ✅ 2/2 correct (Comprehensive quiz Q3-4) |
 | **S3 Storage Classes ("very rarely" = Glacier)** | Dec 9, 2025 | 100% | 12 days | ✅ 3/3 correct (Q7 afternoon) |
 | **Aurora Multi-Master (RTO <30 sec)** | Dec 9, 2025 | 100% | 1 day | ✅ 2/2 correct (Q4 afternoon, Q12 afternoon) |
 | **DynamoDB Consistency (Eventually = 50%)** | Dec 9, 2025 | 100% | 1 day | ✅ 3/3 correct (Q6 morning, Q6 afternoon, Q14 afternoon) |
@@ -150,6 +150,83 @@ Need to query by different attribute than partition key?
 - [ ] Take 10-question drill on ONLY DynamoDB index design
 - [ ] Target: 9/10 (90%)
 - [ ] Review every GSI/LSI question in practice materials
+
+---
+
+## 📈 December 11, 2025 Progress Summary - CATASTROPHIC FAILURE
+
+### Final Boss Drill (15 questions)
+- **Score:** 8/15 (53.3%) ❌ **CATASTROPHIC FAILURE**
+- **Required:** 13/15 (87%)
+- **Deficit:** -5 questions (-33.7 percentage points)
+
+### Breakdown by Weakness:
+1. **Athena vs Redshift (Q1-5):** 5/5 (100%) ✅ **MASTERED!**
+2. **Query vs Scan (Q6-10):** 2/5 (40%) ❌ **CRITICAL FAILURE**
+3. **Session Storage (Q11-15):** 1/5 (20%) ❌ **ABSOLUTE DISASTER**
+
+### Critical Failures - Query vs Scan (40%):
+- **Q7 (WRONG):** Built Streams+Lambda for 2-3 queries/week (should use Scan for infrequent)
+- **Q8 (WRONG):** Created GSI for quarterly queries (should use Scan - GSI costs $500-2K/year for 4 queries)
+- **Q10 (WRONG):** Built Streams+Lambda for leaderboard (should use simple GSI with static partition key)
+
+**Pattern:** Swinging between overengineering (Streams+Lambda for infrequent queries) and GSI misuse (building infrastructure for quarterly queries)
+
+### Critical Failures - Session Storage (20%):
+- **Q12 (WRONG):** Used DynamoDB for 15-min sessions + confused audit logging with session expiration
+- **Q13 (WRONG):** Used Redis for 7-day playback state (DynamoDB cheaper for multi-day retention)
+- **Q14 (WRONG):** Chose Memcached over Redis for game state (minor - both work, Redis has better data structures)
+- **Q15 (WRONG):** Used Redis for preferences that "MUST survive infrastructure failures" (should use DynamoDB for durability)
+
+**Pattern:** Ignoring duration (7 days ≠ ephemeral) and durability keywords ("must survive failures" = durable database required)
+
+### Fundamental Problems Identified:
+
+**1. Query vs Scan - Extreme Swinging:**
+- ❌ Building Streams+Lambda for 2-3 queries/week (massive operational overhead for infrequent use)
+- ❌ Creating GSI for quarterly queries (paying 24/7 for 4 queries/year)
+- ❌ Not recognizing when Scan is the pragmatic solution
+
+**2. Session Storage - Duration Blindness:**
+- ❌ Not considering TIME when choosing storage
+- ❌ Minutes to hours + ephemeral = Redis ✓
+- ❌ Days to weeks + some durability = DynamoDB with TTL ✗ (MISSED THIS)
+- ❌ Permanent + "must survive failures" = DynamoDB without TTL ✗ (MISSED THIS)
+
+**3. Session Storage - Durability Confusion:**
+- ❌ Ignoring "must survive infrastructure failures" keywords
+- ❌ Using Redis (cache) for data that explicitly requires durability
+- ❌ Conflating separate concerns (sessions vs audit logs)
+
+### Emergency Recovery Protocol:
+
+**BLOCKED FROM WEEK 2 DAY 3 UNTIL REMEDIATION COMPLETE**
+
+**Day 1 (Dec 12): Query vs Scan Deep Dive**
+- Morning (2 hours): Re-read DynamoDB sections, create decision tree
+- Afternoon (2 hours): 20-question drill on Query vs Scan (target: 18/20 = 90%)
+- Evening (1 hour): Review all mistakes
+
+**Day 2 (Dec 13): Session Storage Deep Dive**
+- Morning (2 hours): Create comparison table (duration, durability, cost)
+- Afternoon (2 hours): 20-question drill on ephemeral vs persistent (target: 18/20 = 90%)
+- Evening (1 hour): Review all mistakes
+
+**Day 3 (Dec 14): Final Boss Retake**
+- Retake this EXACT 15-question quiz
+- Target: 13+/15 (87%) minimum
+- **Only after 87%+ can proceed to Week 2 Day 3 (Analytics)**
+
+### Positive Progress:
+- ✅ **Athena vs Redshift:** 67% → 100% (MASTERED in 2 days!)
+- ✅ **Pattern recognition:** Infrequent = Athena, Frequent = Redshift, Hybrid = both
+- ✅ **Cost analysis:** Successfully calculated Athena vs Redshift costs for different frequencies
+
+### Status:
+- **25 days until exam** (January 5, 2026)
+- **Current readiness:** 53% (FAILING)
+- **Required improvement:** +34 percentage points to pass threshold
+- **Action:** Emergency drilling on 2 critical weaknesses
 
 ---
 

@@ -296,6 +296,63 @@
 
 ---
 
+### Day 3 - Final Boss Drill (December 11, 2025)
+**Topics:** Comprehensive drill on 3 critical weaknesses (Athena vs Redshift, Query vs Scan, Session Storage)
+
+**Quiz Performance:**
+- Final Boss 15-question drill: 8/15 (53.3%) ❌ **CATASTROPHIC FAILURE**
+- Required score: 13+/15 (87%)
+- Deficit: -5 questions (-33.7 percentage points)
+
+**Breakdown by Weakness:**
+- **Athena vs Redshift (Q1-5):** 5/5 (100%) ✅ **MASTERED!**
+- **Query vs Scan (Q6-10):** 2/5 (40%) ❌ **CRITICAL FAILURE**
+- **Session Storage (Q11-15):** 1/5 (20%) ❌ **ABSOLUTE DISASTER**
+
+**Questions Missed:**
+1. ❌ Q7: Built Streams+Lambda for 2-3 queries/week (should use Scan for infrequent)
+2. ❌ Q8: Created GSI for quarterly queries (should use Scan, GSI costs $500-2,000/year for 4 queries)
+3. ❌ Q10: Built Streams+Lambda for leaderboard (should use simple GSI with static partition key)
+4. ❌ Q12: Used DynamoDB for 15-min sessions + confused audit logging with session expiration
+5. ❌ Q13: Used Redis for 7-day playback state (DynamoDB cheaper for multi-day retention)
+6. ❌ Q14: Chose Memcached over Redis for game state (minor - both work, Redis has better data structures)
+7. ❌ Q15: Used Redis for preferences that "MUST survive infrastructure failures" (should use DynamoDB for durability)
+
+**Key Learnings:**
+- ✅ **MASTERED Athena vs Redshift:** Infrequent = Athena, Frequent = Redshift, Hybrid = both
+- ❌ **Query vs Scan failures:** Swinging between overengineering (Streams+Lambda) and GSI misuse (quarterly queries)
+- ❌ **Session Storage disasters:** Ignoring duration (7 days ≠ ephemeral) and durability requirements ("must survive failures")
+
+**Critical Patterns Still Missing:**
+1. **WHEN TO USE SCAN:**
+   - Infrequent queries (weekly/monthly/quarterly/one-time)
+   - Non-key attribute searches across table
+   - Quarterly = 4 queries/year - don't build GSI for this!
+
+2. **DURATION-BASED STORAGE:**
+   - Minutes to 1-2 hours + ephemeral = Redis
+   - Hours to days + some durability = DynamoDB with TTL
+   - Permanent = DynamoDB without TTL
+
+3. **DURABILITY KEYWORDS:**
+   - "Must survive failures" = DynamoDB/RDS/Aurora (durable)
+   - "Acceptable to lose" = Redis/Memcached (caching)
+   - "Acceptable but not ideal" = Lean toward durable if cost-effective
+
+**Emergency Recovery Plan:**
+- ❌ **CANNOT PROCEED TO WEEK 2 DAY 3**
+- Day 1 (Dec 12): Query vs Scan deep dive + 20-question drill (target: 18/20 = 90%)
+- Day 2 (Dec 13): Session Storage deep dive + 20-question drill (target: 18/20 = 90%)
+- Day 3 (Dec 14): Retake this EXACT 15-question quiz (target: 13+/15 = 87%)
+- **Only after 87%+ can proceed to Analytics**
+
+**Materials Created:**
+- None - emergency recovery mode
+
+**Status:** **BLOCKED** - Must resolve critical weaknesses before advancing
+
+---
+
 ## 📈 Performance Trends
 
 ### Quiz Score Progression
@@ -308,9 +365,13 @@
 | Dec 7 | Week 1 Recovery | 70% | Improving ⚠️ |
 | Dec 8 | Week 1 Mastery | 90% | Breakthrough! 🎉 |
 | Dec 8 | RDS/Aurora (Week 2) | 70% | New material ⚠️ |
-| **Dec 10** | **DynamoDB Initial** | **60%** | **Struggling** ❌ |
-| **Dec 10** | **DynamoDB Ops Drill** | **80%** | **+20% in 1 session!** 🚀 |
-| **Dec 10** | **Weakness Assessment** | **70%** | **3 critical gaps** ⚠️ |
+| Dec 10 | DynamoDB Initial | 60% | Struggling ❌ |
+| Dec 10 | DynamoDB Ops Drill | 80% | +20% in 1 session! 🚀 |
+| Dec 10 | Weakness Assessment | 70% | 3 critical gaps ⚠️ |
+| **Dec 11** | **Final Boss Drill** | **53%** | **CATASTROPHIC FAILURE** 💀 |
+| **Dec 11** | **Athena vs Redshift** | **100%** | **MASTERED!** 🎉 |
+| **Dec 11** | **Query vs Scan** | **40%** | **Critical failure** ❌ |
+| **Dec 11** | **Session Storage** | **20%** | **Absolute disaster** ❌ |
 
 ### Weakness Resolution Rate
 - **VPC NACLs:** 0% → 100% (3 days) ✅
