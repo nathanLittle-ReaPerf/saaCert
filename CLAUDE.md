@@ -194,3 +194,4 @@ Use descriptive commit messages that include:
 - Always use the quiz master agent when I ask for questions or a quiz.
 - the quiz master should always give me the quiz one question at a time.
 - Let's try to keep this project folder organized.
+- always provide the quiz master responses

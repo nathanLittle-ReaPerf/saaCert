@@ -225,6 +225,77 @@
 
 ---
 
+### Day 2 - DynamoDB Deep Dive (December 10, 2025)
+**Topics:** DynamoDB operations, partition key design, GSI vs LSI, capacity modes
+
+**Quiz Performance:**
+- Morning DynamoDB quiz: 12/20 (60%) ❌ BELOW TARGET
+- DynamoDB Operations drill: 8/10 (80%) ✅ MASSIVE IMPROVEMENT
+- Comprehensive weakness quiz: 7/10 (70%) ⚠️ PASSING
+
+**Weaknesses Identified:**
+1. ❌ Q1: Partition key distribution (OrderID vs hash-based design)
+2. ❌ Q2: GSI strategy for hashtag/time queries
+3. ❌ Q3: Query vs BatchGetItem confusion
+4. ❌ Q7: Export to S3 vs Query for full table processing
+5. ❌ Q8: GetItem vs Query when full primary key known
+6. ❌ Q11: Composite partition key hashing (misunderstood distribution)
+7. ❌ Q12: BatchWriteItem 25-item limit
+
+**Drilling Results (Operations Focus):**
+- ✅ Q1, Q5, Q8: GetItem when full primary key known (3/3 correct)
+- ✅ Q2: BatchGetItem for multiple known keys
+- ✅ Q6: BatchWriteItem 25-item limit (learned!)
+- ✅ Q4, Q7: Export to S3 for full table processing (2/2 correct)
+- ✅ Q10: Query for all items in partition
+- ❌ Q3: Query with sort key ranges (still confused)
+- ❌ Q9: Scan for non-key attributes (picked GSI instead)
+
+**Comprehensive Weakness Assessment:**
+- ✅ Q1, Q2, Q10: DynamoDB GSI vs LSI (3/3 correct - 0% → 75%!)
+- ✅ Q3, Q4: Partition key design (2/2 correct - 25% → 100%!)
+- ❌ Q5: Athena vs Redshift (picked Redshift Spectrum for weekly queries)
+- ❌ Q6: Query vs Scan (tried GSI for range filtering)
+- ✅ Q7: Aurora Serverless v2 scaling (scales in seconds - MASTERED!)
+- ✅ Q8: Migration timeline (lift-and-shift for tight deadline - MASTERED!)
+- ❌ Q9: Session storage (picked DynamoDB+DAX for ephemeral data)
+
+**Key Learnings:**
+- ✅ GetItem = full primary key known, one item retrieval
+- ✅ BatchGetItem = multiple items with known keys (max 100)
+- ✅ BatchWriteItem = max 25 items per request (CRITICAL LIMIT!)
+- ✅ Export to S3 = full table processing, no RCU consumption
+- ✅ Query = one partition key, can filter by sort key or ranges
+- ✅ GSI = different partition key than base table, can be added anytime
+- ✅ LSI = same partition key as base table, ONLY at table creation
+- ✅ Write sharding = composite key with random suffix for hot partitions
+- ⚠️ Scan = sometimes correct for non-key attributes across all partitions
+- ❌ Still confusing when Scan is the only option (not overthinking to GSI)
+
+**CRITICAL New Weaknesses (Need Immediate Drilling):**
+1. **Athena vs Redshift (50%)** - "Infrequent = Athena" not sinking in
+2. **Query vs Scan (50%)** - Overthinking when Scan is correct
+3. **Session Storage (0%)** - Ephemeral vs persistent (Redis vs DynamoDB)
+
+**Mastered Today:**
+- ✅ DynamoDB Partition Key Design (25% → 100%)
+- ✅ Aurora Serverless v2 Scaling (50% → 100%)
+- ✅ Migration Timeline Constraints (50% → 100%)
+- ✅ DynamoDB Operations improved (0% → 80%)
+- ✅ DynamoDB GSI vs LSI improved (0% → 75%)
+
+**Materials Created:**
+- Updated Weakness-Tracker.md with Dec 10 progress
+- No new materials (consolidated tracking)
+
+**Next Steps:**
+- ❌ DO NOT proceed to Week 2 Day 3 yet
+- ✅ Tomorrow: Drill 3 critical weaknesses (Athena, Scan, Sessions)
+- ✅ Target: 13+/15 (87%) on combined drill
+- ✅ THEN proceed to Analytics (Week 2 Day 3)
+
+---
+
 ## 📈 Performance Trends
 
 ### Quiz Score Progression
@@ -235,8 +306,11 @@
 | Nov 24 | Auto Scaling | 80% | Stable ✅ |
 | Nov 27 | Week 1 Comprehensive | 45% | Major drop ❌ |
 | Dec 7 | Week 1 Recovery | 70% | Improving ⚠️ |
-| **Dec 8** | **Week 1 Mastery** | **90%** | **Breakthrough!** 🎉 |
-| **Dec 8** | **RDS/Aurora (Week 2)** | **70%** | **New material** ⚠️ |
+| Dec 8 | Week 1 Mastery | 90% | Breakthrough! 🎉 |
+| Dec 8 | RDS/Aurora (Week 2) | 70% | New material ⚠️ |
+| **Dec 10** | **DynamoDB Initial** | **60%** | **Struggling** ❌ |
+| **Dec 10** | **DynamoDB Ops Drill** | **80%** | **+20% in 1 session!** 🚀 |
+| **Dec 10** | **Weakness Assessment** | **70%** | **3 critical gaps** ⚠️ |
 
 ### Weakness Resolution Rate
 - **VPC NACLs:** 0% → 100% (3 days) ✅

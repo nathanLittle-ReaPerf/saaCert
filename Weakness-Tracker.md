@@ -1,7 +1,7 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** December 9, 2025, 12:30 PM
-**Exam Date:** January 5, 2026 (27 days remaining)
+**Last Updated:** December 10, 2025, 10:45 AM
+**Exam Date:** January 5, 2026 (26 days remaining)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
 
 ---
@@ -13,12 +13,14 @@
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
 | **DynamoDB GSI vs LSI** | 0% | 0/2 correct | 🔴 Never mastered | URGENT: Drill partition key differences (GSI = different, LSI = same) |
+| **DynamoDB Partition Key Design** | 25% | 1/4 correct | 🔴 Fundamental gap | URGENT: Hash distribution, hot partitions, composite keys |
 
 ### 🟠 HIGH Priority (51-75% accuracy - Inconsistent, need drilling)
 
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
 | **Athena vs Redshift (Query Frequency)** | 67% | 2/3 correct | 🟡 Inconsistent | Pattern: Infrequent (weekly/monthly) = Athena, Frequent (daily) = Redshift |
+| **DynamoDB Query vs Scan** | 67% | 2/3 correct | 🟡 Improving | Pattern: Non-key attributes across table = Scan (rare but necessary) |
 | **Aurora Serverless v2 Scaling** | 50% | 1/2 correct | 🟡 Needs verification | Remember: Scales in SECONDS (not instant), brief latency during scaling |
 | **Migration Timeline Decisions** | 50% | 1/2 correct | 🟡 Needs verification | Pattern: Tight deadline = simple now, optimize later (phased approach) |
 | **Overengineering (One vs Two Services)** | 67% | 2/3 correct | 🟡 Improving | Principle: When one service meets all needs, don't add a second |
@@ -27,6 +29,7 @@
 
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
+| **DynamoDB Operations (GetItem/Query/BatchGetItem)** | 80% | 8/10 correct | ✅ MASSIVE improvement | Dec 10 drill: 0% → 80% in one session! Polish to 90%+ |
 | **Reading Comprehension (Engine Types)** | 50% | 1/2 correct | 🟡 Watch for traps | Always check: MySQL vs PostgreSQL engine-specific features |
 | **Session Storage (Redis vs DynamoDB)** | 50% | 1/2 correct | 🟡 Needs verification | Pattern: Ephemeral data (sessions) = Redis, Persistent data = DynamoDB |
 
@@ -147,6 +150,42 @@ Need to query by different attribute than partition key?
 - [ ] Take 10-question drill on ONLY DynamoDB index design
 - [ ] Target: 9/10 (90%)
 - [ ] Review every GSI/LSI question in practice materials
+
+---
+
+## 📈 December 10, 2025 Progress Summary
+
+### Morning DynamoDB Quiz
+- **Score:** 12/20 (60%) ❌ Below 80% target
+- **Topic:** Week 2 Day 2 - DynamoDB Deep Dive
+- **Critical weaknesses identified:**
+  - DynamoDB Operations (0%): Query vs GetItem vs Scan vs BatchGetItem confusion
+  - Partition Key Design (25%): Hash distribution, hot partitions, composite keys
+  - GSI Strategy (still weak from Dec 9)
+
+### DynamoDB Operations Drill (10 questions)
+- **Score:** 8/10 (80%) ✅ MASSIVE IMPROVEMENT!
+- **Improvement:** 0% → 80% in ONE drill session
+- **Mastered patterns:**
+  - ✅ GetItem when full primary key known (Q1, Q5, Q8)
+  - ✅ BatchGetItem for multiple known keys (Q2)
+  - ✅ BatchWriteItem 25-item limit (Q6)
+  - ✅ Export to S3 for full table processing (Q4, Q7)
+  - ✅ Query for all items in partition (Q10)
+- **Still struggling:**
+  - ❌ Query with sort key ranges (Q3)
+  - ❌ Scan for non-key attributes (Q9 - picked GSI instead)
+
+### Status
+- **DynamoDB Operations:** Went from CRITICAL (0%) to MEDIUM (80%) in one session
+- **Still CRITICAL:** GSI vs LSI (0%), Partition Key Design (25%)
+- **Next steps:** Comprehensive 10-question quiz spanning ALL weaknesses
+
+### Key Learnings
+- ✅ Targeted drilling works incredibly well (0% → 80%)
+- ✅ Repetition on GetItem pattern finally sank in
+- ❌ Still confusing when to use Scan (rare but necessary for non-key searches)
+- ❌ Partition key design needs urgent attention
 
 ---
 
