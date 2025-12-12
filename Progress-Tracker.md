@@ -353,6 +353,92 @@
 
 ---
 
+### Day 4 - Query vs Scan Deep Dive & 20-Question Drill (December 12, 2025)
+**Topics:** DynamoDB Query vs Scan vs GSI decisions, frequency-based patterns, cost analysis
+
+**Quiz Performance:**
+- Query vs Scan 20-question drill: 13/20 (65%) ❌ **CATASTROPHIC FAILURE**
+- Required score: 18+/20 (90%)
+- Deficit: -5 questions (-25 percentage points)
+
+**Breakdown by Question Type:**
+- **Questions 1-7:** Basic frequency decisions - 6/7 (86%) ⚠️ (missed Q4: large table size factor)
+- **Questions 8-14:** Complex scenarios - 4/7 (57%) ❌ **FAILURE**
+- **Questions 15-20:** Edge cases & judgment - 3/6 (50%) ❌ **CRITICAL FAILURE**
+
+**Questions Correct (13):**
+1. ✅ Q1: Quarterly compliance (4×/year) = Scan
+2. ✅ Q2: Marketing reports 3-4×/week = GSI
+3. ✅ Q3: Real-time leaderboard = GSI (static partition key + score sort key)
+4. ✅ Q6: IoT alerts twice daily = Sparse GSI (initially marked wrong, corrected)
+5. ✅ Q7: Annual compliance (1×/year) = Scan
+6. ✅ Q8: One-time study (3 queries total) = Scan
+7. ✅ Q9: Daily background job = Sparse GSI (initially marked wrong, corrected)
+8. ✅ Q10: Frequently-changing attribute (view_count) = Scan
+9. ✅ Q11: Multiple access patterns = GSI for frequent, Scan for infrequent
+10. ✅ Q12: New feature (uncertain usage) = Build GSI preemptively for user-facing
+11. ✅ Q15: Daily digest = GSI (corrected from Scan)
+12. ✅ Q16: Sparse GSI exception ($2.40/year saves $8,000/year)
+13. ✅ Q20: Frequently-updated attribute = Streams+Lambda (avoid GSI write amplification)
+
+**Questions Incorrect (7):**
+1. ❌ Q4: Large table (2 TB) monthly audit = S3 Export+Athena, not Scan (**Table size blindness**)
+2. ❌ Q5: Boolean partition key hot partition problem (**Numeric/low-cardinality trap**)
+3. ❌ Q13: **NUMERIC PARTITION KEY TRAP** - amount as partition key can't do range queries
+4. ❌ Q14: Redesigning base table vs using GSI for secondary pattern (**GSI purpose confusion**)
+5. ❌ Q17: All options expensive ($120K+/year) = Challenge requirement, not pick least-bad (**Business judgment**)
+6. ❌ Q18: Ad-hoc analytics = Athena, not Sparse GSI (**Flexibility requirement missed**)
+7. ❌ Q19: **NUMERIC PARTITION KEY TRAP AGAIN** - experience_years as partition key
+
+**🔴 CRITICAL WEAKNESS IDENTIFIED: Numeric Partition Key Anti-Pattern (0% accuracy)**
+
+**Questions Missed on This Pattern:**
+- Q5: Boolean `flagged` as partition key (hot partition, only 2 values)
+- Q13: Numeric `amount` as partition key (can't query ranges, need 950,000 separate queries!)
+- Q19: Numeric `experience_years` as partition key (can't do >= 5, need 46 separate queries!)
+
+**The Pattern:**
+```
+❌ NEVER: Numeric/boolean/low-cardinality values as partition key for range queries
+✅ ALWAYS: Static partition key + numeric as SORT KEY
+          OR Computed category (experience_years → JUNIOR/SENIOR)
+```
+
+**This alone cost 15% of your score!**
+
+**Other Weaknesses Identified:**
+1. **Table Size Impact (25% accuracy)** - Not adjusting decisions for multi-TB tables
+2. **Ad-hoc Analytics vs Operational (0%)** - Building GSIs for unpredictable queries
+3. **Business Judgment (0%)** - Picking expensive options instead of challenging requirements
+
+**Key Learnings:**
+- ✅ Frequency-based decisions mostly solid (quarterly/annual = Scan, daily+ = GSI)
+- ✅ Leaderboard pattern (static partition + score sort key) - PERFECT
+- ✅ Sparse GSI economics when savings are extreme (> $1,000/year)
+- ✅ Frequently-changing attributes = avoid GSI (write amplification)
+- ✅ Multiple access patterns = prioritize frequent with GSI
+- ✅ User-facing features = build GSI preemptively (vs analytics = monitor first)
+- ❌ **CRITICAL**: Numeric values MUST be sort key, NEVER partition key for ranges
+- ❌ Large tables (>500 GB) + infrequent = consider S3 Export, not Scan
+- ❌ Ad-hoc analytics with unpredictable queries = Athena, not GSI
+- ❌ When all options cost $1,000+ per query = challenge the requirement
+
+**Materials Created:**
+- Day-11-Query-vs-Scan-Deep-Dive.md (comprehensive pattern guide)
+
+**Emergency Recovery Plan Updated:**
+- **PRIORITY 1:** Numeric Partition Key Anti-Pattern (2-4 hours drill)
+  - Mantra: "Numeric ranges = SORT KEY, never partition key"
+  - Create flashcards, decision trees, do 10 practice questions
+- **PRIORITY 2:** Table Size Economics (2 hours)
+  - Calculate Scan vs Export costs for different sizes
+  - Breakpoint: >500 GB tables with infrequent queries
+- **PRIORITY 3:** Retake THIS exact quiz tomorrow (target: 18/20 = 90%)
+
+**Status:** **STILL BLOCKED** - Cannot proceed to Session Storage drill until 90%+ on Query vs Scan
+
+---
+
 ## 📈 Performance Trends
 
 ### Quiz Score Progression
@@ -372,6 +458,8 @@
 | **Dec 11** | **Athena vs Redshift** | **100%** | **MASTERED!** 🎉 |
 | **Dec 11** | **Query vs Scan** | **40%** | **Critical failure** ❌ |
 | **Dec 11** | **Session Storage** | **20%** | **Absolute disaster** ❌ |
+| **Dec 12** | **Query vs Scan 20Q Drill** | **65%** | **CATASTROPHIC FAILURE** 💀 |
+| **Dec 12** | **Numeric Partition Keys** | **0%** | **3/3 missed - CRITICAL** ❌ |
 
 ### Weakness Resolution Rate
 - **VPC NACLs:** 0% → 100% (3 days) ✅

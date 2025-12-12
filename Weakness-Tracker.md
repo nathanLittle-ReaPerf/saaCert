@@ -1,7 +1,7 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** December 11, 2025, 9:00 AM
-**Exam Date:** January 5, 2026 (25 days remaining)
+**Last Updated:** December 12, 2025, 10:00 AM
+**Exam Date:** January 5, 2026 (24 days remaining)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
 
 ---
@@ -12,9 +12,10 @@
 
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
-| **DynamoDB Query vs Scan** | 40% | 2/5 correct | 🔴 CRITICAL FAILURE | URGENT: When to use Scan (infrequent queries, non-key attributes) vs when to build GSI |
+| **Numeric Partition Key Anti-Pattern** | 0% | 0/3 correct | 🔴 **HIGHEST PRIORITY** | **URGENT:** Drill: "Numeric ranges = SORT KEY, never partition key" - Cost 15% of score! |
+| **DynamoDB Query vs Scan (Frequency)** | 50% | 8/16 correct | 🔴 CRITICAL | URGENT: Frequency breakpoints, when Scan is optimal (quarterly, annual, one-time) |
 | **Session Storage (Ephemeral vs Persistent)** | 20% | 1/5 correct | 🔴 ABSOLUTE DISASTER | URGENT: Duration-based decisions (minutes=Redis, days=DynamoDB, "must survive"=durable) |
-| **DynamoDB GSI vs LSI** | 0% | 0/2 correct | 🔴 Never mastered | URGENT: Drill partition key differences (GSI = different, LSI = same) |
+| **Table Size Impact on Decisions** | 25% | 1/4 correct | 🔴 NEW WEAKNESS | URGENT: >500 GB + infrequent = S3 Export, not Scan |
 
 ### 🟠 HIGH Priority (51-75% accuracy - Inconsistent, need drilling)
 
@@ -70,7 +71,168 @@ These were marked "resolved" prematurely. Need verification across more quizzes:
 
 ---
 
-## 📊 Weakness #1: DynamoDB GSI vs LSI (CRITICAL - URGENT PRIORITY)
+## 📊 Weakness #1: Numeric Partition Key Anti-Pattern (CRITICAL - HIGHEST PRIORITY)
+
+### Current Performance
+- **Accuracy:** 0% (0/3 questions correct on Dec 12)
+- **First Identified:** Dec 12 (Query vs Scan 20-question drill)
+- **Progress:** New CRITICAL weakness - repeated 3 times in same quiz!
+- **Status:** 🔴 **CATASTROPHIC** - Cost 15% of total score
+- **Impact:** Single biggest weakness, failing same pattern repeatedly
+
+### The Problem Pattern
+You keep using **numeric, boolean, or low-cardinality attributes as GSI partition keys** when you need **range queries** (>, <, >=, <=, BETWEEN). This is fundamentally broken because **DynamoDB partition keys require EXACT match** - they don't support range operators!
+
+### The CRITICAL Rule You MUST Memorize
+
+```
+❌ NEVER: Numeric/boolean/low-cardinality values as partition key for range queries
+   - amount, price, score, age, experience_years
+   - flagged (true/false), status (2-5 values)
+   - Partition key requires EXACT match - can't do > or < or BETWEEN
+
+✅ ALWAYS: Use one of these patterns instead:
+
+Pattern 1: Static Partition Key + Numeric Sort Key
+   partition_key = "HIGH_VALUE" (static)
+   sort_key = amount (numeric)
+   Query: partition_key = "HIGH_VALUE" AND amount > 75000 ✅
+
+Pattern 2: Computed Category Attribute
+   amount_tier = "HIGH" | "MEDIUM" | "LOW"
+   experience_level = "SENIOR" | "JUNIOR"
+   Query: partition_key = "SENIOR" ✅
+```
+
+### The Questions You Missed (Dec 12)
+
+**Question 5 - Content Moderation (Boolean Trap):**
+- **Scenario:** Query posts where `flagged = true`, checked every 30 minutes (5,840 queries/year)
+- **Your Answer:** GSI with `flagged` as partition key ❌
+- **Correct Answer:** Sparse GSI with static partition key "FLAGGED" + timestamp as sort key ✅
+- **Why Wrong:**
+  - Boolean partition key = only 2 values (true/false)
+  - Creates **hot partition** - all queries hit same partition
+  - Can't distribute load across multiple partitions
+  - 99.99% of items in flagged=false, 0.01% in flagged=true (uneven)
+
+**Correct Architecture:**
+```
+Sparse GSI (only written when flagged=true):
+  partition_key = "FLAGGED" (static)
+  sort_key = timestamp
+
+Query: partition_key = "FLAGGED" (gets all flagged posts)
+Cost savings: Only stores 0.01% of data!
+```
+
+---
+
+**Question 13 - Fraud Detection (Numeric Range Trap):**
+- **Scenario:** Query transactions where `amount > 50000`, 3-4 times/day, need results within 10 seconds
+- **Your Answer:** GSI with `amount` as partition key ❌
+- **Correct Answer:** Sparse GSI with static partition key "HIGH_VALUE" + amount as sort key ✅
+- **Why Wrong:**
+  - Amount ranges from $0.01 to $1,000,000 (millions of unique values)
+  - Query needs `amount > 50000` (range query)
+  - **Can't query ranges on partition key!** Would need to query:
+    - amount = 50000.01 OR
+    - amount = 50000.02 OR
+    - amount = 50000.03 OR
+    - ... (950,000 separate queries!)
+  - DynamoDB Query requires **exact partition key match**
+
+**Correct Architecture:**
+```
+Sparse GSI (only written when amount > 50000):
+  partition_key = "HIGH_VALUE" (static)
+  sort_key = amount (numeric)
+
+Query examples:
+  - All high-value: partition_key = "HIGH_VALUE"
+  - Over $75K: partition_key = "HIGH_VALUE" AND amount > 75000
+  - Between: partition_key = "HIGH_VALUE" AND amount BETWEEN 50000 AND 100000
+
+Flexibility: Can adjust thresholds without code changes!
+```
+
+---
+
+**Question 19 - HR Recruiting (Numeric Range Trap AGAIN!):**
+- **Scenario:** Query applications where `experience_years >= 5`, daily queries (365/year), need 2-3 second results
+- **Your Answer:** GSI with `experience_years` as partition key ❌
+- **Correct Answer:** GSI with computed attribute `seniority_level` (JUNIOR/SENIOR) ✅
+- **Why Wrong:**
+  - experience_years ranges from 0-50 (51 unique values)
+  - Query needs `experience_years >= 5` (range query)
+  - Would need to query 46 separate partitions (5, 6, 7, ... 50)
+  - **Same mistake as Q13!**
+
+**Correct Architecture (Option 1 - Computed Category):**
+```
+Application logic when writing:
+  if experience_years >= 5:
+    seniority_level = "SENIOR"
+  else:
+    seniority_level = "JUNIOR"
+
+GSI:
+  partition_key = seniority_level ("SENIOR" or "JUNIOR")
+  sort_key = experience_years (for further filtering)
+
+Query: seniority_level = "SENIOR" ✅
+Optional: seniority_level = "SENIOR" AND experience_years >= 10
+```
+
+**Correct Architecture (Option 2 - Static + Numeric Sort):**
+```
+Sparse GSI (only write when experience >= 5):
+  partition_key = "QUALIFIED" (static)
+  sort_key = experience_years
+
+Query: partition_key = "QUALIFIED" AND experience_years >= 10 ✅
+```
+
+---
+
+### Pattern Recognition Framework
+
+**When you see these requirements, STOP and think:**
+
+| Requirement Keyword | Anti-Pattern (DON'T DO THIS) | Correct Pattern |
+|---------------------|----------------------------|-----------------|
+| "amount > X" | amount as partition key ❌ | Static partition + amount as sort key ✅ |
+| "price < X" | price as partition key ❌ | Static partition + price as sort key ✅ |
+| "experience >= X" | experience as partition key ❌ | Computed category (SENIOR/JUNIOR) ✅ |
+| "flagged = true" | flagged as partition key ❌ | Sparse GSI with static partition ✅ |
+| "status = ACTIVE" | status as partition key (if 2-5 values) ❌ | Sparse GSI per status or computed ✅ |
+| "score > X" | score as partition key ❌ | Static partition + score as sort key ✅ |
+
+**The Universal Rule:**
+```
+Need to query with >, <, >=, <=, BETWEEN, or IN?
+└─ Numeric value goes in SORT KEY, NEVER partition key
+   └─ Partition key = Static value or computed category
+```
+
+### Recovery Drill Plan
+
+**PRIORITY 1 (2-4 hours - TODAY):**
+1. Re-read Q5, Q13, Q19 explanations above (30 min)
+2. Create 10 flashcards with examples (30 min)
+3. Draw decision tree on paper: "Range query? → SORT KEY!" (15 min)
+4. Do 10 practice questions ONLY on this pattern (1 hour)
+5. Teach-back: Explain pattern out loud as if teaching someone (15 min)
+
+**Mantra to repeat 100 times:**
+> "Numeric ranges = SORT KEY, never partition key"
+> "Exact match = partition key, ranges = sort key"
+
+**Target:** 100% accuracy on numeric partition key questions
+
+---
+
+## 📊 Weakness #2: DynamoDB GSI vs LSI (CRITICAL - HIGH PRIORITY)
 
 ### Current Performance
 - **Accuracy:** 0% (0/2 questions missed on Dec 9)
