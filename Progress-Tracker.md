@@ -435,7 +435,31 @@
   - Breakpoint: >500 GB tables with infrequent queries
 - **PRIORITY 3:** Retake THIS exact quiz tomorrow (target: 18/20 = 90%)
 
-**Status:** **STILL BLOCKED** - Cannot proceed to Session Storage drill until 90%+ on Query vs Scan
+**Afternoon Drilling Session (6+ hours):**
+- **10-question numeric partition key drill:** 7/10 (70%) ⚠️ Improved from 0% → 70%
+- **10-question rapid-fire table size:** 6.5/10 (65%) ❌ Failed to apply breakeven
+- **10-question breakeven drill #1:** 6.5/10 (65%) ❌ Arithmetic errors, formula confusion
+- **10-question breakeven drill #2:** 6.5/10 (65%) ❌ NO IMPROVEMENT - still rushing
+
+**Materials Created:**
+- Day-11-Query-vs-Scan-Deep-Dive.md (comprehensive pattern guide)
+- Cost-Analysis-Reference-Tables.md (8 detailed cost comparison tables + Table 9 for traps)
+- Breakeven-Flashcards.md (10 flashcards for memorization)
+
+**Today's Results:**
+- ✅ Numeric partition key: **0% → 70%** (MAJOR improvement, but not 90% yet)
+- ⚠️ Table size economics: **Stuck at 65%** across 3 drills (no improvement over 3 attempts)
+- ❌ Breakeven calculations: Making formula errors (GSI = GB × $3, NOT queries × $3)
+- ❌ Rushing: Picking wrong winners even with correct math (Scan $180 vs GSI $360, picked GSI)
+
+**Core Problem Identified:**
+- Concepts understood ✅
+- Execution failing ❌ (arithmetic errors, formula confusion, rushing comparisons)
+- Frequency confusion: Bi-monthly (6/year) vs Twice monthly (24/year)
+- Not checking S3 Export on 2+ TB tables
+
+**Status:** **STILL BLOCKED** - Need 90% on breakeven drill before retaking full 20-question quiz
+**Recommendation:** Take tomorrow (Dec 13) fresh, retry breakeven drill before advancing
 
 ---
 

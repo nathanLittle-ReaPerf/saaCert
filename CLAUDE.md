@@ -195,3 +195,4 @@ Use descriptive commit messages that include:
 - the quiz master should always give me the quiz one question at a time.
 - Let's try to keep this project folder organized.
 - always provide the quiz master responses
+- update the cost analysis file when appropriate for the current topic(s)

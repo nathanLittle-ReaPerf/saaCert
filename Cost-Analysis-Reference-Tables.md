@@ -179,6 +179,50 @@
 
 ---
 
+### Table 9: Common Breakeven Traps (Where You Keep Making Mistakes)
+
+**These are the exact scenarios where you're missing the breakeven point:**
+
+| Table Size | Frequency | Queries/Year | Scan Cost | GSI Cost | Your Mistake | Correct Answer |
+|------------|-----------|--------------|-----------|----------|--------------|----------------|
+| **20 GB** | Twice monthly | 24 | $120 | **$60** ✅ | Think "scan" because small table | **GSI** (2× cheaper) |
+| **30 GB** | Weekly | 52 | $390 | **$90** ✅ | Miss that 52 > 40 breakeven | **GSI** (4× cheaper) |
+| **40 GB** | Weekly | 52 | $520 | **$120** ✅ | See "weekly" = moderate | **GSI** (4× cheaper) |
+| **150 GB** | Monthly | 12 | $450 | **$450** = | Think "monthly = infrequent" | **GSI** (at breakeven) |
+| **200 GB** | Twice monthly | 24 | $1,200 | **$600** ✅ | Miss 200 GB breakeven = 6/year | **GSI** (2× cheaper) |
+| **300 GB** | Twice/year | 2 | **$150** ✅ | $900 | Jump to S3 Export ($160) | **Scan** (simplest) |
+| **2 TB** | Monthly | 12 | $6,000 | $6,000 | See tie, pick GSI | **S3 Export** ($3,600) |
+
+**Critical Insight:** You're confusing "frequency names" with actual breakeven math!
+
+**Frequency ≠ Breakeven:**
+- ❌ **WRONG:** "Weekly = moderate, so Scan is fine"
+- ✅ **CORRECT:** "52 queries on 30 GB = $390 Scan vs $90 GSI = 4× cheaper, use GSI"
+
+**Table Size ≠ Always Expensive:**
+- ❌ **WRONG:** "20 GB is small, so Scan"
+- ✅ **CORRECT:** "20 GB × 24 queries = $120 vs $60 GSI = use GSI"
+
+**The 2 TB Exception:**
+- ❌ **WRONG:** "2 TB monthly = at breakeven, so GSI or Scan"
+- ✅ **CORRECT:** "2 TB triggers S3 Export check = $3,600 beats both $6,000 options"
+
+**Decision Process:**
+1. **Calculate queries/year:** "Twice monthly" = 2 × 12 = 24/year
+2. **Find table in breakeven chart:** 30 GB breakeven = 40 queries/year
+3. **Compare:** 24 < 40? No! 24 is way less... wait, check your table size
+4. **Actually compare:** For this SPECIFIC table size, what's the breakeven?
+5. **Use Table 2:** Find the closest match or interpolate
+
+**Quick Mental Math:**
+- **10 GB:** Need 120 queries to justify GSI
+- **30 GB:** Need ~40 queries (scales down with size)
+- **100 GB:** Need 12 queries (monthly)
+- **200 GB:** Need 6 queries (bi-monthly)
+- **2+ TB:** Check S3 Export first if < weekly
+
+---
+
 ### 🎯 DynamoDB Cost Decision Rules (Memorize These)
 
 1. **Small tables (< 100 GB):** Scan is cheap, GSI only for weekly+
@@ -231,4 +275,4 @@
 
 ---
 
-**Last Updated:** December 12, 2025 - Added comprehensive DynamoDB cost tables after Query vs Scan drill failure
+**Last Updated:** December 12, 2025 - Added Table 9: Common Breakeven Traps after 65% rapid-fire failure
