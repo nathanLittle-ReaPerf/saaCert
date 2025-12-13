@@ -463,6 +463,95 @@
 
 ---
 
+### Day 5 - Scan/GSI Focused Drill (December 13, 2025)
+**Topics:** DynamoDB Scan operations, GSI design, cost optimization, numeric partition keys
+
+**Quiz Performance:**
+- Scan/GSI 10-question drill: 6/10 (60%) ❌ **FAILURE** (Still below 80% target)
+- Required score: 8+/10 (80%)
+- Deficit: -2 questions (-20 percentage points)
+
+**Questions Correct (6):**
+1. ✅ Q2: IoT dashboard recent readings = Query with deviceId + ScanIndexForward=false
+2. ✅ Q4: Global gaming leaderboard = GSI with synthetic partition key (leaderboard=GLOBAL) + score sort key
+3. ✅ Q6: Monthly batch analytics (500M events) = S3 Export + Glue
+4. ✅ Q7: Multi-faceted product search = DynamoDB + OpenSearch hybrid
+5. ✅ Q9: Real-time trending posts (24hr window) = DynamoDB Streams + Lambda + trending table
+6. ✅ Q10: Quarterly compliance audit (5B records, no production impact) = S3 Export + EMR
+
+**Questions Incorrect (4):**
+1. ❌ Q1: Weekly marketing reports on ALL orders (7 days from 5 years) = Should use S3 Export + Athena, not Query (**Query requires partition key**)
+2. ❌ Q3: Monthly compliance scan (2% of 10M users) = Should use GSI ($2-4/month), not S3 Export ($15-60/month) (**Over-engineering, cost blindness**)
+3. ❌ Q5: Hashtag search with String Set = Should denormalize (one item per hashtag), not GSI with userId PK (**Many-to-many pattern failure, Sets can't be keys**)
+4. ❌ Q8: Twice-yearly diagnostic (2% of sensors) = Should use Scan ($6-10/year), not S3 Export ($12-20/year) (**Over-engineering rare operations**)
+
+**🔴 NEW CRITICAL WEAKNESSES IDENTIFIED:**
+
+**1. Over-Engineering Rare Operations (0% accuracy on Q3, Q8)**
+- **Pattern:** Choosing S3 Export for infrequent queries when simple solutions work
+- Q3: Monthly 2% query → Chose $60/month S3 Export over $4/month GSI
+- Q8: Twice-yearly scan → Chose $20/year S3 Export over $10/year Scan
+- **Problem:** Recency bias - saw S3 Export in Q1, pattern-matched without analyzing
+
+**2. Query Limitations (0% accuracy on Q1)**
+- **Pattern:** Forgetting Query REQUIRES partition key specification
+- Q1: Tried to Query on orderDate (sort key) without specifying orderId (partition key)
+- **Fundamental misunderstanding:** Can't Query "all orders from last 7 days" across all orderIds
+
+**3. Denormalization Patterns (0% accuracy on Q5)**
+- **Pattern:** Missing many-to-many relationship solutions
+- Q5: Posts-to-hashtags relationship needs one item per hashtag per post
+- Also missed: Can't use String Set as partition/sort key (must be scalar)
+
+**4. Cost Calculation Avoidance**
+- Not doing math before choosing solutions
+- Q3: Didn't calculate $4 GSI vs $60 S3 Export
+- Q8: Didn't calculate $10 Scan vs $20 S3 Export
+
+**Key Learnings:**
+- ✅ Leaderboard pattern MASTERED (Q4: synthetic partition key + score sort key)
+- ✅ Production isolation understood (Q10: S3 Export doesn't consume RCUs)
+- ✅ Tool selection improving (Q7: OpenSearch for complex search)
+- ✅ Real-time patterns improving (Q9: Streams + Lambda for trending)
+- ❌ **CRITICAL**: Query requires partition key - can't query on just sort key
+- ❌ Frequency-based decision tree broken for rare operations
+- ❌ Pattern-matching from previous questions (recency bias)
+- ❌ Not calculating costs before choosing solutions
+
+**Decision Framework Failure:**
+```
+Current (WRONG):
+- See "analytics" → S3 Export
+- See "monthly" → S3 Export
+- See "large table" → S3 Export
+
+Correct:
+- Frequency + Selectivity → Solution
+  - Monthly + 2% = GSI ($4/mo)
+  - Twice-yearly + 2% = Scan ($10/yr)
+  - Monthly + ALL data = S3 Export ($60/mo)
+```
+
+**Waldorf & Statler's Diagnosis:**
+- "Consistent inconsistency: 65% → 60%"
+- "Like a carpenter who only owns a jackhammer"
+- "Got the hard patterns right (leaderboards, tool selection) but over-thinking simple stuff"
+- "Doesn't do the math - basic arithmetic would solve most errors"
+
+**Materials Created:**
+- None (quiz only session)
+
+**Emergency Recovery Requirements:**
+1. **Cost calculation drill:** 10 questions comparing GSI vs Scan vs S3 Export (target: 9/10)
+2. **Query limitations drill:** 10 questions on partition key requirements (target: 9/10)
+3. **Frequency-based decision tree:** Create visual flowchart
+4. **Retake this quiz:** Must hit 9/10 before advancing
+
+**Status:** **STILL BLOCKED** - 23 days to exam, stuck at 60% for 2 days straight
+**Urgency:** CRITICAL - no improvement between Dec 12 (65%) and Dec 13 (60%)
+
+---
+
 ## 📈 Performance Trends
 
 ### Quiz Score Progression
@@ -484,6 +573,10 @@
 | **Dec 11** | **Session Storage** | **20%** | **Absolute disaster** ❌ |
 | **Dec 12** | **Query vs Scan 20Q Drill** | **65%** | **CATASTROPHIC FAILURE** 💀 |
 | **Dec 12** | **Numeric Partition Keys** | **0%** | **3/3 missed - CRITICAL** ❌ |
+| **Dec 13** | **Scan/GSI 10Q Drill** | **60%** | **NO IMPROVEMENT - STUCK** 💀 |
+| **Dec 13** | **Over-Engineering Rare Ops** | **0%** | **2/2 missed - NEW CRITICAL** ❌ |
+| **Dec 13** | **Query Limitations** | **0%** | **Forgot partition key required** ❌ |
+| **Dec 13** | **Denormalization Pattern** | **0%** | **Many-to-many relationships** ❌ |
 
 ### Weakness Resolution Rate
 - **VPC NACLs:** 0% → 100% (3 days) ✅
@@ -600,5 +693,5 @@
 
 ---
 
-**Last Updated:** December 8, 2025, 9:30 AM
-**Next Quiz:** DynamoDB & Other Databases (Dec 9, 2025)
+**Last Updated:** December 13, 2025, 10:00 AM
+**Next Quiz:** Cost Calculation & Query Limitations Drills (Must hit 90% before advancing)

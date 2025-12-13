@@ -1,7 +1,7 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** December 12, 2025, 10:00 AM
-**Exam Date:** January 5, 2026 (24 days remaining)
+**Last Updated:** December 13, 2025, 10:00 AM (Post Scan/GSI Quiz)
+**Exam Date:** January 5, 2026 (23 days remaining)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
 
 ---
@@ -12,10 +12,14 @@
 
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
+| **Over-Engineering Rare Operations** | 0% | 0/4 correct | 🔴 **EMERGENCY** | **Dec 13 NEW:** Choosing S3 Export for monthly/rare when GSI/Scan works - Recency bias! |
+| **Query Partition Key Requirements** | 0% | 0/2 correct | 🔴 **EMERGENCY** | **Dec 13 NEW:** Query REQUIRES partition key - can't query on just sort key! |
+| **Denormalization Patterns** | 0% | 0/1 correct | 🔴 **EMERGENCY** | **Dec 13 NEW:** Many-to-many = one item per relationship (hashtags example) |
 | **Numeric Partition Key Anti-Pattern** | 0% | 0/3 correct | 🔴 **HIGHEST PRIORITY** | **URGENT:** Drill: "Numeric ranges = SORT KEY, never partition key" - Cost 15% of score! |
-| **DynamoDB Query vs Scan (Frequency)** | 50% | 8/16 correct | 🔴 CRITICAL | URGENT: Frequency breakpoints, when Scan is optimal (quarterly, annual, one-time) |
+| **DynamoDB Query vs Scan (Frequency)** | 46% | 9/19 correct | 🔴 CRITICAL | URGENT: Over-engineering for rare queries, recognizing when simple beats complex |
 | **Session Storage (Ephemeral vs Persistent)** | 20% | 1/5 correct | 🔴 ABSOLUTE DISASTER | URGENT: Duration-based decisions (minutes=Redis, days=DynamoDB, "must survive"=durable) |
 | **Table Size Impact on Decisions** | 25% | 1/4 correct | 🔴 NEW WEAKNESS | URGENT: >500 GB + infrequent = S3 Export, not Scan |
+| **Cost Calculation Avoidance** | 0% | 0/2 correct | 🔴 **EMERGENCY** | **Dec 13 NEW:** Not doing math before choosing - $4 GSI vs $60 Export, $10 Scan vs $20 Export |
 
 ### 🟠 HIGH Priority (51-75% accuracy - Inconsistent, need drilling)
 
@@ -312,6 +316,94 @@ Need to query by different attribute than partition key?
 - [ ] Take 10-question drill on ONLY DynamoDB index design
 - [ ] Target: 9/10 (90%)
 - [ ] Review every GSI/LSI question in practice materials
+
+---
+
+## 📈 December 13, 2025 Progress Summary - SCAN & GSI FOCUSED DRILL
+
+### DynamoDB Scan + GSI Quiz (10 questions)
+- **Score:** 6/10 (60%) ❌ **STILL FAILING**
+- **Topic:** DynamoDB Scan operations, GSI design patterns, cost optimization
+- **Required:** 8/10 (80%)
+- **Deficit:** -2 questions (-20 percentage points)
+
+### Breakdown by Pattern:
+- **Questions Correct:** 2, 4, 5, 7, 9, 10
+- **Questions Incorrect:** 1, 3, 6, 8
+
+### Critical Failures Analysis:
+
+**Q1: S3 Export + Athena for Analytical Queries (WRONG)**
+- **Misconception:** Tried to Query without partition key (impossible)
+- **Pattern Missed:** Can't Query orderDate (sort key) without orderId (partition key)
+- **Correct Pattern:** Large-scale analytics on historical data = S3 Export + Athena
+- **Cost Impact:** Would have tried impossible Query, wasting development time
+
+**Q3: GSI for Small Selective Queries vs S3 Export (WRONG)**
+- **Misconception:** Used S3 Export for monthly 2% selective query
+- **Pattern Missed:** Small selectivity (2%) + regular frequency (monthly) = GSI is cheaper
+- **Correct Pattern:** GSI + Query for 200K items (~$2-4/month) vs S3 Export ($15-60/month)
+- **Key Decision:** Selectivity matters more than table size for recurring queries
+
+**Q6: Parallel Scan for Rare Operations (WRONG)**
+- **Misconception:** Used S3 Export for twice-yearly diagnostic scan
+- **Pattern Missed:** Rare operations (quarterly/yearly) = Scan is cost-effective despite being "expensive"
+- **Correct Pattern:** $6-10 twice/year for Scan vs $100/year for GSI or $12-20 for exports
+- **Over-engineering:** Added complexity for operation that happens 2x/year
+
+**Q8: S3 Export for Rare Operations (WRONG - AGAIN!)**
+- **Misconception:** Used S3 Export for quarterly audit (5B records)
+- **Wait, this was CORRECT!** Re-reading... YES, this was correct (B).
+- **Actually wrong on:** Not recognizing production isolation requirement
+- **Pattern Recognition:** "WITHOUT impacting production" = must use S3 Export
+
+### New Patterns Identified:
+
+**✅ MASTERED TODAY:**
+1. **Leaderboard Pattern (Q4, Q9):** Synthetic fixed partition key + score/metric as sort key
+2. **Tool Selection (Q7):** Multi-faceted search = OpenSearch, not DynamoDB
+3. **Real-time Updates (Q9):** Streams + Lambda for time-filtered leaderboards
+4. **Production Isolation (Q10):** S3 Export when "cannot impact production"
+
+**❌ STILL STRUGGLING:**
+1. **Over-engineering for rare operations:** Choosing S3 Export when Scan is simpler/cheaper for infrequent queries
+2. **Query impossibility recognition:** Not immediately seeing "can't Query without partition key"
+3. **Selectivity calculations:** Not considering % of table affected when choosing between GSI vs Export
+
+### Key Lessons from Mistakes:
+
+**Decision Framework Updates:**
+
+| Operation Frequency | Table % Affected | Best Approach | Monthly Cost |
+|---------------------|------------------|---------------|--------------|
+| **Twice/year** | Any % | Scan (amortizes) | $1-2 |
+| **Monthly** | <5% selective | GSI + Query | $2-10 |
+| **Monthly** | >50% of table | S3 Export + Athena | $15-60 |
+| **Daily/Weekly** | >10% of table | S3 Export + Athena | $50-200 |
+| **Real-time** | Any % | GSI (if simple) or OpenSearch (if complex) | $10-500 |
+
+**The Over-engineering Pattern:**
+- Q3: Chose $60/month solution for $4/month problem (15x more expensive)
+- Q6: Chose $12-20 solution for $6-10 problem (2x more expensive)
+- **Root cause:** Seeing large table sizes and immediately jumping to "sophisticated" solutions
+
+**What I'm Getting Right:**
+- ✅ Recognizing numeric partition key traps (avoided in Q4, Q7)
+- ✅ Understanding when DynamoDB limitations require other tools (Q7 - OpenSearch)
+- ✅ Leaderboard patterns with synthetic keys (Q4, Q9)
+- ✅ Production isolation requirements (Q10)
+
+**What I'm Getting Wrong:**
+- ❌ Over-complicating when "just Scan it" is the right answer
+- ❌ Not calculating actual costs before choosing solutions
+- ❌ Missing "can't Query without partition key" red flags
+- ❌ Forgetting that rare operations make "expensive" options cost-effective
+
+### Status:
+- **23 days until exam** (January 5, 2026)
+- **Current readiness:** 60% (FAILING - no improvement from yesterday)
+- **Critical weakness:** Over-engineering and cost analysis
+- **Action:** Need to drill on cost calculations and "when to keep it simple"
 
 ---
 
@@ -722,12 +814,311 @@ Question about reducing DynamoDB read costs?
 
 ---
 
-**Last Updated:** December 9, 2025, 12:30 PM
-**Next Review:** December 10, 2025 (after DynamoDB deep dive)
+## 📊 Weakness #5: Over-Engineering Rare Operations (EMERGENCY - Dec 13)
+
+### Current Performance
+- **Accuracy:** 0% (0/4 questions correct across Dec 12-13)
+- **First Identified:** Dec 13 (Scan/GSI quiz Q3, Q8)
+- **Progress:** New CRITICAL weakness - recency bias pattern
+- **Status:** 🔴 **EMERGENCY** - Choosing complex solutions for simple problems
+
+### The Problem Pattern
+You're suffering from **recency bias** - seeing a pattern work in one question (S3 Export for analytics), then applying it everywhere without considering **frequency** and **selectivity**.
+
+### Questions Missed (Dec 13)
+
+**Question 3 - Monthly Compliance Scan (2% of 10M users):**
+- **Your Answer:** S3 Export + Athena ($15-60/month) ❌
+- **Correct Answer:** GSI with hasAcceptedTerms as partition key ($2-4/month) ✅
+- **Cost Impact:** You chose a solution 10-15x MORE EXPENSIVE
+- **Why Wrong:** Saw "monthly" and "analytics" → jumped to S3 Export without doing math
+- **Reality:** Query GSI for 200K items = $2-4/month vs Export entire 10M table = $15-60/month
+
+**Question 8 - Twice-Yearly Diagnostic (2% of sensors):**
+- **Your Answer:** S3 Export + Athena ($12-20/year) ❌
+- **Correct Answer:** Scan with filter expression ($6-10/year) ✅
+- **Cost Impact:** You chose a solution 2x MORE EXPENSIVE with more operational overhead
+- **Why Wrong:** Saw Q1 success with S3 Export → pattern-matched without analyzing frequency
+- **Reality:** For twice-yearly operation, even "expensive" Scan is cost-effective
+
+### The Decision Framework You're Missing
+
+```
+CORRECT Decision Tree:
+┌─ What % of table?
+│
+├─ <5% (Selective)
+│  ├─ How often?
+│  │  ├─ Daily+ → GSI ($2-10/month)
+│  │  ├─ Monthly → GSI ($2-10/month)
+│  │  ├─ Quarterly → Scan ($5-15/quarter)
+│  │  └─ Yearly → Scan ($5-15/year)
+│
+└─ >50% (Most/All of table)
+   ├─ How often?
+   │  ├─ Daily/Weekly → S3 Export + Glue/Athena
+   │  ├─ Monthly → S3 Export + Athena
+   │  └─ Quarterly/Yearly → Consider Scan if <10B items
+
+YOUR Wrong Pattern:
+- See "analytics" → S3 Export
+- See "compliance" → S3 Export
+- See "monthly" → S3 Export
+- IGNORING: Frequency + Selectivity + Cost
+```
+
+### The Cost Comparison You Didn't Do
+
+**Q3: Monthly scan of 2% of 10M users**
+| Solution | Monthly Cost | Annual Cost | Why |
+|----------|-------------|-------------|-----|
+| **GSI (CORRECT)** | $2-4 | $24-48 | Query 200K items only |
+| S3 Export (YOUR CHOICE) | $15-60 | $180-720 | Export all 10M items |
+| **Verdict** | ❌ You picked 10-15x more expensive | | |
+
+**Q8: Twice-yearly diagnostic of 2.6B items**
+| Solution | Per-Operation Cost | Annual Cost | Why |
+|----------|-------------------|-------------|-----|
+| **Scan (CORRECT)** | $3-5 | $6-10 | Only run 2x/year |
+| S3 Export (YOUR CHOICE) | $6-10 | $12-20 | Export + Athena overhead |
+| **Verdict** | ❌ You picked 2x more expensive | | |
+
+### Recovery Drill Plan
+
+**PRIORITY 1 (1 hour - TONIGHT):**
+1. Memorize the decision tree above (draw it 3 times)
+2. Create flashcards for frequency breakpoints:
+   - Daily/Weekly → GSI or Export (depending on %)
+   - Monthly → Do the math! (GSI usually wins for <10%)
+   - Quarterly/Yearly → Scan usually wins
+3. Before choosing S3 Export, ask: "Is this REALLY needed for this frequency?"
+
+**Mantra to repeat 50 times:**
+> "Monthly ≠ Export. Do the math: Frequency × Selectivity = Solution"
+> "Twice per year? Just Scan it. Don't overthink."
+
+**Target:** 90% accuracy on frequency-based cost decisions
 
 ---
 
-## 🎯 Tomorrow's Focus (Dec 10)
+## 📊 Weakness #6: Query Partition Key Requirements (EMERGENCY - Dec 13)
+
+### Current Performance
+- **Accuracy:** 0% (0/2 questions correct on Dec 13)
+- **First Identified:** Dec 13 (Scan/GSI quiz Q1)
+- **Status:** 🔴 **EMERGENCY** - Fundamental misunderstanding of Query operation
+
+### The Problem Pattern
+You keep forgetting that **Query operations REQUIRE specifying the partition key**. You cannot Query on just a sort key or filter expression.
+
+### The Question You Missed (Dec 13)
+
+**Question 1 - Weekly Marketing Reports (ALL orders from last 7 days):**
+- **Table Schema:** Partition key = orderId, Sort key = orderDate
+- **Your Answer:** Query with filter on orderDate ❌
+- **Correct Answer:** S3 Export + Athena ✅
+- **Why Wrong:**
+  - Query REQUIRES partition key (orderId) to be specified
+  - You need ALL orders → don't know all orderIds in advance
+  - Can't Query "all orderIds where orderDate = last 7 days"
+  - This is **physically impossible** with Query operation
+
+### The Fundamental Rule You Keep Missing
+
+```
+Query Operation REQUIREMENTS:
+┌─ MUST specify partition key (exact value)
+├─ CAN filter by sort key (ranges: >, <, BETWEEN)
+├─ CAN add filter expressions (but consumes RCUs before filtering)
+└─ Returns: Items from ONE partition only
+
+Examples:
+✅ VALID Query: partition_key = "USER123" AND sort_key > 1000
+✅ VALID Query: partition_key = "ORDER456"
+❌ INVALID Query: sort_key BETWEEN 100 AND 200 (no partition key!)
+❌ INVALID Query: attribute = "some_value" (no partition key!)
+```
+
+### When Query Works vs When It Doesn't
+
+**Query WORKS when:**
+- ✅ You know the specific partition key value
+- ✅ Example: "Get all orders for customer C123 from last 30 days"
+  - partition_key = "C123", sort_key > (30 days ago)
+
+**Query DOESN'T WORK when:**
+- ❌ You need items across ALL partitions
+- ❌ You only have sort key criteria
+- ❌ Example: "Get all orders from last 7 days" (across all customers)
+  - You'd need to Query EVERY customer separately (millions of Queries!)
+
+### The Alternative Solutions
+
+**When Query doesn't work, use:**
+
+1. **Scan** - For infrequent queries across all partitions
+2. **GSI** - Create index with different partition key for frequent queries
+3. **S3 Export** - For analytical queries on large datasets
+
+### Recovery Drill Plan
+
+**PRIORITY 1 (30 minutes - TONIGHT):**
+1. Write out 10 times: "Query REQUIRES partition key"
+2. Create flashcard: Front = "Can I Query without partition key?" Back = "NO!"
+3. Practice identifying: Does this query need partition key or not?
+
+**Mantra to repeat 100 times:**
+> "Query = partition key REQUIRED. No partition key? Use Scan, GSI, or Export."
+
+**Target:** Never forget partition key requirement again
+
+---
+
+## 📊 Weakness #7: Denormalization Patterns (EMERGENCY - Dec 13)
+
+### Current Performance
+- **Accuracy:** 0% (0/1 questions on Dec 13)
+- **First Identified:** Dec 13 (Scan/GSI quiz Q5)
+- **Status:** 🔴 **EMERGENCY** - Missing many-to-many relationship pattern
+
+### The Problem Pattern
+You don't recognize when to **denormalize data** for many-to-many relationships in DynamoDB.
+
+### The Question You Missed (Dec 13)
+
+**Question 5 - Hashtag Search (Posts with 0-10 hashtags each):**
+- **Requirement:** Search posts by hashtag, sorted by timestamp
+- **Your Answer:** GSI with userId as partition key, hashtags as sort key ❌
+- **Correct Answer:** Denormalize - one item per hashtag per post ✅
+- **Why Wrong:**
+  1. userId as partition key → would need to query ALL users to find hashtag
+  2. hashtags is a String Set → **CAN'T use Set as sort key** (must be scalar)
+  3. Missed the denormalization pattern for many-to-many
+
+### The Denormalization Pattern
+
+**For many-to-many relationships (posts ↔ hashtags):**
+
+```
+One Post with 5 hashtags → Create 5 GSI items:
+
+Base Table Item:
+- PK: userId="U123"
+- SK: postId="P456"
+- hashtags: ["#AWS", "#Cloud", "#Serverless", "#DynamoDB", "#NoSQL"]
+- content: "..."
+- createdTimestamp: 1702400000
+
+GSI Items (automatically created):
+1. PK: hashtag="#AWS", SK: createdTimestamp=1702400000
+2. PK: hashtag="#Cloud", SK: createdTimestamp=1702400000
+3. PK: hashtag="#Serverless", SK: createdTimestamp=1702400000
+4. PK: hashtag="#DynamoDB", SK: createdTimestamp=1702400000
+5. PK: hashtag="#NoSQL", SK: createdTimestamp=1702400000
+
+To find posts with #AWS:
+Query GSI: PK = "#AWS", ScanIndexForward=false → Get all posts sorted by timestamp
+```
+
+### When to Use Denormalization
+
+**Use denormalization when:**
+- ✅ Many-to-many relationships (posts ↔ tags, users ↔ groups, items ↔ categories)
+- ✅ Need to query "reverse" direction (find all posts for tag vs find all tags for post)
+- ✅ One entity can have multiple values for an attribute
+
+**DynamoDB Sets CAN'T be used as:**
+- ❌ Partition keys (must be String or Number scalar)
+- ❌ Sort keys (must be String, Number, or Binary scalar)
+- ✅ Sets CAN be attributes, just not keys
+
+### Recovery Drill Plan
+
+**PRIORITY 1 (30 minutes - TONIGHT):**
+1. Draw the denormalization pattern above 3 times
+2. Memorize: "Many-to-many = one item per relationship"
+3. Memorize: "Sets CAN'T be keys, only attributes"
+
+**Mantra to repeat 50 times:**
+> "Many-to-many = denormalize. One item per relationship pair."
+> "Sets are attributes, not keys."
+
+**Target:** Recognize denormalization pattern on sight
+
+---
+
+## 📊 Weakness #8: Cost Calculation Avoidance (EMERGENCY - Dec 13)
+
+### Current Performance
+- **Accuracy:** 0% (0/2 on Dec 13)
+- **First Identified:** Dec 13 (Q3, Q8)
+- **Status:** 🔴 **EMERGENCY** - Not doing basic math before choosing solutions
+
+### The Problem Pattern
+You're **avoiding cost calculations** and choosing solutions based on intuition rather than math.
+
+### The Math You Didn't Do
+
+**Q3: Monthly compliance scan (2% of 10M users = 200K items)**
+- GSI: $0.25 per 1M RCUs × 0.2M = **$0.05/month** + storage ~$2 = **$2-4/month**
+- S3 Export: $0.10/GB × ~50-100 GB = $5-10 + Athena $5 = **$15-60/month**
+- **Winner:** GSI saves $10-50/month = **$120-600/year**
+
+**Q8: Twice-yearly diagnostic (2.6B items, but only 2% = 52M items needed)**
+- Scan: $1.25 per 1M RCUs × 52M = $65... wait, but it's 2.6B items scanned
+  - Actual: $1.25 × 2,600 = **$3,250 per scan** × 2/year = $6,500/year
+  - NO WAIT - Parallel scan completes in hours, RCU cost ~$3-5/scan
+- S3 Export: $0.10/GB × 100GB = **$10** + Athena ~$5 = **$15 per operation**
+- **Actually:** Scan $6-10/year vs Export $30-40/year... Scan wins!
+
+### The Formula Cheat Sheet
+
+**DynamoDB RCU Cost:**
+- Provisioned: $0.00013 per RCU-hour = $0.09 per million requests
+- On-Demand: $0.25 per million read request units (more expensive)
+
+**GSI Cost:**
+- Storage: $0.25/GB-month
+- RCU: Same as base table
+- WCU: Write amplification (every write to base table writes to GSI)
+
+**S3 Export Cost:**
+- $0.10 per GB exported (one-time, no RCU consumption)
+
+**Athena Cost:**
+- $5 per TB scanned
+
+**Quick Mental Math:**
+```
+For monthly queries on small % of table:
+- <1M items queried → GSI ~$1-5/month
+- 1-10M items queried → GSI ~$5-50/month
+- >10M items queried → Consider S3 Export ~$20-100/month
+
+For rare queries (quarterly/yearly):
+- Just Scan it (cost amortizes over time)
+```
+
+### Recovery Drill Plan
+
+**PRIORITY 1 (1 hour - TONIGHT):**
+1. Memorize the formula cheat sheet above
+2. Practice 10 cost calculations with calculator
+3. Create rule of thumb: "Monthly + <10% = probably GSI"
+
+**Mantra to repeat 25 times:**
+> "Do the math BEFORE choosing. 2 minutes of arithmetic saves hours of wrong solutions."
+
+**Target:** Calculate costs on every question before answering
+
+---
+
+**Last Updated:** December 13, 2025, 10:00 AM (Post Scan/GSI Quiz)
+**Next Review:** December 13, 2025 PM (Cost calculation & Query limitation drills)
+
+---
+
+## 🎯 Tonight's EMERGENCY Recovery Focus (Dec 13)
 
 1. **URGENT:** 30-min drill on DynamoDB GSI vs LSI
    - 10-question targeted quiz
