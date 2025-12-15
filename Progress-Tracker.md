@@ -1,7 +1,7 @@
 # AWS SAA-C03 Study Progress Tracker
 
-**Exam Date:** January 5, 2026 (28 days remaining)
-**Study Period:** November 21, 2025 - January 4, 2026
+**Exam Date:** January 14, 2026 (30 days remaining as of Dec 15)
+**Study Period:** November 21, 2025 - January 13, 2026
 **Target:** Pass with 80%+ (720+ out of 1000 points)
 
 ---
@@ -693,5 +693,31 @@ Correct:
 
 ---
 
-**Last Updated:** December 13, 2025, 10:00 AM
-**Next Quiz:** Cost Calculation & Query Limitations Drills (Must hit 90% before advancing)
+---
+
+### Day 6 - DynamoDB Nuclear Reset (December 15, 2025)
+**Topics:** Fresh start on DynamoDB after being stuck at 60% for 3 days
+
+**Exam Date Update:**
+- 🎉 **EXAM MOVED: January 5 → January 14, 2026** (+9 days)
+- New timeline: 30 days remaining (Dec 15 start)
+- Revised study period: Dec 15 - Jan 13
+
+**Study Approach:** Option A - Nuclear Reset
+- Abandon previous DynamoDB quiz results
+- Start from scratch with fresh mental model
+- Read Quick-Reference-Databases.md + AWS DynamoDB FAQs
+- Take NEW quiz tomorrow (Dec 16) with clean slate
+
+**Status:** Taking a break, will resume with fresh eyes
+
+**Materials Created:**
+- Updated Progress-Tracker.md with new exam date
+- Updated Revised-Study-Schedule-Dec-5-Jan-5.md with new timeline
+
+**Next Up:** DynamoDB deep dive reading (60 min) + AWS FAQ (45 min) when ready
+
+---
+
+**Last Updated:** December 15, 2025, 4:00 PM
+**Next Quiz:** NEW DynamoDB comprehensive quiz (Dec 16, target: 75%+)

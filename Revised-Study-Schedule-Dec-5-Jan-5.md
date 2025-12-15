@@ -1,8 +1,8 @@
 # Revised AWS SAA-C03 Study Schedule
-**Exam Date: January 5, 2026**
-**Study Period: December 5, 2025 - January 4, 2026 (31 days)**
+**Exam Date: January 14, 2026** *(Updated from Jan 5 - +9 days)*
+**Study Period: December 5, 2025 - January 13, 2026 (40 days)**
 **Daily Commitment: 1.5-2 hours**
-**Current Progress: Week 1 foundation work completed (with some gaps)**
+**Current Progress: Week 2 in progress - DynamoDB drilling (Dec 15)**
 
 ---
 
