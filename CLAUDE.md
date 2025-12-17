@@ -196,3 +196,4 @@ Use descriptive commit messages that include:
 - Let's try to keep this project folder organized.
 - always provide the quiz master responses
 - update the cost analysis file when appropriate for the current topic(s)
+- at the start of every session, confirm the date and time using bash(date)

@@ -1,7 +1,7 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** December 13, 2025, 10:00 AM (Post Scan/GSI Quiz)
-**Exam Date:** January 5, 2026 (23 days remaining)
+**Last Updated:** December 17, 2025, 8:00 PM (Post 4-Weakness Elimination Marathon)
+**Exam Date:** January 14, 2026 (28 days remaining)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
 
 ---
@@ -12,14 +12,10 @@
 
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
-| **Over-Engineering Rare Operations** | 0% | 0/4 correct | 🔴 **EMERGENCY** | **Dec 13 NEW:** Choosing S3 Export for monthly/rare when GSI/Scan works - Recency bias! |
-| **Query Partition Key Requirements** | 0% | 0/2 correct | 🔴 **EMERGENCY** | **Dec 13 NEW:** Query REQUIRES partition key - can't query on just sort key! |
-| **Denormalization Patterns** | 0% | 0/1 correct | 🔴 **EMERGENCY** | **Dec 13 NEW:** Many-to-many = one item per relationship (hashtags example) |
-| **Numeric Partition Key Anti-Pattern** | 0% | 0/3 correct | 🔴 **HIGHEST PRIORITY** | **URGENT:** Drill: "Numeric ranges = SORT KEY, never partition key" - Cost 15% of score! |
-| **DynamoDB Query vs Scan (Frequency)** | 46% | 9/19 correct | 🔴 CRITICAL | URGENT: Over-engineering for rare queries, recognizing when simple beats complex |
 | **Session Storage (Ephemeral vs Persistent)** | 20% | 1/5 correct | 🔴 ABSOLUTE DISASTER | URGENT: Duration-based decisions (minutes=Redis, days=DynamoDB, "must survive"=durable) |
 | **Table Size Impact on Decisions** | 25% | 1/4 correct | 🔴 NEW WEAKNESS | URGENT: >500 GB + infrequent = S3 Export, not Scan |
-| **Cost Calculation Avoidance** | 0% | 0/2 correct | 🔴 **EMERGENCY** | **Dec 13 NEW:** Not doing math before choosing - $4 GSI vs $60 Export, $10 Scan vs $20 Export |
+| **DynamoDB Query vs Scan (Frequency)** | 46% | 9/19 correct | 🔴 CRITICAL | URGENT: Over-engineering for rare queries, recognizing when simple beats complex |
+| **Cost Calculation Avoidance** | 40% | 2/5 correct | 🟠 IMPROVING | **Dec 16-17 UPDATE:** Improved from 0% with frequency-based drilling |
 
 ### 🟠 HIGH Priority (51-75% accuracy - Inconsistent, need drilling)
 
@@ -68,6 +64,10 @@ These were marked "resolved" prematurely. Need verification across more quizzes:
 
 | Topic | Current Score | Status | Verification Needed |
 |-------|--------------|--------|---------------------|
+| **Numeric Partition Key Anti-Pattern** | 80% (16/20) | ⏳ **Dec 16-17 CONQUERED** | 2 drill rounds, 20 questions - Monitor in future quizzes |
+| **Denormalization Patterns** | 90% (9/10) | ⏳ **Dec 17 CONQUERED** | 10-question drill - Verify in comprehensive quiz |
+| **Query Partition Key Requirements** | 90% (9/10) | ⏳ **Dec 16 CONQUERED** | 10-question drill - Verify in comprehensive quiz |
+| **Over-Engineering Rare Operations** | 80% (8/10) | ⏳ **Dec 17 CONQUERED** | 10-question drill - Verify frequency decisions hold |
 | **Aurora Serverless v2 (Multi-tenant SaaS)** | 100% (1/1) | ⏳ Need more questions | Got right Q15 afternoon, need 2+ more |
 | **RDS Encryption Migration (Phased)** | 100% (1/1) | ⏳ Need more questions | Got right Q6 afternoon, need 2+ more |
 | **Session Storage (Redis for ephemeral)** | 50% (1/2) | ⏳ Moved to Active | Wrong Q15 morning, right Q5 afternoon - INCONSISTENT |
@@ -75,14 +75,19 @@ These were marked "resolved" prematurely. Need verification across more quizzes:
 
 ---
 
-## 📊 Weakness #1: Numeric Partition Key Anti-Pattern (CRITICAL - HIGHEST PRIORITY)
+## 📊 Weakness #1: Numeric Partition Key Anti-Pattern ✅ CONQUERED (0% → 80%)
 
 ### Current Performance
-- **Accuracy:** 0% (0/3 questions correct on Dec 12)
+- **Accuracy:** 80% (16/20 questions correct on Dec 16-17)
 - **First Identified:** Dec 12 (Query vs Scan 20-question drill)
-- **Progress:** New CRITICAL weakness - repeated 3 times in same quiz!
-- **Status:** 🔴 **CATASTROPHIC** - Cost 15% of total score
-- **Impact:** Single biggest weakness, failing same pattern repeatedly
+- **Progress:** 0% (Dec 12) → 80% (Dec 16) → **CONQUERED!** 🎉
+- **Status:** ✅ **UNDER OBSERVATION** - Moved from CATASTROPHIC to CONQUERED
+- **Impact:** Pattern mastered through systematic drilling
+- **Drilling Details:**
+  - Round 1 (Dec 16): 8/10 (80%) ✅
+  - Round 2 (Dec 16): 10/10 verification questions
+  - Total: 16/20 correct across 2 rounds
+- **Next Step:** Verify pattern holds in comprehensive quizzes
 
 ### The Problem Pattern
 You keep using **numeric, boolean, or low-cardinality attributes as GSI partition keys** when you need **range queries** (>, <, >=, <=, BETWEEN). This is fundamentally broken because **DynamoDB partition keys require EXACT match** - they don't support range operators!
@@ -814,13 +819,17 @@ Question about reducing DynamoDB read costs?
 
 ---
 
-## 📊 Weakness #5: Over-Engineering Rare Operations (EMERGENCY - Dec 13)
+## 📊 Weakness #5: Over-Engineering Rare Operations ✅ CONQUERED (0% → 80%)
 
 ### Current Performance
-- **Accuracy:** 0% (0/4 questions correct across Dec 12-13)
+- **Accuracy:** 80% (8/10 questions correct on Dec 17)
 - **First Identified:** Dec 13 (Scan/GSI quiz Q3, Q8)
-- **Progress:** New CRITICAL weakness - recency bias pattern
-- **Status:** 🔴 **EMERGENCY** - Choosing complex solutions for simple problems
+- **Progress:** 0% (Dec 13) → 80% (Dec 17) → **CONQUERED!** 🎉
+- **Status:** ✅ **UNDER OBSERVATION** - Moved from EMERGENCY to CONQUERED
+- **Drilling Details:**
+  - Dec 17 drill: 8/10 (80%) ✅
+  - Included 1 challenged answer (Q10 frequency debate) accepted as correct
+- **Next Step:** Verify frequency-based decision tree holds in future quizzes
 
 ### The Problem Pattern
 You're suffering from **recency bias** - seeing a pattern work in one question (S3 Export for analytics), then applying it everywhere without considering **frequency** and **selectivity**.
@@ -901,12 +910,16 @@ YOUR Wrong Pattern:
 
 ---
 
-## 📊 Weakness #6: Query Partition Key Requirements (EMERGENCY - Dec 13)
+## 📊 Weakness #6: Query Partition Key Requirements ✅ CONQUERED (0% → 90%)
 
 ### Current Performance
-- **Accuracy:** 0% (0/2 questions correct on Dec 13)
+- **Accuracy:** 90% (9/10 questions correct on Dec 16)
 - **First Identified:** Dec 13 (Scan/GSI quiz Q1)
-- **Status:** 🔴 **EMERGENCY** - Fundamental misunderstanding of Query operation
+- **Progress:** 0% (Dec 13) → 90% (Dec 16) → **CONQUERED!** 🎉
+- **Status:** ✅ **UNDER OBSERVATION** - Moved from EMERGENCY to CONQUERED
+- **Drilling Details:**
+  - Dec 16 drill: 9/10 (90%) ✅ EXCEEDED TARGET
+- **Next Step:** Verify Query partition key understanding holds in comprehensive quizzes
 
 ### The Problem Pattern
 You keep forgetting that **Query operations REQUIRE specifying the partition key**. You cannot Query on just a sort key or filter expression.
@@ -974,12 +987,17 @@ Examples:
 
 ---
 
-## 📊 Weakness #7: Denormalization Patterns (EMERGENCY - Dec 13)
+## 📊 Weakness #7: Denormalization Patterns ✅ CONQUERED (0% → 90%)
 
 ### Current Performance
-- **Accuracy:** 0% (0/1 questions on Dec 13)
+- **Accuracy:** 90% (9/10 questions correct on Dec 17)
 - **First Identified:** Dec 13 (Scan/GSI quiz Q5)
-- **Status:** 🔴 **EMERGENCY** - Missing many-to-many relationship pattern
+- **Progress:** 0% (Dec 13) → 90% (Dec 17) → **CONQUERED!** 🎉
+- **Status:** ✅ **UNDER OBSERVATION** - Moved from EMERGENCY to CONQUERED
+- **Drilling Details:**
+  - Dec 17 drill: 9/10 (90%) ✅ EXCEEDED TARGET
+  - Mastered: String Sets cannot be keys, many-to-many denormalization, composite partition keys
+- **Next Step:** Verify denormalization patterns hold in comprehensive quizzes
 
 ### The Problem Pattern
 You don't recognize when to **denormalize data** for many-to-many relationships in DynamoDB.
@@ -1047,12 +1065,14 @@ Query GSI: PK = "#AWS", ScanIndexForward=false → Get all posts sorted by times
 
 ---
 
-## 📊 Weakness #8: Cost Calculation Avoidance (EMERGENCY - Dec 13)
+## 📊 Weakness #8: Cost Calculation Avoidance (IMPROVING - Dec 16-17)
 
 ### Current Performance
-- **Accuracy:** 0% (0/2 on Dec 13)
+- **Accuracy:** 40% (2/5 estimated across Dec 13-17)
 - **First Identified:** Dec 13 (Q3, Q8)
-- **Status:** 🔴 **EMERGENCY** - Not doing basic math before choosing solutions
+- **Progress:** 0% (Dec 13) → 40% (Dec 17) - Improved through frequency-based drilling
+- **Status:** 🟠 **IMPROVING** - Better awareness, but still needs dedicated practice
+- **Note:** Improved as side effect of Over-Engineering weakness drilling, not targeted practice
 
 ### The Problem Pattern
 You're **avoiding cost calculations** and choosing solutions based on intuition rather than math.

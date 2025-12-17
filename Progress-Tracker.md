@@ -577,6 +577,10 @@ Correct:
 | **Dec 13** | **Over-Engineering Rare Ops** | **0%** | **2/2 missed - NEW CRITICAL** ❌ |
 | **Dec 13** | **Query Limitations** | **0%** | **Forgot partition key required** ❌ |
 | **Dec 13** | **Denormalization Pattern** | **0%** | **Many-to-many relationships** ❌ |
+| **Dec 16** | **Numeric Partition Keys Drill** | **80%** | **WEAKNESS CONQUERED (0%→80%)** 🎉 |
+| **Dec 16** | **Query Requirements Drill** | **90%** | **WEAKNESS CONQUERED (0%→90%)** 🚀 |
+| **Dec 17** | **Over-Engineering Drill** | **80%** | **WEAKNESS CONQUERED (0%→80%)** 🎉 |
+| **Dec 17** | **Denormalization Drill** | **90%** | **WEAKNESS CONQUERED (0%→90%)** 🚀 |
 
 ### Weakness Resolution Rate
 - **VPC NACLs:** 0% → 100% (3 days) ✅
@@ -719,5 +723,68 @@ Correct:
 
 ---
 
-**Last Updated:** December 15, 2025, 4:00 PM
-**Next Quiz:** NEW DynamoDB comprehensive quiz (Dec 16, target: 75%+)
+### Day 7 - DynamoDB Weakness Elimination Marathon (December 16-17, 2025)
+**Topics:** Systematic drilling of 4 critical DynamoDB weaknesses
+**Duration:** 2-day intensive drilling session (50 questions total)
+
+**Session Goal:** Eliminate critical weaknesses one at a time with targeted 10-question drills
+
+**Weakness Conquest Results:**
+
+**1. Numeric Partition Key Anti-Pattern (0% → 80%)**
+- Round 1: 8/10 (80%) ✅ TARGET ACHIEVED
+- Round 2: 12/10 questions (verification round)
+- **Total questions:** 20 questions
+- **Key learning:** Numeric/boolean values MUST be sort keys, never partition keys for range queries
+- **Pattern mastered:** Static partition key + numeric sort key for all range queries
+
+**2. Query Partition Key Requirements (0% → 90%)**
+- Drill: 9/10 (90%) ✅ EXCEEDED TARGET
+- **Total questions:** 10 questions
+- **Key learning:** Query operations MUST specify partition key; cannot query on sort key alone
+- **Pattern mastered:** Cross-partition queries require GSI with different partition key
+
+**3. Over-Engineering Rare Operations (0% → 80%)**
+- Drill: 8/10 (80%) ✅ TARGET ACHIEVED
+- **Total questions:** 10 questions (including 1 challenged answer accepted as correct)
+- **Key learning:** Frequency-based decision tree: quarterly (4/year) = S3 Export, but daily (40-60/month) = GSI
+- **Pattern mastered:** Calculate costs before choosing; hidden costs matter (GSI backfill = $300-500)
+
+**4. Denormalization Patterns (0% → 90%)**
+- Drill: 9/10 (90%) ✅ EXCEEDED TARGET
+- **Total questions:** 10 questions
+- **Key learning:** String Sets cannot be keys; denormalize with one item per set element
+- **Pattern mastered:** Many-to-many relationships = one item per relationship pair; composite PK for multi-dimensional queries
+
+**Session Statistics:**
+- **Total questions drilled:** 50 questions across 4 weaknesses
+- **Overall accuracy:** 85% (42.5/50 correct)
+- **Weaknesses conquered:** 4 out of 8 critical weaknesses
+- **Weaknesses remaining:** 4 active weaknesses to tackle
+- **Time invested:** ~2 full study sessions (Dec 16-17)
+
+**Key Patterns Mastered:**
+1. ✅ Numeric values as sort keys, never partition keys (for range queries)
+2. ✅ Query requires partition key specification
+3. ✅ Frequency thresholds: Very high (100+/year) = GSI, Low (4-12/year) = S3 Export
+4. ✅ String Sets cannot be keys; must denormalize to scalar values
+5. ✅ Composite partition keys (event_id#restriction) for multi-dimensional queries
+6. ✅ Cost calculations before choosing solutions (hidden costs matter!)
+
+**Breakthrough Moments:**
+- Question 10 (Weakness #3): User challenged frequency interpretation (40-60/month), leading to nuanced discussion of borderline cases
+- Adjacency list clarification mid-quiz (single-table design pattern)
+- Recognition that exam-style questions hide costs intentionally
+
+**Materials Created:**
+- None (pure drilling session - updated tracking files only)
+
+**Next Steps:**
+- 4 weaknesses remaining to tackle
+- Option to continue momentum or consolidate learning
+- Update tracking files and commit progress
+
+---
+
+**Last Updated:** December 17, 2025, 8:00 PM
+**Next Session:** Continue with remaining 4 weaknesses OR Week 2 progression
