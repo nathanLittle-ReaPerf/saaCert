@@ -786,5 +786,63 @@ Correct:
 
 ---
 
-**Last Updated:** December 17, 2025, 8:00 PM
-**Next Session:** Continue with remaining 4 weaknesses OR Week 2 progression
+### Day 7 (Continued) - Evening Session (December 17, 2025, 7:30-9:30 PM)
+**Topics:** Session Storage + Table Size Impact weakness elimination
+**Duration:** 2-hour drilling session (20 questions total)
+
+**Session Goal:** Continue weakness destruction momentum from afternoon session
+
+**Weakness Conquest Results:**
+
+**5. Session Storage (Ephemeral vs Persistent) (20% → 90%)**
+- Drill: 10/10 (100%) ✅ EXCEEDED TARGET
+- **Total questions:** 10 questions
+- **Key learning:** Duration-based decisions (minutes=Redis, days=DynamoDB, "must survive"=durable)
+- **Pattern mastered:** Ephemeral vs persistent storage selection based on duration and durability keywords
+
+**6. Table Size Impact on Decisions (25% → 90-95%)**
+- Drill: 9-10/10 (90-100%) ✅ TARGET ACHIEVED
+- **Total questions:** 10 questions (including debate on Q10 simplicity vs cost)
+- **Key learning:** Table size thresholds (<100GB=Scan OK, >500GB=prefer Export, >2TB=almost always Export)
+- **Pattern mastered:** Frequency breakpoints, cost calculations, production impact (S3 Export = zero RCUs)
+
+**Evening Session Statistics:**
+- **Total questions drilled:** 20 questions across 2 weaknesses
+- **Overall accuracy:** 95% (19/20 correct, with Q10 debate)
+- **Weaknesses conquered:** 2 out of 2 attempted
+- **Time invested:** ~2 hours
+
+**Key Patterns Mastered:**
+1. ✅ Duration-based storage: Minutes=Redis, Days=DynamoDB with TTL, Permanent=DynamoDB/RDS
+2. ✅ Durability keywords: "Must survive failures"=durable, "Can lose"=cache
+3. ✅ Table size thresholds and their impact on Scan vs Export decisions
+4. ✅ Frequency breakpoints: Quarterly=Scan acceptable, Monthly=borderline, Weekly+=GSI
+5. ✅ Production impact: S3 Export consumes zero RCUs
+6. ✅ Ad-hoc analytics: S3 Export + Athena for flexibility
+
+**Critical Thinking Moment:**
+- User challenged Q10 answer (Scan vs S3 Export for quarterly analytics)
+- Correctly argued that Solutions Architects should recommend S3+Athena even for small tables
+- Demonstrated real-world SA thinking beyond pattern-matching
+
+**Materials Created:**
+- None (pure drilling session - updated tracking files only)
+
+**Total Day 7 Progress (Dec 16-17):**
+- **6 weaknesses conquered** in 2 days
+- **70 questions drilled** total (50 afternoon + 20 evening)
+- **Overall accuracy:** ~88% (62/70 questions)
+- **Momentum:** Unstoppable 🔥
+
+**Remaining Weaknesses (2 active):**
+1. DynamoDB Query vs Scan (Frequency): 46% accuracy
+2. Cost Calculation Avoidance: 40% accuracy
+
+**Next Steps:**
+- Tomorrow: Tackle remaining 2 weaknesses OR take comprehensive DynamoDB quiz to verify all conquests
+- Consider: Week 2 progression after DynamoDB mastery confirmed
+
+---
+
+**Last Updated:** December 17, 2025, 9:30 PM
+**Next Session:** Continue with remaining 2 weaknesses (Query vs Scan + Cost Calculation) OR comprehensive verification quiz

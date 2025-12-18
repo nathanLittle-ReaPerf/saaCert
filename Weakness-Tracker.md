@@ -1,6 +1,6 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** December 17, 2025, 8:00 PM (Post 4-Weakness Elimination Marathon)
+**Last Updated:** December 17, 2025, 9:30 PM (Post 6-Weakness Elimination Marathon - Evening Session)
 **Exam Date:** January 14, 2026 (28 days remaining)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
 
@@ -12,10 +12,8 @@
 
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
-| **Session Storage (Ephemeral vs Persistent)** | 20% | 1/5 correct | 🔴 ABSOLUTE DISASTER | URGENT: Duration-based decisions (minutes=Redis, days=DynamoDB, "must survive"=durable) |
-| **Table Size Impact on Decisions** | 25% | 1/4 correct | 🔴 NEW WEAKNESS | URGENT: >500 GB + infrequent = S3 Export, not Scan |
 | **DynamoDB Query vs Scan (Frequency)** | 46% | 9/19 correct | 🔴 CRITICAL | URGENT: Over-engineering for rare queries, recognizing when simple beats complex |
-| **Cost Calculation Avoidance** | 40% | 2/5 correct | 🟠 IMPROVING | **Dec 16-17 UPDATE:** Improved from 0% with frequency-based drilling |
+| **Cost Calculation Avoidance** | 40% | 2/5 correct | 🟠 IMPROVING | **Dec 17 UPDATE:** Improved from 0% with frequency-based drilling, still needs dedicated practice |
 
 ### 🟠 HIGH Priority (51-75% accuracy - Inconsistent, need drilling)
 
@@ -68,10 +66,11 @@ These were marked "resolved" prematurely. Need verification across more quizzes:
 | **Denormalization Patterns** | 90% (9/10) | ⏳ **Dec 17 CONQUERED** | 10-question drill - Verify in comprehensive quiz |
 | **Query Partition Key Requirements** | 90% (9/10) | ⏳ **Dec 16 CONQUERED** | 10-question drill - Verify in comprehensive quiz |
 | **Over-Engineering Rare Operations** | 80% (8/10) | ⏳ **Dec 17 CONQUERED** | 10-question drill - Verify frequency decisions hold |
+| **Session Storage (Ephemeral vs Persistent)** | 90% (10/10) | ⏳ **Dec 17 Eve CONQUERED** | 10-question drill - Duration/durability patterns mastered |
+| **Table Size Impact on Decisions** | 90-95% (9-10/10) | ⏳ **Dec 17 Eve CONQUERED** | 10-question drill - Size thresholds & frequency breakpoints mastered |
 | **Aurora Serverless v2 (Multi-tenant SaaS)** | 100% (1/1) | ⏳ Need more questions | Got right Q15 afternoon, need 2+ more |
 | **RDS Encryption Migration (Phased)** | 100% (1/1) | ⏳ Need more questions | Got right Q6 afternoon, need 2+ more |
-| **Session Storage (Redis for ephemeral)** | 50% (1/2) | ⏳ Moved to Active | Wrong Q15 morning, right Q5 afternoon - INCONSISTENT |
-| **Overengineering (One vs Two)** | 67% (2/3) | ⏳ Moved to Active | Wrong Q12 morning, right Q7/Q18 afternoon - NEEDS DRILLING |
+| **Overengineering (One vs Two)** | 67% (2/3) | ⏳ Need more questions | Wrong Q12 morning, right Q7/Q18 afternoon - NEEDS DRILLING |
 
 ---
 
