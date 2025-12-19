@@ -1,7 +1,7 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** December 17, 2025, 9:30 PM (Post 6-Weakness Elimination Marathon - Evening Session)
-**Exam Date:** January 14, 2026 (28 days remaining)
+**Last Updated:** December 18, 2025, 10:45 PM (Post DynamoDB PERFECT SCORE - Query vs Scan MASTERED)
+**Exam Date:** January 14, 2026 (27 days remaining)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
 
 ---
@@ -12,7 +12,7 @@
 
 | Topic | Accuracy | Questions | Status | Next Action |
 |-------|----------|-----------|--------|-------------|
-| **DynamoDB Query vs Scan (Frequency)** | 46% | 9/19 correct | 🔴 CRITICAL | URGENT: Over-engineering for rare queries, recognizing when simple beats complex |
+| **DynamoDB Capacity Modes (On-Demand Decision Tree)** | 33% | 1/3 correct | 🔴 CRITICAL | **Dec 18 NEW:** Missing On-Demand triggers: unpredictable + cannot afford throttling = On-Demand, NOT Provisioned |
 | **Cost Calculation Avoidance** | 40% | 2/5 correct | 🟠 IMPROVING | **Dec 17 UPDATE:** Improved from 0% with frequency-based drilling, still needs dedicated practice |
 
 ### 🟠 HIGH Priority (51-75% accuracy - Inconsistent, need drilling)
@@ -38,6 +38,7 @@
 
 | Topic | Resolution Date | Final Score | Days to Master | Verification |
 |-------|----------------|-------------|----------------|--------------|
+| **DynamoDB Query vs Scan (Frequency)** | Dec 18, 2025 | 100% | 10 days | ✅ 10/10 on Retry #2 Final Drill - PERFECT SCORE! |
 | **Athena vs Redshift (Query Frequency)** | Dec 11, 2025 | 100% | 2 days | ✅ 5/5 correct (Final Boss Q1-5) |
 | **DynamoDB Partition Key Design** | Dec 10, 2025 | 100% | 1 day | ✅ 2/2 correct (Comprehensive quiz Q3-4) |
 | **S3 Storage Classes ("very rarely" = Glacier)** | Dec 9, 2025 | 100% | 12 days | ✅ 3/3 correct (Q7 afternoon) |

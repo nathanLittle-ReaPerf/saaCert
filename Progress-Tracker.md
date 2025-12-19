@@ -844,5 +844,60 @@ Correct:
 
 ---
 
-**Last Updated:** December 17, 2025, 9:30 PM
-**Next Session:** Continue with remaining 2 weaknesses (Query vs Scan + Cost Calculation) OR comprehensive verification quiz
+### Day 8 - DynamoDB Query vs Scan MASTERY (December 18, 2025)
+**Topics:** Comprehensive DynamoDB Query vs Scan vs GSI vs External Services drill
+
+**Quiz Performance:**
+- **Retry #2 - Clean 10-Question Drill: 10/10 (100%)** ✅ **PERFECT SCORE!**
+
+**Breakthrough Performance:**
+- Zero mistakes across all 10 questions
+- Demonstrated mastery of access pattern frequency analysis
+- Correctly optimized for highest-volume patterns
+- Recognized when DynamoDB needs external services
+- Perfect cost optimization decisions
+
+**Questions Mastered (10/10):**
+1. ✅ Monthly analytics (12/year) → S3 Export + Athena
+2. ✅ Predictable peak traffic → Scheduled + Auto Scaling
+3. ✅ Unpredictable startup traffic → On-Demand capacity
+4. ✅ Multi-pattern inventory (optimize for highest frequency)
+5. ✅ Social media multi-access (complex GSI design)
+6. ✅ ACID transactions → DynamoDB Transactions API
+7. ✅ Gaming leaderboards → ElastiCache (external service)
+8. ✅ Financial transactions (frequency-based GSI decisions)
+9. ✅ Social analytics (TTL + multiple GSIs)
+10. ✅ Trading platform (50K/day on base table optimization)
+
+**Weakness ELIMINATED:**
+- ✅ **DynamoDB Query vs Scan (Frequency):** 46% → 100% 🚀
+- ✅ Understanding frequency thresholds (daily vs monthly vs quarterly)
+- ✅ Cost optimization (base table vs GSI for high-volume patterns)
+- ✅ Recognizing when DynamoDB isn't enough (Redis, OpenSearch, Location Service)
+- ✅ Hot partition recognition and avoidance
+
+**Journey Summary:**
+- **Dec 8:** Started at 60-70% (critical weakness)
+- **Dec 11-13:** Stuck at 60% through multiple drills
+- **Dec 15:** Nuclear reset, fresh approach
+- **Dec 16-17:** Breakthrough marathon (6 weaknesses conquered, 80-90% scores)
+- **Dec 18:** **PERFECT SCORE - 10/10 (100%)**
+- **Total Improvement:** +40 percentage points in 10 days
+
+**Materials Created:**
+- DynamoDB-Limitations-External-Services.md (comprehensive guide on when to use Redis, OpenSearch, Location Service, etc.)
+
+**Exam Readiness:**
+- DynamoDB was CRITICAL WEAKNESS → Now a **STRENGTH**
+- Can confidently tackle 20-30% of SAA-C03 exam
+- Mastered: table design, GSI selection, capacity modes, cost optimization, external service integration
+
+**Next Up:**
+- Update Weakness-Tracker.md to mark DynamoDB as RESOLVED
+- Continue to remaining weaknesses or take well-deserved break
+- 27 days until exam (January 14, 2026)
+
+---
+
+**Last Updated:** December 18, 2025, 10:45 PM
+**Next Session:** Move to Cost Calculation Avoidance OR take break to consolidate learning
