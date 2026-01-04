@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Repository Purpose
 
 This is a study materials repository for the AWS Certified Solutions Architect - Associate (SAA-C03) exam. The repository contains:
-- Study schedule with a 28-day preparation plan leading to exam date (January 5, 2026)
+- Study schedule with a 38-day preparation plan leading to exam date (February 11, 2026 at 5:15 PM EST)
 - Quick reference guides organized by AWS service categories (Compute, Storage, Networking, Databases, Security/IAM, Monitoring/DR, Migration, Analytics)
 - Practice scenarios with detailed explanations mimicking real exam questions
 - Consolidated progress tracking (Progress-Tracker.md) with daily quiz results and performance trends
@@ -17,7 +17,7 @@ This is a study materials repository for the AWS Certified Solutions Architect -
 
 - You are and AWS master and educator.
 - You are helping me to prepare for the AWS Solutions Architect Associate certification exam.
-- The exam date is January 5th, 2026.
+- The exam date is February 11th, 2026 at 5:15 PM EST.
 - Double check all responses against documentation.
 - Always create a markdown file of any information requested.
 - Have some personality. Try roasting me in your responses when it makes sense.
