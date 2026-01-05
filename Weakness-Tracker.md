@@ -1,9 +1,29 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** January 4, 2026, 1:30 PM CST (Post Day 1 Baseline Assessment - 75%)
+**Last Updated:** January 5, 2026, 8:45 PM CST (Post Day 1 Lambda Deep Dive - 50%)
 **Exam Date:** February 11, 2026 at 5:15 PM EST (37 days remaining)
 **Study Period:** January 5 - February 10, 2026 (37 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## 📊 Day 1 Quiz Results (January 5, 2026)
+
+**Topic:** Lambda Service Limits & Optimization Patterns
+**Score:** 5/10 (50%)
+**Status:** New weakness patterns identified - need targeted drilling
+
+**Strengths Demonstrated:**
+- ✅ Lambda 15-minute timeout recognition (ECS Fargate for long tasks)
+- ✅ Lambda memory = CPU scaling
+- ✅ Timeout troubleshooting
+
+**New Weaknesses Identified:**
+- ❌ MediaConvert for video transcoding (not Lambda)
+- ❌ Kinesis parallelization factor (concurrency per shard)
+- ❌ Reserved vs Provisioned Concurrency (throttling solutions)
+- ❌ Lambda + EFS for large file caching (> 250 MB)
+- ❌ RDS Proxy for Lambda + RDS connection pooling
 
 ---
 
@@ -37,6 +57,168 @@
 ### 🟡 MEDIUM Priority (76-89% accuracy - Mostly correct, polish needed)
 
 _None identified yet - will populate as more quizzes are taken._
+
+---
+
+## 🆕 Day 1 New Weaknesses (January 5, 2026)
+
+### 🔴 NEW WEAKNESS #6: MediaConvert vs Lambda for Video Processing
+
+**The Problem:** You chose Lambda multi-part upload for 4K video transcoding, missing Lambda's timeout and storage limits.
+
+**The Rule:**
+```
+Video/Media Processing Keywords → Purpose-Built Service
+
+"video transcoding" → AWS Elemental MediaConvert ✅
+"live streaming" → AWS Elemental MediaLive ✅
+"image resize/watermark" → Lambda + S3 ✅
+"4K video processing" → MediaConvert (NOT Lambda) ✅
+
+Why Lambda fails:
+├─ 15-minute timeout (transcoding takes 30+ min)
+├─ 10 GB /tmp limit (4K videos are 10-50+ GB)
+└─ Not optimized for video codecs
+```
+
+**Target:** Recognize "video transcoding" → MediaConvert instantly
+
+---
+
+### 🔴 NEW WEAKNESS #7: Kinesis Parallelization Factor
+
+**The Problem:** You chose shard iterator type (WHERE to read) instead of parallelization factor (HOW FAST to process).
+
+**The Rule:**
+```
+Kinesis + Lambda Performance Formula:
+
+Total Concurrent Invocations = Shards × Parallelization Factor
+
+Examples:
+├─ 5 shards × 1 parallelization = 5 concurrent Lambda invocations
+├─ 5 shards × 10 parallelization = 50 concurrent Lambda invocations
+└─ 10 shards × 10 parallelization = 100 concurrent Lambda invocations
+
+Parallelization Factor:
+├─ Range: 1-10
+├─ Default: 1 (sequential processing per shard)
+├─ Set to 10: Each shard processed by 10 Lambda instances in parallel
+└─ Use when: "Kinesis processing too slow" or "records backing up"
+
+NOT Shard Iterator (that's for WHERE to start reading: LATEST, TRIM_HORIZON)
+```
+
+**Target:** Remember the formula: Shards × Parallelization = Total Concurrency
+
+---
+
+### 🔴 NEW WEAKNESS #8: Lambda Throttling vs Performance (Concurrency Types)
+
+**The Problem:** You chose "increase memory" for throttling (concurrency problem), not performance (speed problem).
+
+**The Rule:**
+```
+Lambda Problems & Solutions:
+
+Problem: "Throttled" / "Rate Exceeded" / "No capacity"
+└─ This is a CONCURRENCY problem (not enough instances)
+   ├─ Solution 1: Reserved Concurrency (guarantee capacity for this function)
+   ├─ Solution 2: Provisioned Concurrency (pre-warm instances, best for spikes)
+   └─ NOT: Increase memory (that's for speed, not capacity!)
+
+Problem: "Slow" / "Timing out" / "Takes too long"
+└─ This is a PERFORMANCE problem (execution speed)
+   ├─ Solution: Increase memory (more memory = more CPU)
+   └─ NOT: Concurrency (that's for capacity, not speed!)
+
+Problem: "Cold starts" / "First request slow"
+└─ This is a LATENCY problem (initialization time)
+   └─ Solution: Provisioned Concurrency (keep instances warm)
+
+Three Concurrency Types:
+1. On-Demand (default): Scales 0→1,000, burst limit +500/min
+2. Reserved: Guarantees X slots for this function (prevents other functions from stealing)
+3. Provisioned: Pre-warms X instances (no cold starts, instant capacity)
+```
+
+**Target:** Throttling = concurrency problem, NOT memory problem
+
+---
+
+### 🔴 NEW WEAKNESS #9: Lambda Storage Options (Deployment Package vs Layers vs EFS)
+
+**The Problem:** You chose Lambda layers for 2 GB ML model, but layers have 250 MB total limit.
+
+**The Rule:**
+```
+Lambda Storage Decision Tree:
+
+File < 250 MB + Single function:
+└─ Deployment package ✅
+
+File < 250 MB + Multiple functions need same file:
+└─ Lambda Layer ✅ (shared across functions)
+
+File 250 MB - 10 GB + Download each cold start is OK:
+└─ /tmp directory (configure size) ✅
+
+File > 250 MB + Need to CACHE across invocations:
+└─ Lambda + EFS (Elastic File System) ✅
+   ├─ Persistent storage (survives cold starts)
+   ├─ Download ONCE, use forever
+   └─ Shared across all Lambda instances
+
+File > 10 GB:
+└─ Lambda NOT appropriate ❌
+   └─ Use ECS Fargate or EC2
+
+Lambda Limits to Memorize:
+├─ Deployment package: 250 MB max (unzipped)
+├─ Lambda layers: 250 MB total (all layers + package)
+├─ /tmp directory: 512 MB - 10 GB (configurable, ephemeral)
+└─ EFS: Unlimited (persistent)
+```
+
+**Target:** Know when to use EFS (> 250 MB + need caching)
+
+---
+
+### 🔴 NEW WEAKNESS #10: Lambda + RDS Connection Pooling (RDS Proxy)
+
+**The Problem:** You chose connection pooling in Lambda code, missing that each Lambda instance has its own pool.
+
+**The Rule:**
+```
+Lambda + Database Patterns:
+
+Lambda + RDS (MySQL/PostgreSQL):
+└─ Use RDS Proxy ✅
+   ├─ Multiplexes connections (500 Lambda → 50 RDS connections)
+   ├─ Each Lambda instance = separate connection without proxy
+   ├─ Connection pooling in code DOESN'T work (each instance has own pool)
+   └─ RDS Proxy pools across ALL Lambda instances
+
+Lambda + DynamoDB:
+└─ No proxy needed ✅
+   └─ Serverless, no connection limits
+
+Lambda + Aurora:
+└─ Can use RDS Proxy ✅
+   └─ Benefits from connection pooling and automatic failover
+
+Why connection pooling in code fails:
+├─ 500 Lambda instances × 5 connections per pool = 2,500 total connections
+├─ Each instance is isolated (doesn't share pools)
+└─ Makes problem WORSE, not better!
+
+RDS Connection Limits:
+├─ db.t3.small: ~150 max connections
+├─ db.t3.medium: ~300 max connections
+└─ db.r5.large: ~1,000 max connections
+```
+
+**Target:** Lambda + RDS = Always consider RDS Proxy
 
 ---
 
