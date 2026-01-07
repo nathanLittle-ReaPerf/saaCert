@@ -1,21 +1,160 @@
 # AWS SAA-C03 Study Progress Tracker
 
-**Exam Date:** January 14, 2026 (30 days remaining as of Dec 15)
-**Study Period:** November 21, 2025 - January 13, 2026
-**Target:** Pass with 80%+ (720+ out of 1000 points)
+**Exam Date:** February 11, 2026 at 5:15 PM EST
+**Study Period:** January 5 - February 10, 2026 (37 days)
+**Target:** Pass with 72%+ (720+ out of 1000 points)
 
 ---
 
-## 📊 Overall Progress Summary
+## 📊 Fresh Start - January 2026 Study Period
 
-| Week | Focus | Status | Avg Score |
-|------|-------|--------|-----------|
-| **Week 1** | Core Services (EC2, S3, VPC) | ✅ Complete | 75% → 90% (after recovery) |
-| **Week 2** | Databases, Serverless, Security | 🔄 In Progress | 70% (Day 1: RDS/Aurora) |
-| Week 3 | Integration, Migration, Architecture | ⏳ Pending | - |
-| Week 4 | Final Review & Practice Exams | ⏳ Pending | - |
+### Week 1: Foundation Reset (Jan 5-11)
 
-**Current Status:** Week 2, Day 1 complete (RDS & Aurora)
+**Goal:** Refresh December wins, assess current knowledge, rebuild momentum
+
+---
+
+### Day 2 - Monday, January 6, 2026
+**Topic:** EC2 Fundamentals Review
+**Time Spent:** 1.5 hours
+
+**Quiz Performance:**
+- EC2 Fundamentals Quiz: **7/10 (70%)** ⚠️ **BELOW TARGET** (Target: 80%)
+
+**Questions Correct (7):**
+1. ✅ Cluster Placement Groups for HPC/low latency workloads
+2. ✅ On-Demand pricing for unpredictable workloads
+3. ✅ Spot Instances for fault-tolerant batch processing (70% cost savings)
+4. ✅ EC2 User Data for bootstrap scripts at launch
+5. ✅ Instance Metadata Service (IMDS) at 169.254.169.254
+6. ✅ Amazon EFS for shared file storage across multiple AZs
+7. ✅ io2 Provisioned IOPS for high-performance persistent storage
+
+**Questions Missed (3):**
+1. ❌ Instance Store vs EFS (chose EFS for temporary high-I/O data - should be Instance Store)
+2. ❌ EBS Multi-Attach disaster recovery (chose Multi-Attach - should be AWS Backup with 15-min snapshots)
+3. ❌ Partition vs Spread Placement Groups (chose Spread for Cassandra - should be Partition)
+
+**Critical Weaknesses Identified:**
+- **Instance Store characteristics:** Ephemeral, highest I/O, for temporary/cache data - confused with EFS
+- **EBS Multi-Attach limitations:** NOT a DR solution, single AZ only, io1/io2 only, max 16 instances
+- **Placement Groups confusion:** Spread (max 7/AZ, critical instances) vs Partition (Cassandra/Kafka/Hadoop, large distributed systems)
+- **RPO/RTO mapping:** 15-minute RPO = 15-minute snapshot frequency (failed to connect the dots)
+
+**Key Learnings:**
+- ✅ Reinforced: Cluster Placement Groups for HPC with Enhanced Networking
+- ✅ Reinforced: Spot Instances can save up to 90% for fault-tolerant workloads
+- ✅ Reinforced: IMDS is local endpoint (169.254.169.254), no internet required
+- ⚠️ Need drilling: Storage decision tree (Instance Store vs EBS vs EFS)
+- ⚠️ Need drilling: Placement Groups decision matrix for all three types
+- ⚠️ Need drilling: DR concepts (RPO/RTO) and backup strategies
+
+**Drill Quiz Performance (Targeted Remediation):**
+- Targeted Drill Quiz: **7/10 (70%)** ⚠️ **BELOW TARGET** (Target: 100%)
+- Focus: Instance Store vs EFS, EBS Multi-Attach, Placement Groups
+
+**Drill Quiz Breakdown:**
+- ✅ **Placement Groups: 3/3 (100%)** - MASTERED!
+  - Q8: Kafka = Partition ✅
+  - Q9: 12 critical instances (6/AZ) = Spread ✅
+  - Q10: HPC/MPI = Cluster ✅
+- ✅ **Instance Store basics: 2/2 (100%)** - MASTERED!
+  - Q1: Temporary data + highest I/O = Instance Store ✅
+  - Q3: ML training + regeneratable = Instance Store ✅
+- ⚠️ **EFS vs Multi-Attach: 2/5 (40%)** - NEEDS MORE WORK!
+  - Q2: ❌ Multi-AZ concurrent access (chose Multi-Attach, should be EFS)
+  - Q4: ❌ Shared config files (chose S3, should be EFS)
+  - Q5: ❌ Block storage concurrent access (chose EFS, should be Multi-Attach in single AZ)
+  - Q6: ✅ DR with RPO=15min (AWS Backup snapshots)
+  - Q7: ✅ Persistent storage + AZ protection (EBS + snapshots)
+
+**Key Patterns Mastered:**
+- ✅ Cassandra/Kafka/Hadoop → Partition Placement Group
+- ✅ HPC/MPI/tightly-coupled → Cluster Placement Group
+- ✅ Critical instances ≤7/AZ → Spread Placement Group
+- ✅ Instance Store for temporary/regeneratable + highest I/O
+- ✅ RPO = X minutes → Snapshots every X minutes
+- ✅ Multi-Attach ≠ DR/Backup (use snapshots instead)
+
+**Persistent Weaknesses (Still Need Drilling):**
+- ❌ **Multi-AZ + concurrent access = EFS** (not Multi-Attach, not S3)
+- ❌ **Block storage vs File storage identification**
+- ❌ **"Immediately available" keyword = EFS** (not S3 with scheduled sync)
+
+**Second Drill Quiz Performance (EFS vs Multi-Attach Focus):**
+- EFS vs Multi-Attach Drill Quiz: **8.5/10 (85%)** ✅ **MAJOR IMPROVEMENT!**
+- Focus: EFS vs Multi-Attach vs S3 decision-making, block vs file storage
+
+**Quiz Breakdown:**
+- ✅ **Multi-AZ + concurrent access = EFS: 5/5 (100%)** - MASTERED!
+- ✅ **Block-level + single AZ = Multi-Attach: 3/3 (100%)** - MASTERED!
+- ⚠️ **Edge cases: 0.5/2 (25%)**
+  - Q6: Chose EFS over FSx for Lustre (video rendering, extreme performance)
+  - Q7: ❌ Chose gp3 Multi-Attach (impossible - only io1/io2 support Multi-Attach)
+
+**Improvement Summary:**
+- **Previous EFS/Multi-Attach score: 2/5 (40%)**
+- **Current EFS/Multi-Attach score: 8.5/10 (85%)**
+- **Improvement: +45 percentage points!** 🚀
+
+**Patterns NOW Fully Mastered:**
+- ✅ Multi-AZ + concurrent access + shared = EFS (100% accuracy)
+- ✅ Block-level access + single AZ + ≤16 instances = Multi-Attach (100% accuracy)
+- ✅ "Immediately available" keyword = EFS, not S3 sync (100% accuracy)
+- ✅ Multi-Attach cannot span AZs (100% accuracy)
+- ✅ Multi-Attach max 16 instances (100% accuracy)
+- ✅ Block storage vs File storage identification (100% accuracy on core cases)
+
+**Remaining Edge Cases to Remember:**
+- ⚠️ Multi-Attach ONLY works with io1 or io2 volumes (NOT gp3, gp2, st1, sc1)
+- ⚠️ FSx for Lustre for extreme performance workloads (video rendering, HPC, ML training)
+
+**Status: READY TO PROCEED TO DAY 3** ✅
+- Core patterns mastered with 100% accuracy
+- 85% overall demonstrates strong understanding
+- Remaining gaps are edge cases, not fundamental misunderstandings
+
+**Next Steps:**
+- ✅ Proceed to Day 3: S3 Deep Dive
+- Create flashcards for Multi-Attach limitations and FSx use cases
+- Continue drilling weak areas as they emerge
+
+**Materials Created:**
+- Comprehensive weakness analysis in Weakness-Tracker.md
+- Decision trees and exam patterns for EFS vs Multi-Attach
+- 5 flashcards for critical patterns (pending)
+
+---
+
+### Day 1 - Sunday, January 5, 2026
+**Topic:** Lambda Deep Dive & Baseline Assessment
+**Time Spent:** 2 hours
+
+**Quiz Performance:**
+- Baseline Assessment: 15/20 (75%) ✅ Good starting point
+- Lambda Deep Dive: 5/10 (50%) → 8/10 (80%) after targeted review ✅ RECOVERED
+
+**Key Learnings:**
+- ✅ Lambda 15-minute timeout (ECS Fargate for longer tasks)
+- ✅ Lambda + RDS Proxy for connection pooling
+- ✅ Reserved vs Provisioned Concurrency
+- ✅ Lambda + EFS for large file caching (>250 MB)
+
+**Weaknesses Identified:**
+- MediaConvert for video transcoding (not Lambda)
+- Kinesis parallelization factor
+
+**Materials Created:**
+- Day-1-Lambda-Deep-Dive.md
+- Weakness analysis documented in Weakness-Tracker.md
+
+---
+
+## 📊 Previous Study Period (November-December 2025) - ARCHIVED
+
+**Exam Date (Original):** January 14, 2026 (Rescheduled to February 11, 2026)
+**Study Period:** November 21, 2025 - December 18, 2025
+**Outcome:** Strong progress (18 topics mastered) but interrupted by illness during holidays
 
 ---
 

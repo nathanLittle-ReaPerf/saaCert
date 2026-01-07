@@ -15,7 +15,7 @@ This is a study materials repository for the AWS Certified Solutions Architect -
 
 ## Special Instructions
 
-- You are and AWS master and educator.
+- You are an AWS master and educator.
 - You are helping me to prepare for the AWS Solutions Architect Associate certification exam.
 - The exam date is February 11th, 2026 at 5:15 PM EST.
 - Double check all responses against documentation.
@@ -31,7 +31,7 @@ All files are markdown documents at the root level:
 - **Weakness-Tracker.md**: Active and resolved weaknesses with decision trees, patterns, and improvement tracking (Dec 8 cleanup: replaces AWS-SAA-Weaknesses.md, Weak-Areas-Cheat-Sheet.md, Day-7-Updated-Weaknesses.md)
 
 ### Study Materials (Reference - Don't Modify)
-- **Revised-Study-Schedule-Dec-5-Jan-5.md**: 28-day study plan with daily topics, practice questions, and progress tracking
+- **Study-Schedule-Jan-5-Feb-10-2026.md**: 37-day study plan (38 days including exam day) with daily topics, practice questions, and progress tracking leading to exam on February 11, 2026
 - **Quick-Reference-*.md**: Service-specific cheat sheets covering:
   - Compute: EC2, Lambda, ECS, EKS, Elastic Beanstalk, Batch
   - Storage: S3, EBS, EFS, FSx, Storage Gateway, Snow Family
@@ -44,6 +44,7 @@ All files are markdown documents at the root level:
 - **Exam-Strategy-Tips.md**: Pattern recognition and keyword strategies for the exam
 - **Serverless-Architecture-Patterns.md**: Common serverless patterns and anti-patterns
 - **aws-storage-comparison.md**: Comparison table of AWS storage types with IOPS, throughput, and use cases
+- **Cost-Analysis-Reference-Tables.md**: AWS service pricing comparison tables and cost optimization patterns (updated as relevant topics are studied)
 
 ### Practice & Quizzes
 - **Practice-Scenarios*.md**: Exam-style scenario questions with detailed answer explanations and exam tips (includes Additional scenarios and Hard Mode)
@@ -79,10 +80,13 @@ pandoc Quick-Reference-Storage.md -o Quick-Reference-Storage.html
 ### Content Organization
 
 **Study Schedule Structure:**
-- Week 1 (Days 1-7): Core services foundation (EC2, S3, VPC)
-- Week 2 (Days 8-14): Databases, serverless, security
-- Week 3 (Days 15-21): Integration, migration, architecture
-- Week 4 (Days 22-26): Final review and practice exams
+- Week 1 (Days 1-7): Foundation Reset (EC2, S3, VPC, ELB, ASG, Route 53, CloudFront)
+- Week 2 (Days 8-14): Core Services Deep Dive (RDS, Aurora, DynamoDB, ElastiCache, Lambda, ECS, SQS, SNS)
+- Week 3 (Days 15-21): Advanced Services & Security (IAM, Organizations, KMS, security services, monitoring, DR)
+- Week 4 (Days 22-28): Integration & Architecture (API Gateway, Kinesis, migration services, FSx, Well-Architected Framework)
+- Week 5 (Days 29-35): Practice Exams & Targeted Drilling (three full 65-question practice exams)
+- Final Weekend (Days 36-37): Light Review & Rest
+- Day 38 (Feb 11): EXAM DAY
 - Each day has checkboxes for tracking completion
 
 **Quick Reference Guides:**
@@ -140,8 +144,8 @@ When adding or updating study materials:
 - Use difficulty levels: Easy, Medium, Hard
 
 ### Updating Study Schedule
-- Maintain the 26-day structure aligned with exam date
-- Keep daily time commitment realistic (1-2 hours)
+- Maintain the 37-day study structure (38 days total including exam day) aligned with exam date
+- Keep daily time commitment realistic (1.5-2 hours weekdays, 2-3 hours weekends)
 - Include practice question counts for each day
 - Preserve progress tracking checkboxes
 

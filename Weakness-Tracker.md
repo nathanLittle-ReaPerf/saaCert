@@ -1,9 +1,119 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** January 5, 2026, 8:45 PM CST (Post Day 1 Lambda Deep Dive - 50%)
-**Exam Date:** February 11, 2026 at 5:15 PM EST (37 days remaining)
+**Last Updated:** January 6, 2026, 7:40 AM CST (Post Day 2 EC2 Fundamentals - 70%)
+**Exam Date:** February 11, 2026 at 5:15 PM EST (36 days remaining)
 **Study Period:** January 5 - February 10, 2026 (37 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## 📊 Day 2 Quiz Results (January 6, 2026)
+
+### Initial EC2 Fundamentals Quiz
+**Topic:** EC2 Fundamentals (Instance Types, Placement Groups, Pricing, Storage)
+**Score:** 7/10 (70%)
+**Status:** ⚠️ BELOW TARGET (Target: 80%) - Critical storage and placement group gaps identified
+
+**Strengths Demonstrated:**
+- ✅ Cluster Placement Groups for HPC/low latency (Enhanced Networking)
+- ✅ On-Demand pricing for unpredictable workloads
+- ✅ Spot Instances for fault-tolerant batch processing (up to 90% discount)
+- ✅ EC2 User Data for bootstrap scripts
+- ✅ Instance Metadata Service (IMDS) at 169.254.169.254
+- ✅ Amazon EFS for shared file storage across multiple AZs
+- ✅ io2 Provisioned IOPS for high-performance persistent storage
+
+**Critical Weaknesses Identified:**
+- ❌ **Instance Store vs EFS/EBS** - Chose EFS Max I/O for temporary, high-performance storage when Instance Store was correct
+- ❌ **EBS Multi-Attach misconception** - Thought Multi-Attach protects against AZ failures (it's single AZ only, NOT a DR solution)
+- ❌ **Partition vs Spread Placement Groups** - Chose Spread (max 7/AZ) for Cassandra when Partition (large distributed systems) was correct
+- ❌ **RPO/RTO mapping** - Failed to map 15-minute RPO requirement to 15-minute snapshot frequency
+
+---
+
+### Targeted Drill Quiz (Remediation Attempt)
+**Score:** 7/10 (70%)
+**Status:** ⚠️ BELOW TARGET (Target: 100%) - Partial improvement, but EFS vs Multi-Attach still problematic
+
+**Performance by Weak Area:**
+1. **Placement Groups: 3/3 (100%)** ✅ **WEAKNESS ELIMINATED!**
+   - Correctly identified Kafka → Partition
+   - Correctly identified 12 critical instances (6/AZ) → Spread
+   - Correctly identified HPC/MPI → Cluster
+   - **Status: FULLY MASTERED** - No further drilling needed
+
+2. **Instance Store (basics): 2/2 (100%)** ✅ **WEAKNESS ELIMINATED!**
+   - Correctly identified temporary + highest I/O → Instance Store
+   - Correctly identified ML training + regeneratable → Instance Store
+   - **Status: FULLY MASTERED** - No further drilling needed
+
+3. **EFS vs Multi-Attach vs S3: 2/5 (40%)** 🚨 **CRITICAL - STILL STRUGGLING!**
+   - ❌ Q2: Chose Multi-Attach for multi-AZ concurrent access (should be EFS)
+   - ❌ Q4: Chose S3 sync for shared config files (should be EFS for "immediately available")
+   - ❌ Q5: Chose EFS for "block storage" requirement (should be Multi-Attach in single AZ)
+   - ✅ Q6: Correctly used snapshots for DR (RPO=15min)
+   - ✅ Q7: Correctly avoided Multi-Attach for AZ-level protection
+   - **Status: NEEDS INTENSIVE DRILLING** - Must achieve 90%+ before proceeding
+
+**Root Cause Analysis:**
+- **Pattern #1 not internalized:** "Multi-AZ + concurrent access = EFS (ALWAYS)"
+- **Pattern #2 confusion:** Mixing up "block storage" vs "file storage" requirements
+- **Pattern #3 missed:** "Immediately available" = real-time access = EFS (not S3 scheduled sync)
+
+**Next Action Required:**
+- 🚨 Take another 10-question drill quiz focusing EXCLUSIVELY on EFS vs Multi-Attach scenarios
+- 🚨 Create decision tree flashcard
+- 🚨 Target: 9/10 or 10/10 (90%+) before moving to Day 3
+
+---
+
+### Second Drill Quiz - EFS vs Multi-Attach Focus
+**Score:** 8.5/10 (85%)
+**Status:** ✅ **MAJOR IMPROVEMENT - Core patterns MASTERED!**
+
+**Performance by Pattern:**
+1. **Multi-AZ + concurrent access = EFS: 5/5 (100%)** ✅ **MASTERED!**
+   - Q1: Multi-AZ video editing → EFS ✅
+   - Q3: 80 instances, multi-AZ, NFS → EFS ✅
+   - Q4: Shared config, immediately available → EFS ✅
+   - Q8: 300 instances, multi-AZ logs → EFS ✅
+   - Q10: 500 instances, multi-AZ dataset → EFS ✅
+   - **This weakness is ELIMINATED** - 100% accuracy achieved
+
+2. **Block-level + single AZ = Multi-Attach: 3/3 (100%)** ✅ **MASTERED!**
+   - Q2: Oracle RAC, block-level, single AZ → Multi-Attach ✅
+   - Q5: 14 instances, block-level, single AZ → Multi-Attach ✅
+   - Q9: SQL Server, block-level, single AZ → Multi-Attach ✅
+   - **This weakness is ELIMINATED** - 100% accuracy achieved
+
+3. **Edge Cases: 0.5/2 (25%)** ⚠️ **Minor gaps on specialty topics**
+   - Q6: ⚠️ Video rendering → FSx for Lustre (chose EFS - partial credit)
+   - Q7: ❌ gp3 Multi-Attach trap (impossible - only io1/io2)
+
+**Improvement Analysis:**
+```
+Drill Quiz #1 (EFS/Multi-Attach section): 2/5 (40%)
+Drill Quiz #2 (EFS/Multi-Attach focus):   8.5/10 (85%)
+
+Improvement: +45 percentage points! 🚀
+
+Critical Pattern Accuracy:
+- Multi-AZ concurrent access: 40% → 100% ✅
+- Block-level single AZ: 67% → 100% ✅
+- Overall EFS decision-making: MASTERED ✅
+```
+
+**Status Update:**
+- ✅ **Primary weakness RESOLVED** - EFS vs Multi-Attach core patterns at 100%
+- ⚠️ **New minor gaps identified** - Multi-Attach volume types, FSx for Lustre
+- ✅ **Ready to proceed to Day 3** - Core understanding is solid
+
+**Updated Weakness Priority:**
+1. 🟢 **RESOLVED:** Multi-AZ + concurrent access = EFS
+2. 🟢 **RESOLVED:** Block-level + single AZ = Multi-Attach
+3. 🟢 **RESOLVED:** "Immediately available" = EFS
+4. 🟡 **MINOR:** Multi-Attach volume type limitation (io1/io2 only)
+5. 🟡 **MINOR:** FSx for Lustre for extreme performance workloads
 
 ---
 
@@ -181,6 +291,270 @@ Lambda Limits to Memorize:
 ```
 
 **Target:** Know when to use EFS (> 250 MB + need caching)
+
+---
+
+## 🆕 Day 2 New Weaknesses (January 6, 2026)
+
+### 🔴 NEW WEAKNESS #10: Instance Store vs EBS vs EFS (Storage Performance Hierarchy)
+
+**The Problem:** You chose EFS Max I/O for temporary data needing "sub-millisecond latency" and "HIGHEST I/O performance", missing that Instance Store is faster than ANY network storage.
+
+**The Mistake:**
+```
+Question: 5 TB temp data, millions of IOPS, sub-millisecond latency, can be regenerated
+Your Answer: EFS Max I/O ❌
+Correct Answer: Instance Store ✅
+
+Why you were wrong:
+├─ EFS is a NETWORK file system (higher latency, network overhead)
+├─ EFS Max I/O mode has HIGHER latency than General Purpose
+├─ EFS is for SHARED storage across instances, not single-instance performance
+└─ Missed keywords: "temporary", "can be regenerated", "HIGHEST I/O"
+```
+
+**The Rule:**
+```
+EC2 Storage Performance Hierarchy (Fastest → Slowest):
+
+1. Instance Store (FASTEST)
+   ├─ Millions of IOPS, sub-millisecond latency
+   ├─ Ephemeral (lost on stop/terminate/hardware failure)
+   ├─ NO cost beyond instance price
+   ├─ Use for: Cache, buffers, scratch data, temporary files
+   └─ Keywords: "temporary", "can be regenerated", "HIGHEST I/O"
+
+2. EBS Provisioned IOPS (io2 Block Express)
+   ├─ Up to 64,000 IOPS, 4,000 MB/s throughput
+   ├─ Persistent, survives stop/terminate
+   ├─ Costs money (GB-month + IOPS)
+   ├─ Use for: Databases, high-performance apps needing persistence
+   └─ Keywords: "high IOPS", "persistent", "cost secondary"
+
+3. EBS General Purpose (gp3)
+   ├─ Up to 16,000 IOPS, 1,000 MB/s throughput
+   ├─ Balanced price/performance
+   └─ Use for: Most workloads
+
+4. EFS (SLOWEST for single-instance I/O)
+   ├─ Network latency (milliseconds, not sub-millisecond)
+   ├─ Designed for SHARED access across many instances
+   ├─ Max I/O mode = HIGHER latency (bad for performance)
+   └─ Use for: Shared file storage, multi-AZ, concurrent access
+```
+
+**Decision Tree:**
+```
+Does data need to PERSIST between reboots?
+├─ NO (ephemeral OK) ───→ Instance Store ✅ (if HIGHEST performance needed)
+└─ YES (must persist) ───→ EBS (io2 for extreme, gp3 for balanced)
+
+Does data need to be SHARED across multiple instances?
+├─ YES ───→ EFS ✅
+└─ NO ───→ Instance Store or EBS
+
+What's the performance requirement?
+├─ "HIGHEST I/O" + "sub-millisecond" + "temporary" ───→ Instance Store ✅
+├─ "High IOPS" + "persistent" ───→ EBS io2 ✅
+└─ "Shared" + "multi-AZ" ───→ EFS ✅
+```
+
+**Exam Keywords:**
+- **"Temporary data" + "can be regenerated" + "HIGHEST I/O"** = Instance Store
+- **"Sub-millisecond latency" + "millions of IOPS"** = Instance Store (only storage that can do this)
+- **"Network file system"** = EFS (inherently slower than local storage)
+- **"Max I/O mode"** = Higher latency (opposite of what you want for speed)
+
+**Target:** Memorize Instance Store as FASTEST storage, ephemeral, for temporary high-performance data
+
+---
+
+### 🔴 NEW WEAKNESS #11: EBS Multi-Attach Limitations (NOT a DR Solution!)
+
+**The Problem:** You chose EBS Multi-Attach for disaster recovery from AZ failures with 15-minute RPO, completely misunderstanding what Multi-Attach does.
+
+**The Mistake:**
+```
+Question: DR strategy for RTO=1 hour, RPO=15 minutes, protect against instance + AZ failures
+Your Answer: EBS Multi-Attach across multiple AZs ❌
+Correct Answer: AWS Backup with 15-minute snapshots ✅
+
+Why you were CATASTROPHICALLY wrong:
+├─ EBS Multi-Attach only works in SINGLE AZ (not multi-AZ!)
+├─ Multi-Attach is for CONCURRENT ACCESS, not backup/DR
+├─ Multi-Attach doesn't protect against AZ failure (same AZ = same failure domain)
+├─ Multi-Attach doesn't create backups (no RPO protection)
+└─ If someone deletes a file, ALL attached instances see it deleted!
+```
+
+**The Rule:**
+```
+EBS Multi-Attach - What It Actually Does:
+
+Purpose: Attach ONE EBS volume to MULTIPLE EC2 instances simultaneously
+├─ Max: 16 instances in the SAME AVAILABILITY ZONE
+├─ Volume types: io1 or io2 Provisioned IOPS ONLY
+├─ Requires: Cluster-aware file system (not standard ext4/xfs!)
+└─ Use case: Clustered databases, shared storage for cluster nodes
+
+What Multi-Attach IS:
+✅ Concurrent read/write access to same volume
+✅ High-availability within a cluster (if one node fails, others still attached)
+
+What Multi-Attach is NOT:
+❌ NOT a backup solution (no snapshots, no point-in-time recovery)
+❌ NOT disaster recovery (single AZ = single failure domain)
+❌ NOT multi-AZ (all instances must be in SAME AZ)
+❌ NOT data protection (data corruption/deletion affects all instances)
+❌ NOT automatic failover (you handle failover logic)
+```
+
+**DR Solution for This Question:**
+```
+Requirements:
+├─ RTO = 1 hour (how fast to recover)
+├─ RPO = 15 minutes (max data loss acceptable)
+├─ Protect against instance AND AZ failures
+└─ Minimal data loss
+
+Correct Solution: AWS Backup with 15-minute snapshots
+├─ Snapshots every 15 minutes = 15-minute RPO ✅
+├─ Snapshots stored across AZs automatically = AZ failure protection ✅
+├─ Restore from snapshot in ~30-60 minutes = RTO < 1 hour ✅
+└─ AWS Backup automates scheduling and lifecycle
+
+Why this meets requirements:
+RPO = 15 minutes ───→ Take snapshots every 15 minutes
+RTO = 1 hour ───→ Can restore EBS volume from snapshot within 1 hour
+AZ failure ───→ Snapshots replicated across AZs automatically
+```
+
+**RPO/RTO Mapping (Memorize This!):**
+```
+RPO (Recovery Point Objective) = How much data loss is acceptable?
+└─ Determines BACKUP FREQUENCY
+   ├─ 15-minute RPO = Snapshots every 15 minutes
+   ├─ 1-hour RPO = Snapshots every hour
+   └─ 24-hour RPO = Daily snapshots
+
+RTO (Recovery Time Objective) = How fast must you recover?
+└─ Determines RECOVERY METHOD
+   ├─ Seconds = Active-Active (Multi-Site)
+   ├─ Minutes = Warm Standby (running but scaled down)
+   ├─ Hours = Pilot Light (minimal always-on, scale up on disaster)
+   └─ Days = Backup & Restore (cheapest, slowest)
+```
+
+**Exam Keywords:**
+- **"RPO = X minutes"** → Backup frequency must match: snapshots every X minutes
+- **"Multi-AZ protection"** → EBS Multi-Attach is WRONG (single AZ only)
+- **"Disaster recovery"** → Think backups/snapshots, NOT Multi-Attach
+- **"Cluster-aware file system"** → This is the ONLY valid use case for Multi-Attach
+
+**Target:** Understand EBS Multi-Attach is for concurrent access in SINGLE AZ, NOT for DR/backups
+
+---
+
+### 🔴 NEW WEAKNESS #12: Placement Groups - Partition vs Spread (Cassandra/Kafka Pattern)
+
+**The Problem:** You chose Spread Placement Group for Apache Cassandra distributed database, missing that Spread has a 7-instance-per-AZ limit and Partition is designed for large distributed systems.
+
+**The Mistake:**
+```
+Question: Cassandra cluster across multiple AZs, protection against hardware failures, partition-aware client
+Your Answer: Spread Placement Group ❌
+Correct Answer: Partition Placement Group ✅
+
+Why you were wrong:
+├─ Spread has MAX 7 INSTANCES PER AZ (too small for Cassandra cluster!)
+├─ Cassandra typically needs DOZENS to HUNDREDS of nodes
+├─ The question said "partition-aware client" (huge hint!)
+└─ Partition groups are DESIGNED for Cassandra/Kafka/Hadoop
+```
+
+**The Rule:**
+```
+EC2 Placement Groups - Complete Breakdown:
+
+1. CLUSTER Placement Group
+   ├─ Purpose: LOWEST network latency, HIGHEST throughput
+   ├─ Location: Single Availability Zone (all instances close together)
+   ├─ Use cases: HPC, MPI, machine learning training, tightly-coupled apps
+   ├─ Performance: Up to 100 Gbps bandwidth between instances
+   └─ Keywords: "low latency", "HPC", "MPI", "tightly-coupled"
+
+2. SPREAD Placement Group
+   ├─ Purpose: Maximum isolation for CRITICAL instances
+   ├─ Limit: MAX 7 INSTANCES PER AVAILABILITY ZONE ⚠️
+   ├─ Each instance on separate hardware rack
+   ├─ Use cases: Small number of critical instances (domain controllers, critical app servers)
+   ├─ Can span multiple AZs
+   └─ Keywords: "critical instances", "maximum isolation", "small scale"
+
+3. PARTITION Placement Group
+   ├─ Purpose: Large DISTRIBUTED and REPLICATED workloads
+   ├─ Structure: Up to 7 partitions per AZ, HUNDREDS of instances per partition
+   ├─ Each partition on separate hardware racks
+   ├─ Use cases: Cassandra, Kafka, Hadoop, HDFS, large distributed databases
+   ├─ Can span multiple AZs
+   ├─ Partition-aware applications can control which partition instances go to
+   └─ Keywords: "Cassandra", "Kafka", "Hadoop", "distributed database", "partition-aware"
+```
+
+**Decision Matrix:**
+```
+What's the workload?
+├─ HPC / MPI / Machine Learning / Low Latency ───→ CLUSTER ✅
+├─ Cassandra / Kafka / Hadoop / Distributed DB ───→ PARTITION ✅
+└─ Critical instances that must be isolated ───→ SPREAD ✅
+
+How many instances?
+├─ < 7 per AZ ───→ SPREAD possible ✅
+├─ > 7 per AZ ───→ SPREAD impossible ❌, use PARTITION instead ✅
+└─ Hundreds ───→ PARTITION only ✅
+
+Need multi-AZ?
+├─ Yes + Low latency ───→ NOT CLUSTER (single AZ only)
+├─ Yes + Distributed system ───→ PARTITION ✅
+└─ Yes + Critical instances ───→ SPREAD ✅
+```
+
+**Exam Pattern Recognition:**
+```
+Keyword Detection:
+
+"Cassandra" or "Kafka" or "Hadoop" or "HDFS"
+└─ PARTITION Placement Group ✅ (100% of the time)
+
+"partition-aware client" or "partition-aware application"
+└─ PARTITION Placement Group ✅ (it's literally in the name!)
+
+"HPC" or "MPI" or "LOWEST latency" or "tightly-coupled"
+└─ CLUSTER Placement Group ✅
+
+"7 or fewer instances" + "critical" + "isolated"
+└─ SPREAD Placement Group ✅
+
+"Large distributed system" + "hardware isolation"
+└─ PARTITION Placement Group ✅
+```
+
+**Common Exam Traps:**
+```
+Trap: "Cassandra needs hardware isolation, so use Spread!"
+Reality: Cassandra clusters have 50+ nodes → Exceeds Spread's 7-per-AZ limit
+Solution: Partition gives hardware isolation AND scales to hundreds of instances
+
+Trap: "Need multi-AZ high availability, use Cluster!"
+Reality: Cluster is SINGLE AZ only
+Solution: Partition or Spread for multi-AZ
+
+Trap: "Protection against hardware failures means Spread!"
+Reality: Spread is for SMALL SCALE critical instances
+Solution: For large distributed systems, use Partition
+```
+
+**Target:** Memorize: Cassandra/Kafka/Hadoop = PARTITION (always), Spread = max 7 per AZ (small scale only)
 
 ---
 
