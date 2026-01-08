@@ -53,12 +53,31 @@
 
 **Status:** ✅ **DAY 3 COMPLETE - EXCEEDED TARGET!**
 
+**Follow-up Drill - CRR vs SRR Focus:**
+- CRR/SRR 5-question drill: **4/5 (80%)**
+- Questions correct: Q1, Q2, Q4, Q5
+- Question missed: Q3 (ap-southeast-1 → ap-southeast-2 region name trap)
+  - ❌ Answered SRR, should be CRR (different regions despite similar names)
+  - **Key learning:** ap-southeast-1 ≠ ap-southeast-2 (different regions, need CRR)
+  - This is a classic exam trap - similar region names that are actually different
+
+**Combined S3 Performance:**
+- Main quiz: 9/10 (90%)
+- CRR/SRR drill: 4/5 (80%)
+- **Overall S3 score: 13/15 (86.7%)** ✅
+
+**Critical Patterns Cemented:**
+- ✅ CRR (Cross-Region Replication) = Different regions (us-east-1 → eu-west-1)
+- ✅ SRR (Same-Region Replication) = Same region (us-west-2 → us-west-2)
+- ✅ Watch for region name traps (ap-southeast-1 ≠ ap-southeast-2)
+- ✅ Delete marker replication = optional for both, disabled by default
+- ✅ RTC (Replication Time Control) = 15-minute SLA for both CRR and SRR
+
 **Next Steps:**
 - Day 4: VPC Fundamentals (10 questions, target 80%)
-- Optional: Quick 5-question CRR/SRR drill to push S3 to 100%
 
 **Materials Created:**
-- None (quiz only session)
+- 5 S3 flashcards (CRR/SRR, Glacier tiers, SSE-KMS vs SSE-S3, Transfer Acceleration vs CloudFront, Object Lock modes)
 
 ---
 
