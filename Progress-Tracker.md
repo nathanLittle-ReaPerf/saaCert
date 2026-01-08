@@ -14,6 +14,54 @@
 
 ---
 
+### Day 3 - Tuesday, January 7, 2026
+**Topic:** S3 Deep Dive
+**Time Spent:** 1 hour
+
+**Quiz Performance:**
+- S3 Deep Dive Quiz: **9/10 (90%)** ✅ **EXCEEDS TARGET!** (Target: 80%)
+
+**Questions Correct (9):**
+1. ✅ Storage classes with lifecycle (Glacier Instant Retrieval for millisecond + rare access)
+2. ✅ Versioning with delete markers (delete marker as current version, previous versions preserved)
+3. ❌ Cross-Region Replication (CRR) vs Same-Region Replication (SRR) - confused SRR for cross-region
+4. ✅ S3 Object Lock Compliance mode (immutable, even root cannot override)
+5. ✅ S3 Transfer Acceleration (uploads from far away via edge locations)
+6. ✅ SSE-KMS encryption (audit logs via CloudTrail, automatic key rotation)
+7. ✅ S3 Select (SQL queries on subset of data, 80% cost savings)
+8. ✅ Bucket policy with VPC Endpoint restriction (aws:SourceVpce condition)
+9. ✅ Lifecycle policies for predictable patterns (cheaper than Intelligent-Tiering)
+10. ✅ S3 Batch Operations (bulk operations on millions of objects)
+
+**Question Missed (1):**
+1. ❌ CRR vs SRR: Chose SRR (Same-Region Replication) for US-East-1 → EU-West-1, should be CRR (Cross-Region Replication)
+   - **Root cause:** Confused Same-Region vs Cross-Region terminology
+   - **Pattern to remember:** CRR = different regions, SRR = same region
+
+**Key Learnings:**
+- ✅ Storage class decision tree MASTERED (Glacier Instant for millisecond + rare access)
+- ✅ S3 security patterns solid (SSE-KMS for audit logs, bucket policies for VPC restriction)
+- ✅ Performance features clear (Transfer Acceleration = uploads, CloudFront = downloads)
+- ✅ Lifecycle vs Intelligent-Tiering distinction (predictable = lifecycle, unpredictable = Intelligent-Tiering)
+- ✅ Object Lock Compliance vs Governance (Compliance = no one can override, Governance = special permissions)
+- ⚠️ **Need to drill:** CRR vs SRR terminology (Cross-Region vs Same-Region)
+
+**Improvement from December:**
+- **December S3 score:** 75%
+- **Today's score:** 90%
+- **Improvement:** +15 percentage points! 🚀
+
+**Status:** ✅ **DAY 3 COMPLETE - EXCEEDED TARGET!**
+
+**Next Steps:**
+- Day 4: VPC Fundamentals (10 questions, target 80%)
+- Optional: Quick 5-question CRR/SRR drill to push S3 to 100%
+
+**Materials Created:**
+- None (quiz only session)
+
+---
+
 ### Day 2 - Monday, January 6, 2026
 **Topic:** EC2 Fundamentals Review
 **Time Spent:** 1.5 hours
