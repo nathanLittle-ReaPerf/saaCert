@@ -14,6 +14,71 @@
 
 ---
 
+### Day 4 - Wednesday, January 8, 2026
+**Topic:** VPC Fundamentals
+**Time Spent:** 2 hours
+
+**Quiz Performance:**
+- VPC Fundamentals Quiz: **6/10 (60%)** ❌ **BELOW TARGET** (Target: 80%)
+
+**Questions Correct (6):**
+1. ✅ NAT Gateway in each public subnet for HA + LEAST operational overhead
+2. ✅ VPC Peering A↔C and B↔C (non-transitive nature - cannot route A→B→C)
+3. ✅ NACL stateless behavior - outbound ephemeral ports (1024-65535) needed for return traffic
+4. ✅ VPC Gateway Endpoints for S3 and DynamoDB (FREE, not Interface Endpoints)
+5. ✅ VPC Flow Logs to capture IP traffic information (not CloudTrail/Config)
+6. ✅ Transit Gateway for 50 VPCs + on-premises (transitive routing, scalable)
+
+**Questions Missed (4):**
+1. ❌ Q7: On-premises to AWS connectivity - Chose VPC Peering (impossible!), should be Direct Connect with private VIF
+   - **Root cause:** VPC Peering ONLY works VPC-to-VPC, NEVER on-premises to AWS
+   - **Pattern:** On-premises to AWS = Direct Connect OR VPN (never VPC Peering)
+
+2. ❌ Q8: Security Groups stateful behavior - Added ephemeral port rules (NACL thinking!), no additional config needed
+   - **Root cause:** Treated Security Groups like NACLs (applied stateless logic to stateful resource)
+   - **Pattern:** Security Groups = STATEFUL (automatic return traffic), NACLs = STATELESS (explicit both ways)
+
+3. ❌ Q9: NAT Gateway location - Put NAT Instance in private subnet, should be in public subnet
+   - **Root cause:** NAT in private subnet can't reach internet (no route to IGW)
+   - **Pattern:** NAT Gateway/Instance MUST be in PUBLIC subnet (needs IGW route to function)
+
+4. ❌ Q10: Route table priority - Thought 0.0.0.0/0 beats 192.168.1.0/24, opposite is true
+   - **Root cause:** Misunderstood AWS longest prefix match (more specific = higher priority)
+   - **Pattern:** Longer prefix wins (/24 beats /0). Higher number = more specific = wins
+
+**Critical Weaknesses Identified:**
+1. **VPC Peering limitations (0% accuracy):** Forgot VPC Peering is VPC-to-VPC ONLY, not on-premises
+2. **Security Groups vs NACLs (0% accuracy):** Applied NACL stateless logic to Security Groups
+3. **NAT Gateway architecture (0% accuracy):** Placed NAT in wrong subnet (private instead of public)
+4. **Route table priority (0% accuracy):** Thought default route (0.0.0.0/0) has higher priority than specific routes
+
+**Key Learnings:**
+- ✅ Reinforced December mastery: NACLs stateless + ephemeral ports (Q3 correct!)
+- ✅ Reinforced December mastery: VPC Endpoints Gateway vs Interface (Q4 correct!)
+- ✅ Transit Gateway for multi-VPC scenarios (10+ VPCs, on-premises, transitive routing)
+- ❌ **NEW WEAKNESS:** VPC Peering scope (VPC-to-VPC only)
+- ❌ **NEW WEAKNESS:** Security Group stateful behavior (confused with NACLs)
+- ❌ **NEW WEAKNESS:** NAT Gateway placement requirements (public subnet mandatory)
+- ❌ **NEW WEAKNESS:** AWS route priority (longest prefix match)
+
+**Deep Dive Review (2 hours):**
+- Q7: Direct Connect vs VPN for on-premises (dedicated vs internet-based)
+- Q8: Security Groups (stateful) vs NACLs (stateless) comparison table
+- Q9: NAT Gateway architecture (public subnet + route to IGW required)
+- Q10: Longest prefix match routing (192.168.1.0/24 beats 0.0.0.0/0)
+
+**Status:** ❌ **DAY 4 INCOMPLETE - NEEDS RECOVERY DRILL**
+
+**Recovery Plan:**
+- Tomorrow: 10-question targeted drill on 4 missed patterns
+- Target: 9/10 (90%) on recovery drill
+- Only proceed to Day 5 after hitting 80%+ on recovery
+
+**Materials Created:**
+- Deep dive review notes on all 4 missed questions
+
+---
+
 ### Day 3 - Tuesday, January 7, 2026
 **Topic:** S3 Deep Dive
 **Time Spent:** 1 hour
