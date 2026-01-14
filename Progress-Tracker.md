@@ -320,6 +320,123 @@ The breakthrough is REAL. Pattern locked in:
 
 ---
 
+### Day 8 - Tuesday, January 13, 2026
+**Topic:** Lambda + External Data Sources Recovery Drill (Week 1 Weakness #1)
+**Time Spent:** 2 hours
+
+**Quiz Performance:**
+- Lambda + Data Sources Drill: **4/10 (40%)** ❌ **CATASTROPHIC FAILURE** (Target: 100%)
+
+**Quiz Breakdown:**
+
+**Questions Correct (4):**
+1. ✅ Q1: Lambda + 12 GB dataset + 10ms latency → ElastiCache for Redis
+2. ✅ Q2: Lambda + 6 GB ML model + cost-effective → EFS mount
+3. ✅ Q3: Lambda + RDS connection exhaustion → RDS Proxy
+4. ✅ Q9: Lambda memory exceeded (1.2-1.5 GB usage) → Increase to 2 GB
+
+**Questions Missed (6):**
+
+**1. Q4 - /tmp Storage vs EFS (Over-Engineering)**
+   - ❌ Chose D: EFS filesystem for 80 MB files
+   - ✅ Should be B: Configure /tmp ephemeral storage to 1024 MB
+   - **Root cause:** Over-complicated simple storage problem with entire filesystem service
+   - **Pattern:** Files < 10 GB + temporary processing = increase /tmp (512 MB to 10 GB configurable)
+
+**2. Q5 - Lambda + Large Dataset + Latency (Pattern Repetition)**
+   - ❌ Chose C: EFS with binary search for 15 GB dataset
+   - ✅ Should be B: ElastiCache for Redis with sorted sets
+   - **Root cause:** IDENTICAL to Q1 pattern (15 GB > 10 GB Lambda limit + 200ms latency requirement)
+   - **Pattern:** Large dataset (>10 GB) + sub-second latency = ElastiCache, NOT EFS
+
+**3. Q6 - DynamoDB Hot Partition (Service Model Confusion)**
+   - ❌ Chose D: "Lambda concurrent executions exceed DynamoDB connection limit"
+   - ✅ Should be C: Hot partition issue (adaptive capacity lag)
+   - **Root cause:** Confused DynamoDB (connectionless HTTP) with RDS (connection-based)
+   - **Pattern:** DynamoDB = connectionless, no connection limits; throttling with sufficient capacity = hot partition
+
+**4. Q7 - /tmp Caching vs ElastiCache (Over-Engineering Again)**
+   - ❌ Chose A: ElastiCache for 500 MB lookup table updated hourly
+   - ✅ Should be B: /tmp caching with cold start download from S3
+   - **Root cause:** Over-engineered static reference data that /tmp handles perfectly
+   - **Pattern:** Static data < 10 GB + updated infrequently = /tmp ($0.01/month vs ElastiCache $30-50/month)
+
+**5. Q8 - ML Inference Architecture (Architectural Disaster)**
+   - ❌ Chose B: Split features (ElastiCache) + model (EFS) with 4 GB Lambda
+   - ✅ Should be A: 6 GB Lambda memory + /tmp caching for both (5 GB total)
+   - **Root cause:** Tried to split ML inference data across services; 4 GB insufficient for 3 GB model + overhead
+   - **Pattern:** ML inference requires ALL data in-memory (can't fetch features from Redis during tensor operations)
+
+**6. Q10 - Reading Comprehension FAILURE (Most Critical)**
+   - ❌ Chose B: /tmp caching with cold start downloads
+   - ✅ Should be A: ElastiCache for Redis
+   - **Root cause:** Question EXPLICITLY stated /tmp approach was FAILING ("authentication is failing SLA during traffic spikes when new Lambda containers are created")
+   - **Pattern:** 50ms SLA + 5-8 second cold starts = impossible; 10K req/min = constant new containers; chose the exact failing solution described in question
+
+**Critical Patterns Missed:**
+
+**1. /tmp Storage Decision Tree (0/3 correct on /tmp questions):**
+- Q4: Over-complicated when /tmp was perfect (chose EFS)
+- Q7: Over-engineered when /tmp was perfect (chose ElastiCache)
+- Q10: Used /tmp when it FAILS requirements (strict SLA + cold start violations)
+
+**When /tmp FAILS:**
+- ❌ Strict SLA (<100ms) where cold starts violate SLA
+- ❌ High-frequency updates (every few minutes)
+- ❌ High request rate (1000s/sec) causing constant new containers
+- ❌ Question explicitly states cold starts are failing
+
+**When /tmp WORKS:**
+- ✅ Data < 10 GB
+- ✅ Updated infrequently (hourly/daily)
+- ✅ Moderate request rate
+- ✅ Cold starts acceptable (not SLA-critical)
+
+**2. Service Architecture Understanding:**
+- **RDS/Aurora**: Connection-based → Use RDS Proxy with Lambda ✅ (Got Q3 correct)
+- **DynamoDB**: Connectionless HTTP → No connection limits ❌ (Missed Q6)
+- **ML Inference**: Requires in-memory data → Can't split across services ❌ (Missed Q8)
+
+**3. Reading Comprehension:**
+- Q10: Failed to read that /tmp caching was the CURRENT FAILING approach
+- Chose the exact solution the question described as broken
+
+**New Critical Weaknesses Identified:**
+
+1. **Lambda /tmp Use Cases (0% accuracy)** - Can't identify when /tmp is appropriate vs when it fails
+2. **Reading Comprehension (CATASTROPHIC)** - Chose solution explicitly described as failing
+3. **DynamoDB Architecture** - Confused connectionless HTTP with connection-based RDS
+4. **ML Inference Patterns** - Don't understand data locality requirements
+5. **Over-Engineering vs Under-Engineering** - Swing wildly between both extremes
+
+**Status:** ❌ **REGRESSION FROM WEEK 1 COMPREHENSIVE (67% → 40%)**
+
+**Analysis:**
+This drill was supposed to fix Lambda + Data Sources weakness (67% on Week 1 Comprehensive). Instead, performance WORSENED by 27 percentage points. Root causes:
+1. No systematic decision framework for storage options
+2. Pattern-matching superficially without analyzing requirements
+3. Not reading scenarios carefully (missed explicit failure descriptions)
+4. Overcorrection swings (burned by EFS in Q4-5, then overused ElastiCache in Q7)
+
+**Materials Created:**
+- Updated Weakness-Tracker.md with 5 new critical weaknesses (#13-#17)
+- Lambda Storage Decision Framework documented
+- /tmp failure scenarios documented
+
+**Next Steps:**
+- ❌ **DO NOT PROCEED TO NEXT DRILL**
+- Study Lambda Storage Decision Framework in Weakness-Tracker.md (lines 96-136)
+- Study /tmp failure scenarios in Weakness-Tracker.md (lines 225-316)
+- Re-read Quick-Reference-Compute.md (Lambda section)
+- Retry this drill tomorrow targeting 90%+ before advancing
+
+**Exam Readiness:**
+- 29 days until exam (February 11, 2026)
+- Current trajectory: FAILING
+- Immediate action required to avoid wasting $150 on failed exam
+
+---
+
 ### Day 4 - Wednesday, January 8, 2026
 **Topic:** VPC Fundamentals
 **Time Spent:** 2 hours

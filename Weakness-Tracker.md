@@ -1,9 +1,508 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** January 6, 2026, 7:40 AM CST (Post Day 2 EC2 Fundamentals - 70%)
-**Exam Date:** February 11, 2026 at 5:15 PM EST (36 days remaining)
+**Last Updated:** January 13, 2026, 7:05 PM CST (Post Lambda + External Data Sources Drill - 44% FAILED)
+**Exam Date:** February 11, 2026 at 5:15 PM EST (29 days remaining)
 **Study Period:** January 5 - February 10, 2026 (37 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## 📊 Day 7 Lambda + External Data Sources Recovery Drill (January 13, 2026)
+
+### Lambda + External Data Sources Targeted Drill
+**Topic:** Lambda memory limits, ElastiCache vs EFS vs S3, RDS Proxy, performance requirements
+**Score:** 4/9 (44%)
+**Status:** 🚨 CATASTROPHIC FAILURE - Critical pattern recognition breakdown
+
+**Context:** This drill targeted the Week 1 Comprehensive weakness (Q14 - Lambda + 12 GB dataset, scored 67% on this topic). The user regressed significantly, demonstrating fundamental misunderstanding of service selection criteria.
+
+**Questions Correct: 4/9**
+- ✅ Q1: Lambda + 12 GB dataset + 10ms latency → ElastiCache
+- ✅ Q2: Lambda + 6 GB ML model → EFS
+- ✅ Q3: Lambda + RDS connection exhaustion → RDS Proxy
+- ✅ Q9: Lambda memory exceeded → Increase memory to 2 GB
+
+**Questions Incorrect: 5/9 (Critical Failures)**
+- ❌ Q4: Chose EFS for 80 MB log files (should use /tmp ephemeral storage)
+- ❌ Q5: Chose EFS for 15 GB + 200ms latency (should use ElastiCache)
+- ❌ Q6: Chose "connection limit" for DynamoDB throttling (should recognize hot partition)
+- ❌ Q7: Chose ElastiCache for 500 MB static lookup table (should use /tmp)
+- ❌ Q8: Chose ElastiCache+EFS split for 5 GB ML inference (should use /tmp+memory)
+- ❌ Q10: Chose /tmp for 50ms SLA authentication (should use ElastiCache) **CRITICAL: Question explicitly stated /tmp was failing!**
+
+---
+
+### 🚨 CRITICAL NEW WEAKNESSES IDENTIFIED
+
+#### 🔴 WEAKNESS #13: Reading Comprehension - Ignoring Explicit Failure Modes (CATASTROPHIC)
+
+**The Disaster:**
+Q10 explicitly stated: "Currently, the Lambda function downloads the revocation list from S3 on each cold start (taking 5-8 seconds), but authentication is failing SLA during traffic spikes when new Lambda containers are created."
+
+**What you did:** Chose option B - /tmp caching (THE EXACT FAILING SOLUTION DESCRIBED IN THE QUESTION)
+
+**The Problem:**
+```
+You chose the solution that the question EXPLICITLY stated was failing.
+This is not a knowledge gap - this is a reading comprehension failure.
+```
+
+**Root Cause Analysis:**
+- Not reading the entire scenario before selecting answer
+- Seeing "300 MB dataset" and immediately defaulting to "/tmp" without considering constraints
+- Ignoring "50ms SLA" requirement
+- Ignoring "10,000 req/min" high-frequency access pattern
+- Ignoring "updated every 5 minutes" (frequent updates)
+- Ignoring explicit statement that current approach (cold start downloads) is failing
+
+**The Rule You MUST Learn:**
+```
+When a question describes a FAILING solution:
+1. Read the ENTIRE scenario
+2. Identify what's currently being used
+3. Identify WHY it's failing
+4. NEVER choose a solution that matches the failing approach
+
+Q10 Explicitly Said:
+"authentication is failing SLA during traffic spikes when new Lambda containers are created"
+
+Translation: Cold start downloads are TOO SLOW for the SLA
+Solution: Need EXTERNAL CACHE with sub-millisecond lookups = ElastiCache
+```
+
+**Exam Impact:** CRITICAL - If you don't read full scenarios, you'll miss 20-30% of questions
+
+---
+
+#### 🔴 WEAKNESS #14: Lambda Storage Decision Framework - Overcorrection Swings (CRITICAL)
+
+**The Pattern of Failure:**
+```
+Questions 1-3: You correctly identified when to use ElastiCache, EFS, RDS Proxy ✅
+
+Questions 4-8: You started swinging wildly between wrong extremes:
+├─ Q4: Over-complicated (EFS for 80 MB) when /tmp was simple
+├─ Q5: Under-estimated (EFS for 15 GB + 200ms) when ElastiCache needed
+├─ Q7: Over-complicated (ElastiCache for static 500 MB) when /tmp was simple
+└─ Q8: Architectural disaster (split 5 GB across two services) when single solution worked
+
+Question 10: Chose failing solution explicitly described as failing ❌
+```
+
+**Root Cause:** You don't have a systematic decision framework - you're pattern-matching superficially instead of analyzing requirements.
+
+**The Framework You MUST Internalize:**
+
+```
+Lambda + External Data Storage Decision Tree:
+
+STEP 1: Can it fit in Lambda? (< 10 GB total)
+├─ NO (> 10 GB) → MUST use external storage → Go to STEP 2A
+└─ YES (< 10 GB) → CAN use Lambda memory/tmp → Go to STEP 2B
+
+STEP 2A: External Storage Required (Dataset > 10 GB)
+├─ What's the latency requirement?
+│  ├─ Sub-second (<1 sec) → ElastiCache Redis (sub-ms lookups)
+│  └─ Seconds acceptable → EFS (if file operations needed)
+│
+└─ What's the access pattern?
+   ├─ Key-value lookups → ElastiCache
+   └─ File operations → EFS
+
+STEP 2B: Lambda Can Hold It (Dataset < 10 GB)
+├─ What's the SLA / latency requirement?
+│  ├─ Strict SLA that cold starts violate (<100ms)?
+│  │  └─ ElastiCache (external, no cold start impact)
+│  │
+│  └─ Cold starts acceptable (seconds)?
+│     └─ Continue to STEP 3
+│
+STEP 3: Update Frequency
+├─ Updated frequently (minutes) or high request rate (1000s/sec)?
+│  └─ ElastiCache (in-memory, fast updates)
+│
+└─ Updated infrequently (hours/days)?
+   └─ /tmp caching (download once per container)
+
+STEP 4: ML Inference Special Case
+├─ Is this ML inference?
+│  ├─ Model + data < 10 GB → Lambda memory + /tmp
+│  ├─ Model + data > 10 GB → NOT Lambda (use SageMaker)
+│  └─ NEVER split model across services
+│
+└─ Cost consideration
+   └─ "MOST cost-effective" mentioned?
+      └─ Prefer /tmp over ElastiCache when both work
+```
+
+**Application to Failed Questions:**
+
+| Question | Data Size | Latency | Access Pattern | Update Freq | Correct Answer | Your Wrong Answer |
+|----------|-----------|---------|----------------|-------------|----------------|-------------------|
+| Q4 | 80 MB | Seconds OK | Single function | N/A | **/tmp (512 MB → 1 GB)** | EFS |
+| Q5 | 15 GB | 200ms | Sorted lookups | Every 6 hrs | **ElastiCache** | EFS |
+| Q7 | 500 MB | No strict SLA | Load once | Hourly | **/tmp** | ElastiCache |
+| Q8 | 5 GB | 100ms | ML inference | N/A | **/tmp + memory** | ElastiCache+EFS |
+| Q10 | 300 MB | 50ms SLA | 10K req/min | Every 5 min | **ElastiCache** | /tmp |
+
+**Target:** 100% accuracy on storage selection by applying framework systematically
+
+---
+
+#### 🔴 WEAKNESS #15: DynamoDB vs RDS Architecture (Connection Models) (HIGH)
+
+**The Problem:** Q6 - You said DynamoDB has "connection limits" that Lambda exceeds. DynamoDB is connectionless.
+
+**The Mistake:**
+```
+Question: DynamoDB throttling with ProvisionedThroughputExceededException, sufficient RCU/WCU provisioned
+Your Answer: "Lambda concurrent executions exceed DynamoDB connection limit" ❌
+Correct Answer: Hot partition causing partition-level throttling ✅
+
+Why you were catastrophically wrong:
+├─ DynamoDB has NO connection limits (it's HTTP/REST API, not connection-based)
+├─ You confused DynamoDB (connectionless) with RDS (connection-based)
+├─ You applied RDS Proxy pattern (Q3) to the wrong service
+└─ You missed "sufficient provisioned capacity" = not a capacity problem, it's a HOT PARTITION problem
+```
+
+**The Rule:**
+```
+AWS Database Connection Models:
+
+RDS/Aurora (MySQL/PostgreSQL):
+├─ Connection-based protocol
+├─ Has connection limits (150-5,000 depending on instance size)
+├─ Lambda problem: Each instance creates connections → exhaustion
+├─ Solution: RDS Proxy (connection pooling)
+└─ Keywords: "Too many connections", "connection exhaustion"
+
+DynamoDB:
+├─ Connectionless (HTTP REST API)
+├─ NO connection limits
+├─ Lambda problem: Hot partitions (uneven key distribution)
+├─ Solution: Better partition key design, caching hot items, auto-scaling
+└─ Keywords: "ProvisionedThroughputExceededException", "sufficient capacity but throttling"
+
+ElastiCache (Redis/Memcached):
+├─ Connection-based
+├─ Has connection limits (depends on node type)
+├─ Lambda problem: Each instance creates connections
+├─ Solution: Connection pooling in Lambda code
+└─ But: Connection limits are much higher than RDS
+```
+
+**DynamoDB Throttling Decision Tree:**
+```
+ProvisionedThroughputExceededException occurred, what's the cause?
+
+Does table have sufficient RCU/WCU for the total workload?
+├─ NO → Increase provisioned capacity or switch to On-Demand mode
+└─ YES (sufficient capacity) → It's a HOT PARTITION problem
+   │
+   Hot Partition Causes:
+   ├─ Uneven distribution of requests across partition keys
+   ├─ Many requests accessing same partition key (hot key)
+   ├─ Burst traffic concentrated on specific items
+   └─ Adaptive capacity hasn't kicked in yet (takes 5-30 min)
+   │
+   Solutions:
+   ├─ Design better partition key (higher cardinality)
+   ├─ Cache frequently accessed items in ElastiCache/DAX
+   ├─ Use DynamoDB auto-scaling
+   └─ Pre-warm table with dummy requests before traffic spike
+```
+
+**Exam Keywords:**
+- "Sufficient provisioned capacity" + throttling = Hot partition, NOT capacity problem
+- "Too many connections" = RDS (NOT DynamoDB)
+- DynamoDB errors are about THROUGHPUT (RCU/WCU), NOT connections
+
+**Target:** Never confuse connection-based (RDS) with connectionless (DynamoDB) services
+
+---
+
+#### 🔴 WEAKNESS #16: /tmp Storage Use Cases - When It FAILS (CRITICAL)
+
+**The Problem:** You don't understand when /tmp caching breaks down under real-world constraints.
+
+**Failed Scenarios:**
+```
+Q4: Chose EFS for 80 MB files when /tmp was perfect ❌
+Q7: Chose ElastiCache for 500 MB static data when /tmp was perfect ❌
+Q10: Chose /tmp for 50ms SLA when cold starts violated SLA ❌
+```
+
+**When /tmp Works:**
+```
+✅ Data size: < 10 GB (Lambda ephemeral storage limit)
+✅ Update frequency: Infrequent (hourly, daily)
+✅ Access pattern: Load once per container, reuse many times
+✅ Latency: Cold start delays acceptable (no strict SLA)
+✅ Request rate: Low to moderate (cold starts don't happen frequently)
+✅ Cost: "MOST cost-effective" is mentioned
+```
+
+**When /tmp FAILS:**
+```
+❌ Strict SLA (<100ms) that cold starts violate
+   └─ Cold starts take 5-15 seconds to download data
+   └─ New containers created during traffic spikes
+   └─ Some requests experience 5-15 second delays
+   └─ Solution: ElastiCache (external, no cold start impact)
+
+❌ High request rate (1000s/second)
+   └─ Lambda creates many new containers to scale
+   └─ Each new container = cold start = download delay
+   └─ Constant cold starts = constant SLA violations
+   └─ Solution: ElastiCache (always warm, sub-ms access)
+
+❌ Data updated frequently (every few minutes)
+   └─ Cached data in /tmp becomes stale
+   └─ Need to invalidate/refresh cache
+   └─ Complex lifecycle management
+   └─ Solution: ElastiCache (centralized updates)
+
+❌ Data shared across multiple Lambda functions
+   └─ Each function downloads its own copy
+   └─ Wasteful, inconsistent
+   └─ Solution: EFS (shared filesystem) or ElastiCache (shared cache)
+```
+
+**Q10 Breakdown (Why /tmp Failed):**
+```
+Scenario: JWT revocation list authentication
+├─ Data size: 300 MB (fits in /tmp ✓)
+├─ Update frequency: Every 5 minutes (FREQUENT ✗)
+├─ Request rate: 10,000 req/min = 166/sec (HIGH ✗)
+├─ SLA: 50ms per request (STRICT ✗)
+├─ Current problem: Cold starts taking 5-8 seconds (SLA VIOLATION ✗)
+└─ Question explicitly states: /tmp caching is FAILING
+
+Why /tmp doesn't work:
+├─ 166 req/sec → Lambda scales to 50-100+ containers during peaks
+├─ Each new container = 5-8 second cold start
+├─ 50ms SLA × 8000ms cold start = 160x SLA violation
+├─ Updates every 5 minutes = constant cache invalidation complexity
+└─ High availability authentication system can't tolerate cold start delays
+
+Why ElastiCache works:
+├─ 300 MB revocation list loaded once into Redis
+├─ Sub-millisecond lookups (<1ms)
+├─ No cold start impact (external to Lambda)
+├─ All Lambda containers query same Redis instance
+├─ Update once every 5 minutes in Redis, all Lambdas see updated data instantly
+└─ 50ms SLA easily met (<1ms Redis + processing time)
+```
+
+**Cost Comparison:**
+```
+/tmp approach:
+├─ Storage cost: ~$0.01/month (300 MB ephemeral)
+├─ But: SLA violations = business cost of failed authentications
+├─ But: Operational cost of managing cache invalidation
+└─ Total: "Cheap" but DOESN'T WORK
+
+ElastiCache approach:
+├─ Redis node: ~$30-50/month
+├─ Zero SLA violations
+├─ Simple architecture (no cache invalidation logic)
+└─ Total: $50/month for working solution vs $0 for broken solution
+```
+
+**The Exam Trap:**
+The exam will show you a "cheap" solution (/tmp) that technically could work in ideal conditions, but will fail under real-world constraints (SLA, high traffic, frequent updates). You MUST read the constraints carefully.
+
+**Target:** Recognize when /tmp cold start delays violate SLA or operational requirements
+
+---
+
+#### 🔴 WEAKNESS #17: ML Inference Architecture - Data Locality Requirements (HIGH)
+
+**The Problem:** Q8 - You split a 5 GB ML model between ElastiCache (features) and EFS (model), not understanding ML inference requires in-memory data.
+
+**The Mistake:**
+```
+Question: 5 GB ML inference (2 GB features + 3 GB model), 100ms latency requirement
+Your Answer: Store features in ElastiCache + model in EFS + 4 GB Lambda ❌
+Correct Answer: 6 GB Lambda memory + cache both in /tmp ✅
+
+Why this is architecturally broken:
+├─ ML inference performs tensor operations on data IN MEMORY
+├─ Can't fetch features from Redis during inference (adds 1-5ms per lookup × hundreds of features)
+├─ Can't load model from EFS during request (takes seconds, not milliseconds)
+├─ 4 GB Lambda memory insufficient (3 GB model + overhead + inference = need 6 GB+)
+└─ You created a Rube Goldberg machine that can't possibly meet 100ms SLA
+```
+
+**ML Inference Requirements:**
+```
+Machine Learning Inference Must Have:
+1. Model loaded IN MEMORY (can't run inference from external storage)
+2. Features IN MEMORY (tensor operations require local data)
+3. One-time load cost acceptable (cold start loads once, serves thousands of requests)
+4. Sufficient memory for model + features + inference overhead
+
+Lambda ML Inference Decision Tree:
+Model + Features + Overhead < 10 GB?
+├─ YES → Lambda with enough memory
+│  ├─ Configure Lambda memory: data size + 20-30% overhead
+│  ├─ Download from S3 to /tmp on cold start
+│  ├─ Load into memory for inference
+│  └─ Reuse across warm invocations
+│
+└─ NO (> 10 GB) → Lambda NOT suitable
+   └─ Use SageMaker Endpoint (purpose-built for ML inference)
+```
+
+**Q8 Correct Solution:**
+```
+Requirements: 5 GB total (2 GB features + 3 GB model), 100ms latency
+
+Correct Architecture:
+├─ Lambda memory: 6 GB (5 GB data + 1 GB overhead)
+├─ On cold start:
+│  ├─ Download features (2 GB) from S3 to /tmp
+│  ├─ Download model (3 GB) from S3 to /tmp
+│  └─ Load both into Lambda memory (takes 10-15 seconds)
+├─ On each request (warm invocation):
+│  ├─ Features already in memory: 0ms load time
+│  ├─ Model already in memory: 0ms load time
+│  ├─ Perform inference: 50-80ms
+│  └─ Total: Well under 100ms ✅
+└─ Cost: Lambda memory charges only (most cost-effective)
+
+Why this works:
+├─ 5 GB < 10 GB Lambda limit ✅
+├─ In-memory inference meets 100ms requirement ✅
+├─ Cold start acceptable (happens rarely) ✅
+└─ Simple architecture (no external dependencies) ✅
+```
+
+**Why Your Split Architecture Failed:**
+```
+ElastiCache (features) + EFS (model) + 4 GB Lambda:
+
+Problems:
+├─ Feature lookup latency:
+│  └─ Fetching 100-500 features from Redis: 1-5ms × 500 features = 500ms - 2500ms
+│  └─ Blows past 100ms budget before inference even starts ❌
+│
+├─ Model loading:
+│  └─ Loading 3 GB model from EFS into memory: 5-10 seconds
+│  └─ Can't do this per request (violates 100ms SLA) ❌
+│  └─ Would need to load once on cold start anyway (so why use EFS?)
+│
+├─ Memory insufficient:
+│  └─ 4 GB Lambda - 3 GB model = 1 GB for features + inference
+│  └─ 2 GB features + inference overhead won't fit ❌
+│
+├─ Complexity:
+│  ├─ Need to manage Redis connection pooling
+│  ├─ Need to serialize/deserialize features
+│  ├─ Need to mount EFS in VPC
+│  └─ High operational overhead ❌
+│
+└─ Cost:
+   ├─ Redis: ~$30-50/month
+   ├─ EFS: ~$0.30/GB = ~$1/month
+   ├─ Lambda: Same cost as simple solution
+   └─ Total: More expensive AND doesn't work ❌
+```
+
+**The Pattern You Missed:**
+```
+ML Inference with Lambda:
+
+IF model + features < 10 GB:
+└─ Load EVERYTHING into Lambda memory
+   └─ Download from S3 on cold start
+   └─ Cache in /tmp and load to memory
+   └─ NEVER split across external services
+
+IF model + features > 10 GB:
+└─ Lambda is NOT the answer
+   └─ Use SageMaker Endpoint
+   └─ Or use EC2/ECS with larger instance types
+```
+
+**Exam Keywords for ML Inference:**
+- "ML model inference" + "< 10 GB" → Lambda with sufficient memory
+- "TensorFlow model" + "features" → Load ALL data into Lambda memory
+- "Real-time inference" + "< 1 second latency" → In-memory processing required
+- NEVER see: "Split ML model across services" (this doesn't work)
+
+**Target:** Understand ML inference requires ALL data in-memory, can't be split across external services
+
+---
+
+### 📊 Performance Analysis Summary
+
+**Accuracy by Category:**
+```
+Lambda Memory/Limits: 100% (1/1) ✅
+├─ Q9: Correctly increased memory for "memory exceeded" error
+
+RDS Integration: 100% (1/1) ✅
+├─ Q3: Correctly identified RDS Proxy for connection pooling
+
+ElastiCache Use Cases: 33% (1/3) ⚠️
+├─ Q1: Correctly used for 12 GB + 10ms latency ✅
+├─ Q7: Incorrectly used for 500 MB static data ❌ (should be /tmp)
+└─ Q10: Missed entirely, chose failing /tmp solution ❌
+
+EFS Use Cases: 50% (1/2) ⚠️
+├─ Q2: Correctly used for 6 GB ML model ✅
+└─ Q4: Incorrectly used for 80 MB files ❌ (should be /tmp)
+   Q5: Incorrectly used for 15 GB + 200ms ❌ (should be ElastiCache)
+   Q8: Incorrectly mixed with ElastiCache ❌ (should be /tmp only)
+
+/tmp Storage: 0% (0/4) 🚨 CRITICAL FAILURE
+├─ Q4: Chose EFS instead ❌
+├─ Q7: Chose ElastiCache instead ❌
+├─ Q8: Chose ElastiCache+EFS split instead ❌
+└─ Q10: Chose /tmp (finally!) but it was WRONG for this scenario ❌
+
+DynamoDB Architecture: 0% (0/1) 🚨
+└─ Q6: Confused connectionless DynamoDB with connection-based RDS ❌
+```
+
+**Critical Patterns Missed:**
+1. **Reading comprehension** - Chose solution explicitly described as failing (Q10)
+2. **/tmp use cases** - Don't understand when it's appropriate vs when it fails
+3. **SLA analysis** - Ignored that cold starts violate strict SLA requirements
+4. **Service connection models** - Confused DynamoDB (connectionless) with RDS (connection-based)
+5. **ML inference architecture** - Tried to split data across services when it must be in-memory
+6. **Cost vs performance trade-offs** - Chose expensive ElastiCache when free /tmp worked (Q7)
+7. **Overcorrection** - Swung between extremes instead of systematic analysis
+
+---
+
+### 🎯 Immediate Action Required
+
+**Before attempting ANY more quizzes:**
+
+1. **Read and memorize the Lambda Storage Decision Framework** (in Weakness #14 above)
+2. **Create flashcards for:**
+   - When /tmp works vs when it fails
+   - DynamoDB (connectionless) vs RDS (connection-based)
+   - ML inference data locality requirements
+   - ElastiCache cost ($30-50/month) vs /tmp cost (~$0)
+
+3. **Practice reading comprehension:**
+   - Read ENTIRE scenario before looking at options
+   - Identify current state (what's being used now)
+   - Identify failure mode (WHY it's failing)
+   - Never choose solution that matches described failure
+
+4. **Re-take Quick-Reference-Compute.md section on Lambda**
+5. **Re-take Quick-Reference-Storage.md section on ephemeral storage**
+
+**Do NOT attempt next drill until you can answer these without hesitation:**
+- When does /tmp caching FAIL? (Answer: Strict SLA + cold starts violate SLA, OR high update frequency, OR high request rate)
+- Does DynamoDB have connection limits? (Answer: NO - it's HTTP REST API, connectionless)
+- Can you split an ML model between ElastiCache and EFS? (Answer: NO - inference requires all data in-memory)
+- A 300 MB dataset with 50ms SLA and 10K req/min - ElastiCache or /tmp? (Answer: ElastiCache - /tmp cold starts violate SLA)
 
 ---
 
