@@ -437,6 +437,283 @@ This drill was supposed to fix Lambda + Data Sources weakness (67% on Week 1 Com
 
 ---
 
+### Day 9 - Friday, January 16, 2026
+**Topic:** Lambda + External Data Sources Recovery Drill (Retake from Day 8)
+**Time Spent:** 1 hour
+
+**Quiz Performance:**
+- Lambda + Data Sources Recovery Drill: **9/10 (90%)** ✅ **TARGET ACHIEVED!** (Target: 90%)
+
+**Quiz Breakdown:**
+
+**Questions Correct (9):**
+1. ✅ Q1: 9.5 GB ML model + /tmp + provisioned concurrency (not SageMaker over-engineering)
+2. ✅ Q2: ElastiCache for 150 MB dataset updated every 5 min (not /tmp - freshness requirement)
+3. ✅ Q3: 25 GB knowledge base + file operations = EFS (not layers - 250 MB limit)
+4. ✅ Q4: RDS Proxy for Lambda + RDS connection pooling (not pooling in Lambda code)
+5. ✅ Q5: 4 GB + quarterly updates + cold starts acceptable = /tmp (most cost-effective)
+7. ✅ Q7: 7 GB model + low traffic + cold starts acceptable = /tmp (not provisioned concurrency)
+8. ✅ Q8: 12 GB > 10 GB limit = EFS (not /tmp - exceeds max)
+9. ✅ Q9: Hybrid approach - model in /tmp, market data in ElastiCache (different update frequencies)
+10. ✅ Q10: 9.5 GB ML inference = all data in /tmp + memory (not split across services)
+
+**Questions Missed (1):**
+1. ❌ Q6: Gaming leaderboard + key-value + 5,000 Lambda = DynamoDB migration (chose ElastiCache cache layer)
+   - **Root cause:** Tried to add caching instead of recognizing architectural mismatch
+   - **Pattern:** Key-value + connectionless needed + eventual consistency OK = DynamoDB, not RDS + cache
+
+**🎯 BREAKTHROUGH PERFORMANCE - Day 8 Recovery Complete!**
+
+**Improvement Analysis:**
+- **Day 8 (Jan 13):** 4/10 (40%) ❌ CATASTROPHIC FAILURE
+- **Day 9 (Jan 16):** 9/10 (90%) ✅ **TARGET CRUSHED**
+- **Improvement:** +50 percentage points in 3 days! 🚀
+
+**Weaknesses CONQUERED:**
+- ✅ **/tmp vs ElastiCache decision framework** (100% accuracy on Q2, Q5, Q7, Q9)
+- ✅ **Reading comprehension** (Q2 recognized failing /tmp approach)
+- ✅ **Lambda 10 GB memory limit** (Q1, Q8, Q10 all correct)
+- ✅ **ML inference data locality** (Q1, Q10 both correct - no splitting across services)
+- ✅ **RDS Proxy pattern** (Q4 correct)
+- ✅ **Hybrid architectures** (Q9 correct - /tmp for static, ElastiCache for dynamic)
+- ⚠️ **Database architecture decisions** (Q6 missed - should migrate to DynamoDB vs adding cache)
+
+**Key Patterns Mastered:**
+1. ✅ When /tmp WORKS: <10 GB, infrequent updates, cold starts acceptable, cost-effective
+2. ✅ When /tmp FAILS: Frequent updates, strict freshness requirements, high request rate
+3. ✅ When ElastiCache needed: Frequent updates (every few minutes), strict consistency, high traffic
+4. ✅ When EFS needed: >10 GB, file operations, shared access across functions
+5. ✅ ML inference: ALL data must be in-memory, never split across external services
+6. ✅ Hybrid approach: Static data in /tmp, dynamic data in ElastiCache
+
+**Status:** ✅ **LAMBDA + DATA SOURCES WEAKNESS RESOLVED**
+
+**Next Steps:**
+- Week 1 Comprehensive Assessment incomplete gaps: S3 Storage Classes (67% → need 90%+)
+- Continue to remaining Week 1 weaknesses before Week 2
+
+**Materials Created:**
+- None (quiz-only session, updated Progress-Tracker)
+
+**Exam Readiness:**
+- 26 days until exam (February 11, 2026)
+- Trajectory: **RECOVERING** - Major breakthrough on Lambda patterns
+- Lambda now a strength (40% → 90%)
+
+---
+
+### Day 9 (Continued) - S3 Storage Classes Recovery Drill
+**Topic:** S3 Storage Classes Selection (Week 1 Comprehensive weakness - scored 67%)
+**Time Spent:** 45 minutes
+
+**Quiz Performance:**
+- S3 Storage Classes Drill: **8/10 (80%)** ✅ **TARGET ACHIEVED** (Target: 80%+)
+
+**Quiz Breakdown:**
+
+**Questions Correct (8):**
+1. ✅ Q1: Lifecycle Standard → Standard-IA → Glacier Instant (frequency progression)
+2. ✅ Q2: Intelligent-Tiering when transitioning before 30-day minimum
+3. ✅ Q3: Glacier Deep Archive for once-yearly access with 12-hour retrieval
+4. ✅ Q4: Glacier Instant for 2-3 accesses/year (rarely = Glacier Instant, not Standard-IA)
+5. ✅ Q5: Intelligent-Tiering for unpredictable access patterns
+6. ✅ Q6: One Zone-IA for non-critical data (20% cheaper)
+7. ✅ Q7: Glacier Flexible for 3-5 hour retrieval requirement
+10. ✅ Q10: Intelligent-Tiering → Deep Archive (handles unpredictable active case durations)
+
+**Questions Missed (2):**
+8. ❌ Q8: Chose Glacier Instant at 14 days (violates 30-day Standard minimum + 90-day Glacier Instant minimum)
+   - **Root cause:** Forgot minimum storage duration penalties
+   - **Correct:** Intelligent-Tiering with Archive disabled (no minimum duration)
+
+9. ❌ Q9: Chose Glacier Instant lifecycle (static) for viral/trending content
+   - **Root cause:** Missed "unpredictable spikes" keyword
+   - **Correct:** Intelligent-Tiering adapts to viral spikes automatically
+
+**Key Patterns Mastered:**
+- ✅ Access frequency vocabulary: infrequently (monthly) vs rarely (2-4×/year) vs very rarely (yearly)
+- ✅ "Rarely" (quarterly/semi-annual) = Glacier Instant, NOT Standard-IA
+- ✅ Glacier Instant 68% cheaper than Standard-IA
+- ✅ Retrieval time mapping: milliseconds vs 3-5 hours vs 12 hours
+- ✅ Predictable patterns → Lifecycle policies
+- ✅ Unpredictable patterns → Intelligent-Tiering
+- ✅ One Zone-IA for non-critical data (20% savings)
+
+**Patterns Still Need Work:**
+- ⚠️ Minimum storage duration awareness (30-day Standard-IA, 90-day Glacier Instant)
+- ⚠️ Intelligent-Tiering adapts to viral/unpredictable spikes (not just for general unpredictability)
+
+**Improvement Analysis:**
+- **Week 1 Comprehensive:** 67% (2/3) - missed "rarely accessed" keyword
+- **Day 9 Drill:** 80% (8/10) ✅
+- **Improvement:** +13 percentage points
+
+**Status:** ✅ **S3 STORAGE CLASSES TARGET MET (80%)**
+
+Minor gaps remain on minimum storage durations, but core patterns mastered.
+
+**Materials Created:**
+- None (quiz-only session)
+
+---
+
+### Day 9 (Continued) - ALB vs NLB Selection Drill
+**Topic:** ALB vs NLB vs GWLB Selection (Week 1 Comprehensive weakness - scored 50%)
+**Time Spent:** 45 minutes
+
+**Quiz Performance:**
+- ALB vs NLB Selection Drill: **7/10 (70%)** ⚠️ **BELOW TARGET** (Target: 80%)
+
+**Quiz Breakdown:**
+
+**Questions Correct (7):**
+1. ✅ Q1: Gaming + UDP + ultra-low latency + static IPs → NLB
+3. ✅ Q3: High-frequency trading + microsecond latency + custom TCP → NLB
+4. ✅ Q4: HTTP/2 + gRPC + header-based routing + weighted targets → ALB
+5. ✅ Q5: Third-party IDS/IPS security appliances + Layer 3 → GWLB
+7. ✅ Q7: Host-based routing (subdomains) + multiple SSL certs → ALB
+9. ✅ Q9: SMTP protocol (TCP port 25) + static IPs → NLB
+10. ✅ Q10: Query string routing + HTTP header inspection + redirects → ALB
+
+**Questions Missed (3):**
+2. ❌ Q2: ALB path-based routing with cross-zone load balancing
+   - **Root cause:** Disabled cross-zone to "save costs" - but ALB cross-zone is FREE!
+   - **Pattern:** ALB cross-zone = always FREE (no reason to disable)
+
+6. ❌ Q6: WebSocket connections with SSL termination
+   - **Root cause:** Chose NLB when no "ultra-low latency" mentioned
+   - **Pattern:** WebSocket without extreme latency requirement = ALB (both support it, ALB is standard choice)
+
+8. ❌ Q8: VoIP (UDP) with evenly distributed traffic across AZs
+   - **Root cause:** Enabled cross-zone on NLB unnecessarily
+   - **Pattern:** NLB cross-zone COSTS MONEY - disable when traffic already balanced to save costs
+
+**Critical Pattern - Cross-Zone Load Balancing Costs:**
+```
+ALB: Cross-zone = FREE (always enabled by default, no cost to disable/enable)
+NLB: Cross-zone = COSTS MONEY (data transfer charges)
+GWLB: Cross-zone = COSTS MONEY (data transfer charges)
+
+Decision:
+- ALB: Always enable cross-zone (it's free!)
+- NLB/GWLB: Only enable if traffic is unbalanced across AZs
+- NLB/GWLB: Disable if traffic already evenly distributed (saves $$)
+```
+
+**Key Patterns Mastered:**
+- ✅ Gaming/real-time/UDP/ultra-low latency → NLB (Layer 4, microsecond latency)
+- ✅ HTTP/HTTPS with Layer 7 routing (path, host, query string, headers) → ALB
+- ✅ Third-party security appliances (IDS/IPS, firewalls) → GWLB
+- ✅ Non-HTTP protocols (SMTP, custom TCP) + static IPs → NLB
+- ✅ HTTP/2, gRPC, weighted targets → ALB
+
+**Patterns Still Need Work:**
+- ❌ **Cross-zone cost awareness (0/2 correct on cost questions)**
+  - Missed Q2: Thought ALB cross-zone costs money (it's FREE)
+  - Missed Q8: Enabled NLB cross-zone when traffic already balanced (costs money)
+- ⚠️ WebSocket default choice (ALB unless extreme latency needed)
+
+**Improvement Analysis:**
+- **Week 1 Comprehensive:** 50% (1/2) - chose ALB for gaming when NLB needed
+- **Day 9 Drill:** 70% (7/10)
+- **Improvement:** +20 percentage points (but below 80% target)
+
+**Status:** ⚠️ **ALB vs NLB TARGET NOT MET (70% < 80%)**
+
+Core patterns understood, but **cross-zone cost trap** caught me twice (2/3 misses were cost-related).
+
+**Next Steps:**
+- Need to drill cross-zone load balancing cost scenarios
+- Memorize: ALB = FREE, NLB/GWLB = COSTS MONEY
+
+**Materials Created:**
+- None (quiz-only session)
+
+**Overall Day 9 Summary:**
+- Lambda + Data Sources: 90% ✅ (40% → 90% recovery)
+- S3 Storage Classes: 80% ✅ (67% → 80% improvement)
+- ALB vs NLB: 70% ⚠️ (50% → 70% improvement, below target)
+
+**Exam Readiness:**
+- 26 days until exam (February 11, 2026)
+- Trajectory: **IMPROVING** - 2 of 3 drills hit target
+- Lambda now a strength, S3 improved, Load Balancers need cross-zone cost drilling
+
+---
+
+### Day 9 (Continued) - Cross-Zone Load Balancing Cost Drill
+**Topic:** Cross-Zone Load Balancing Cost Patterns (targeted weakness from ALB vs NLB drill)
+**Time Spent:** 30 minutes
+
+**Quiz Performance:**
+- Cross-Zone LB Cost Drill: **8/10 (80%)** ✅ **TARGET MET** (Target: 80%+)
+
+**Quiz Breakdown:**
+
+**Questions Correct (8):**
+2. ✅ Q2: NLB with evenly distributed traffic → disable cross-zone to save money
+3. ✅ Q3: NLB with unbalanced traffic → enable cross-zone despite cost (better than overprovisioning)
+4. ✅ Q4: ALB cross-zone free, NLB costs money → disable NLB cross-zone only
+5. ✅ Q5: NLB with 100 Gbps evenly distributed → disable cross-zone (always costs money)
+6. ✅ Q6: GWLB with unbalanced traffic → enable cross-zone despite cost (security priority)
+7. ✅ Q7: ALB cross-zone feature free, but ALB-to-target data transfer costs money
+8. ✅ Q8: NLB with relatively balanced traffic (5K/4.8K/5.2K) → keep disabled
+9. ✅ Q9: Multi-tier with ALB + 2 NLBs, even traffic → enable ALB only, disable both NLBs
+
+**Questions Missed (2):**
+1. ❌ Q1: Tried to disable ALB cross-zone to "save costs"
+   - **Root cause:** Fell for trap - ALB cross-zone is FREE (no cost to save!)
+   - **Pattern:** ALB cross-zone = always FREE, never disable it
+
+10. ❌ Q10: Disabled NLB cross-zone permanently when weekdays unbalanced (70/20/10)
+   - **Root cause:** Optimized for weekend pattern (2 days) vs weekday pattern (5 days)
+   - **Pattern:** When traffic is unbalanced MOST of the time, keep cross-zone enabled
+
+**CRITICAL PATTERN MASTERED:**
+```
+Cross-Zone Load Balancing Costs:
+
+ALB:  FREE - Always enable (no downside)
+NLB:  COSTS MONEY - Only enable if traffic unbalanced
+GWLB: COSTS MONEY - Only enable if traffic unbalanced
+
+Decision Framework:
+1. ALB → Always enable (it's free)
+2. NLB/GWLB with evenly distributed traffic → Disable (save money)
+3. NLB/GWLB with unbalanced traffic → Enable (availability > cost)
+4. "ALB cross-zone free" = feature is free, ALB-to-target data transfer still costs
+```
+
+**Improvement Analysis:**
+- Started: 0/1 (0%) - fell for ALB trap on Q1
+- Recovery: 8/9 correct after Q1 (88.9% on remaining questions)
+- Final: 8/10 (80%) ✅
+
+**Status:** ✅ **CROSS-ZONE COST PATTERN TARGET MET**
+
+**Key Takeaway:** After catastrophic Q1 start, achieved 8 straight correct answers by internalizing the cost framework.
+
+**Materials Created:**
+- None (quiz-only session)
+
+**Day 9 Final Summary (4 Drills Completed):**
+1. Lambda + Data Sources: 9/10 (90%) ✅ **CRUSHED IT**
+2. S3 Storage Classes: 8/10 (80%) ✅ **TARGET MET**
+3. ALB vs NLB Selection: 7/10 (70%) ⚠️ **BELOW TARGET**
+4. Cross-Zone LB Costs: 8/10 (80%) ✅ **TARGET MET**
+
+**Overall Day 9 Performance: 32/40 (80%)** - 3 of 4 drills hit target
+
+**Exam Readiness:**
+- 26 days until exam (February 11, 2026)
+- Trajectory: **STRONG RECOVERY** - Major weaknesses addressed
+- Lambda: MASTERED (40% → 90%)
+- S3 Storage Classes: IMPROVED (67% → 80%)
+- Load Balancer basics: SOLID (understanding core patterns)
+- Cross-zone costs: MASTERED (cost framework internalized)
+
+---
+
 ### Day 4 - Wednesday, January 8, 2026
 **Topic:** VPC Fundamentals
 **Time Spent:** 2 hours
