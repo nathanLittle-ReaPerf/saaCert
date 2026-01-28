@@ -1616,3 +1616,125 @@ User has made significant progress on tactical patterns (hot partitions, transac
 
 **Last Updated:** January 27, 2026, 1:15 AM CST
 **Next Session:** Specialized Database Recovery Drills (Timestream, Neptune, ElastiCache patterns)
+
+---
+
+### Day 27 (Continued) - January 27, 2026 (Evening Session)
+**Topic:** Timestream vs DynamoDB Recovery Drill
+**Time Spent:** 1.5 hours
+
+**Context:**
+- Day 27 Morning: ElastiCache & Specialized Databases Quiz: **4/10 (40%)** ❌ CATASTROPHIC FAILURE
+- **Timestream Blind Spot Identified:** 0/2 (0%) on Timestream questions in morning quiz
+- Evening: Targeted drill to fix Timestream pattern recognition
+
+**Quiz Performance:**
+- Timestream vs DynamoDB Drill: **9/10 (90%)** ✅ **TARGET EXCEEDED** (Target: 80%)
+
+**BREAKTHROUGH: 0% → 90% IN ONE DRILL SESSION**
+
+**Quiz Breakdown:**
+
+**Questions Correct (9):**
+1. ✅ Q1: Industrial sensors (50K sensors, 10M writes/min, hourly averages, 90-day tiering) → Timestream
+2. ✅ Q2: User clickstream (95% queries by specific user_id, sub-10ms latency) → DynamoDB
+3. ✅ Q3: Stock market tick data (10K stocks, 100ms updates, moving averages, 7-year retention) → Timestream
+4. ✅ Q4: Social media posts (user timeline, sorted by recent, 10x spikes) → DynamoDB
+5. ✅ Q5: Smart building sensors (5K sensors, average temp per floor, monthly trends) → Timestream
+6. ✅ Q6: Gaming sessions (player's last 10 sessions, sub-10ms latency) → DynamoDB
+8. ✅ Q8: Weather stations (10K stations, current conditions API + 30-day analytics, sub-second OK) → Timestream only
+9. ✅ Q9: Network flow logs (500K events/sec, time-windowed alerts, 90-day patterns) → Timestream
+10. ✅ Q10: Ride-sharing trips (<100ms for driver/rider lookups + nightly analytics) → DynamoDB + Timestream hybrid
+
+**Question Missed (1):**
+
+**Q7 - Package Tracking Hybrid Architecture:**
+   - ❌ Chose B: Timestream only
+   - ✅ Should be A: DynamoDB + Timestream hybrid
+   - **Root cause:** Saw "analytics" and defaulted to single Timestream, missed dual-workload requirement
+   - **Pattern missed:** Real-time customer portal (fast lookups) + analytics dashboards = hybrid architecture
+   - **Learning:** When BOTH operational (<100ms) AND analytical workloads exist at scale → hybrid
+
+**Performance Analysis:**
+
+**Single-Database Decisions: 8/8 (100% accuracy):**
+- ✅ Timestream-only: 5/5 (Q1, Q3, Q5, Q8, Q9)
+- ✅ DynamoDB-only: 3/3 (Q2, Q4, Q6)
+
+**Hybrid Architecture Decisions: 1/2 (50% accuracy):**
+- ❌ Q7: Package tracking (missed)
+- ✅ Q10: Ride-sharing (correct)
+
+**Pattern Recognition Mastered:**
+
+**1. Timestream Indicators (100% accuracy on pure Timestream questions):**
+- ✅ High-velocity ingestion (IoT sensors, tick data, logs)
+- ✅ Time-series aggregations (avg, moving averages, trends)
+- ✅ Time-range queries ("over past 30 days," "hourly averages")
+- ✅ Automatic data tiering requirements
+- ✅ Keywords: "analyze," "trends," "patterns," "aggregations over time"
+
+**2. DynamoDB Indicators (100% accuracy on pure DynamoDB questions):**
+- ✅ Fast lookups by partition key (user_id, player_id, package_id)
+- ✅ Timeline/feed queries (sorted by timestamp)
+- ✅ Sub-10ms latency requirements
+- ✅ No aggregations needed (just retrieve raw data)
+- ✅ Keywords: "retrieve," "fetch," "get," "show last N," "display timeline"
+
+**3. Latency-Based Decision Making (100% accuracy):**
+- ✅ Sub-10ms → DynamoDB required (Q2, Q6, Q10)
+- ✅ Sub-second OK → Timestream memory store sufficient (Q8)
+- ✅ Seconds OK → Pure analytics workload (Q1, Q3, Q5, Q9)
+
+**4. Timestamp Trap Mastery (100% accuracy):**
+- ✅ Q2, Q4, Q6: Data has timestamps but access pattern is key-value → DynamoDB
+- ✅ Correctly identified: Timestamps ≠ automatic Timestream (depends on query pattern!)
+
+**Critical Learnings:**
+
+**Timestream vs DynamoDB Decision Tree:**
+```
+Does the scenario have time-series analytics needs?
+├─ NO → DynamoDB (or other service, not Timestream)
+└─ YES → Does it ALSO have operational queries requiring <100ms?
+    ├─ NO → Timestream alone (if latency can be sub-second)
+    └─ YES → DynamoDB + Timestream hybrid
+```
+
+**Hybrid Architecture Pattern (Emerging - 50% accuracy):**
+- When to use hybrid: BOTH operational AND analytical workloads at scale
+- DynamoDB Streams bridges them automatically (zero operational overhead)
+- Red flags: "Customer portal" + "executive dashboards"
+- Red flags: "Real-time API" + "trend analysis"
+- Red flags: Dual latency requirements (fast + slow)
+
+**Comparison to Morning Quiz:**
+- **Morning (Day 27):** Timestream accuracy: 0/2 (0%) - Complete blind spot
+- **Evening (Drill #1):** Timestream accuracy: 5/5 (100%) - Pattern mastered
+- **Overall improvement:** 0% → 90% in single session
+
+**Status:** ✅ **TIMESTREAM PATTERN MASTERED - DRILL #1 COMPLETE**
+
+**Materials Created:**
+- None (all patterns documented in Progress-Tracker and captured during quiz)
+
+**Next Steps:**
+- ✅ **Drill #1 Complete:** Timestream vs DynamoDB (90% achieved)
+- ⏭️ **Drill #2 (Tomorrow AM):** Neptune vs Other Databases (10 questions, target 100%)
+  - Focus: Graph database keywords (social networks, degrees of separation, relationships)
+  - Address Day 27 Q5 failure (chose Redshift for social network queries)
+- ⏭️ **Drill #3 (Tomorrow):** ElastiCache Patterns (10 questions, target 100%)
+  - Focus: Redis Sorted Sets for leaderboards, lazy loading vs write-through, read replicas
+  - Address Day 27 Q1, Q2, Q8 failures
+
+**Exam Readiness:**
+- **Days until exam:** 15 days (February 11, 2026 at 5:15 PM EST)
+- **Current trajectory:** **STRONG RECOVERY IN PROGRESS** ✅
+- **Timestream vs DynamoDB:** EXAM READY (90% accuracy)
+- **Specialized databases:** 2 more drills needed (Neptune, ElastiCache)
+- **Confidence:** Rising - targeted drilling proving highly effective
+
+---
+
+**Last Updated:** January 27, 2026, 9:22 PM CST
+**Next Session (Tomorrow AM):** Neptune vs Other Databases Drill (graph database pattern recognition)
