@@ -1738,3 +1738,92 @@ Does the scenario have time-series analytics needs?
 
 **Last Updated:** January 27, 2026, 9:22 PM CST
 **Next Session (Tomorrow AM):** Neptune vs Other Databases Drill (graph database pattern recognition)
+
+---
+
+## Day 28 - January 28, 2026 (Evening)
+
+**Topic:** Neptune vs Other Databases Recovery Drill
+**Time:** 1 hour
+**Status:** ❌ **BELOW TARGET - ADDITIONAL DRILLING REQUIRED**
+
+### Quiz Results
+
+**Neptune vs Other Databases Drill: 60% (6/10)** ❌ **BELOW TARGET**
+- **Target:** 80% (8/10)
+- **Result:** 60% (6/10)
+- **Status:** 🚨 **CRITICAL WEAKNESS PERSISTS**
+
+**Performance Breakdown:**
+- ✅ Correct Neptune Identification: 5/5 (100%)
+  - Social networks, fraud detection, threat intelligence, family trees, infrastructure dependencies
+- ❌ Failed "When NOT to Use Neptune": 4/5 (80% failure rate)
+  - Over-applying Neptune to scale problems (50M user recommendations)
+  - Confusing aggregation with traversal (product analytics)
+  - Missing geospatial vs graph routing distinction (delivery tracking)
+  - REPEAT: Choosing Redshift for real-time queries (clinical trials)
+
+### New Critical Weaknesses Identified
+
+**🔴 WEAKNESS #29: Neptune Scale Limitations - Real-Time Traversal vs Pre-Computed Results**
+- Chose Neptune for 50M user recommendation engine with 200ms SLA
+- Correct: DynamoDB with pre-computed similarity scores
+- Pattern: Neptune works <1M users; 10M+ users with <200ms = pre-compute + DynamoDB
+
+**🔴 WEAKNESS #30: Confusing Graph Traversal with Batch Analytics**
+- Chose Neptune for product analytics on 10TB historical data in S3
+- Correct: Athena to query S3 directly with SQL
+- Pattern: "Products bought together" = COUNT/GROUP BY aggregation, NOT graph traversal
+
+**🔴 WEAKNESS #31: Geospatial Routing vs Graph Database Routing**
+- Chose Neptune for logistics delivery tracking ("shortest delivery route")
+- Correct: DynamoDB for entity tracking + Amazon Location Service for routing
+- Pattern: Physical routing (GPS/maps) ≠ relationship routing (graph DB)
+
+**🔴 WEAKNESS #32: Redshift for Real-Time Operational Queries (REPEAT MISTAKE!)**
+- Chose Redshift for clinical trial patient matching with 2-second SLA
+- Correct: Neptune for complex relationship pattern matching
+- Pattern: Redshift = OLAP (batch analytics), Neptune = OLTP (real-time operational)
+
+### Pattern Analysis
+
+**Core Issue:** User correctly identifies WHEN Neptune is right (100% accuracy), but struggles with WHEN Neptune is WRONG (80% failure rate).
+
+**Failed Distinctions:**
+1. Scale limits (Neptune vs pre-computed DynamoDB)
+2. Aggregation vs traversal (Athena vs Neptune)
+3. Geospatial vs graph routing (Location Service vs Neptune)
+4. OLAP vs OLTP (Redshift vs Neptune) - REPEAT from Day 27
+
+### Materials Created
+
+- ✅ **Day-28-Neptune-Weaknesses.md**: Detailed failure analysis with decision trees
+- ✅ **Master-Decision-Trees-All-Services.md**: Consolidated decision trees for all AWS services
+  - Database selection master tree
+  - Neptune vs other databases (with scale limits, routing types, traversal vs analytics)
+  - DynamoDB access patterns
+  - RDS & Aurora decision trees
+  - Specialized databases (Timestream, QLDB, DocumentDB)
+  - Caching patterns (ElastiCache)
+  - OLAP vs OLTP critical distinctions
+  - Quick reference matrix with exam keywords
+
+### Recovery Actions Required
+
+**Immediate (Before Next Quiz):**
+1. Create Neptune Decision Tree flashcard (graph traversal vs aggregation vs geospatial)
+2. Memorize scale limits: Neptune works <1M users for real-time recommendations, DynamoDB for 10M+
+3. Create "Redshift RED FLAGS" flashcard (real-time, operational, <5sec SLA = NOT Redshift)
+4. Review Cost-Analysis-Reference-Tables.md for Neptune vs Athena vs DynamoDB cost models
+
+**Drilling Required:**
+- "When NOT to Use Neptune" quiz (10 questions, target 90%+)
+- "OLAP vs OLTP" quiz (10 questions, target 100%)
+- "Recommendation Engine Architecture" quiz (focus on scale + latency requirements)
+
+**Status:** 🚨 **ACTIVE WEAKNESS - REQUIRES IMMEDIATE REMEDIATION**
+
+---
+
+**Last Updated:** January 28, 2026, 5:39 PM CST
+**Next Session:** Day 28 (Feb 1) - FIRST FULL PRACTICE EXAM (65 questions, 130 minutes)
