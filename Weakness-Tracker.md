@@ -2570,3 +2570,131 @@ Access frequency?
 
 **Last Updated:** January 28, 2026, 5:39 PM CST (Day 28 Neptune vs Other Databases Drill)
 **Next Review:** After Neptune remediation drills (target 90%+ accuracy)
+
+---
+
+## Practice Exam 1 Weaknesses (Feb 1, 2026) - CATASTROPHIC FAILURE
+
+**Exam Score:** 36/65 (55.4%) ❌ **FAIL** (Need 47/65 = 72%)
+
+### 🔴 WEAKNESS #33: S3 Lifecycle Minimum Storage Durations (URGENT)
+
+**Failed Questions:** Q41, Q59 from Practice Exam 1
+
+**The Disaster:**
+- Q41: Tried to transition to Glacier Instant Retrieval after 30 days, then Deep Archive at 90 days
+- Q59: Tried to export CloudWatch Logs directly to Glacier Deep Archive
+- Both violate S3 lifecycle minimum storage duration rules
+
+**Correct Pattern:**
+S3 Lifecycle Tier Progression (CANNOT skip tiers without penalties):
+Standard → Standard-IA (30d min) → Glacier Flexible (90d min) → Glacier Deep Archive (180d min)
+
+**Status:** 🚨 **ACTIVE - REQUIRES IMMEDIATE DRILLING**
+
+---
+
+### 🔴 WEAKNESS #34: io2 Block Express for Extreme IOPS (CRITICAL - FAILED TWICE!)
+
+**Failed Questions:** Q4, Q44 from Practice Exam 1 (SAME MISTAKE REPEATED!)
+
+**IOPS Hierarchy - MEMORIZE:**
+- gp3: 16,000 IOPS max
+- io2: 64,000 IOPS max
+- io2 Block Express: 256,000 IOPS max
+- Aurora: ~100-200K IOPS max
+
+**Status:** 🚨 **CRITICAL - MEMORIZE IOPS TABLE IMMEDIATELY**
+
+---
+
+### 🔴 WEAKNESS #35: Cost Optimization Hierarchy - Rightsize > Commit > Schedule
+
+**Failed Question:** Q65
+
+**Hierarchy - MEMORIZE:**
+1. RIGHTSIZE FIRST (30-70% savings)
+2. COMMIT (Reserved Instances, Savings Plans)
+3. SCHEDULE (Instance Scheduler for off-hours)
+
+**Status:** 🚨 **ACTIVE - COST OPTIMIZATION DRILLING REQUIRED**
+
+---
+
+### 🔴 WEAKNESS #36: Serverless for Sporadic Batch Workloads
+
+**Failed Question:** Q62
+
+**Pattern:** Sporadic batch jobs (<50% utilization) → Serverless (AWS Glue, Lambda)
+**Not:** Always-on cluster (EMR 24/7) for intermittent workloads
+
+**Status:** 🚨 **ACTIVE - SERVERLESS COST PATTERNS NEEDED**
+
+---
+
+### 🔴 WEAKNESS #37: DynamoDB On-Demand vs Provisioned Auto-Scaling
+
+**Failed Question:** Q47
+
+**Pattern:**
+- "Within seconds" spike or "100x traffic increase" → On-Demand (instant scaling)
+- Provisioned auto-scaling takes minutes (too slow for instant spikes)
+
+**Status:** 🚨 **ACTIVE - DYNAMO CAPACITY MODES REVIEW NEEDED**
+
+---
+
+### 🔴 WEAKNESS #38: Over-Engineering vs Managed Service Simplicity
+
+**Failed Question:** Q56
+
+**Operational Overhead Ranking (least to most):**
+1. Elastic Beanstalk (upload ZIP, done)
+2. ECS Fargate (containerize + orchestrate)
+3. EC2 Auto Scaling (manage OS + app)
+
+**Pattern:** "LEAST operational overhead" + "WordPress" = Elastic Beanstalk, NOT ECS
+
+**Status:** 🚨 **ACTIVE - PATTERN RECOGNITION NEEDED**
+
+---
+
+### 🔴 WEAKNESS #39: FSx for Lustre vs EFS Latency Requirements
+
+**Failed Question:** Q51
+
+**Storage Latency Hierarchy:**
+- FSx for Lustre: Sub-millisecond (hundreds of μs)
+- EFS: Single-digit milliseconds (1-10ms)
+- S3: 10-100+ ms
+
+**Pattern:** "Sub-millisecond" requirement → FSx for Lustre (NOT EFS)
+
+**Status:** 🚨 **ACTIVE - STORAGE LATENCY MEMORIZATION NEEDED**
+
+---
+
+### 🔴 WEAKNESS #40: Database Engine Migration Compatibility
+
+**Failed Question:** Q42
+
+**Pattern:**
+- "Stored procedures" + "migrate" → Keep same database engine (Oracle → RDS for Oracle)
+- Don't swap engines (Oracle → PostgreSQL) without explicit refactoring permission
+
+**Status:** 🚨 **ACTIVE - DATABASE COMPATIBILITY PATTERNS NEEDED**
+
+---
+
+## 📊 Practice Exam 1 Summary
+
+**Total New Weaknesses:** 8 critical gaps (#33-40)
+
+**Recovery Priority:**
+1. URGENT: Cost optimization (S3 lifecycle, rightsizing, serverless)
+2. CRITICAL: io2 Block Express IOPS (failed twice!)
+3. HIGH: Serverless scaling patterns
+4. MEDIUM: Pattern recognition anti-patterns
+
+**Last Updated:** February 1, 2026, 6:30 PM CST
+**Status:** 🚨 **EMERGENCY RECOVERY - 10 DAYS TO EXAM**
