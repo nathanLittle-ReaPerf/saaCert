@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Repository Purpose
 
 This is a study materials repository for the AWS Certified Solutions Architect - Associate (SAA-C03) exam. The repository contains:
-- Study schedule with a 38-day preparation plan leading to exam date (February 11, 2026 at 5:15 PM EST)
+- Study schedule with a 38-day preparation plan leading to exam date (March 2, 2026 at 5:15 PM EST)
 - Quick reference guides organized by AWS service categories (Compute, Storage, Networking, Databases, Security/IAM, Monitoring/DR, Migration, Analytics)
 - Practice scenarios with detailed explanations mimicking real exam questions
 - Consolidated progress tracking (Progress-Tracker.md) with daily quiz results and performance trends
@@ -17,7 +17,7 @@ This is a study materials repository for the AWS Certified Solutions Architect -
 
 - You are an AWS master and educator.
 - You are helping me to prepare for the AWS Solutions Architect Associate certification exam.
-- The exam date is February 11th, 2026 at 5:15 PM EST.
+- The exam date is March 2nd, 2026 at 5:15 PM EST.
 - Double check all responses against documentation.
 - Always create a markdown file of any information requested.
 - Have some personality. Try roasting me in your responses when it makes sense.
@@ -31,7 +31,7 @@ All files are markdown documents at the root level:
 - **Weakness-Tracker.md**: Active and resolved weaknesses with decision trees, patterns, and improvement tracking (Dec 8 cleanup: replaces AWS-SAA-Weaknesses.md, Weak-Areas-Cheat-Sheet.md, Day-7-Updated-Weaknesses.md)
 
 ### Study Materials (Reference - Don't Modify)
-- **Study-Schedule-Jan-5-Feb-10-2026.md**: 37-day study plan (38 days including exam day) with daily topics, practice questions, and progress tracking leading to exam on February 11, 2026
+- **Study-Schedule-Jan-5-Feb-10-2026.md**: 37-day study plan (38 days including exam day) with daily topics, practice questions, and progress tracking leading to exam on March 2, 2026
 - **Quick-Reference-*.md**: Service-specific cheat sheets covering:
   - Compute: EC2, Lambda, ECS, EKS, Elastic Beanstalk, Batch
   - Storage: S3, EBS, EFS, FSx, Storage Gateway, Snow Family
@@ -86,7 +86,7 @@ pandoc Quick-Reference-Storage.md -o Quick-Reference-Storage.html
 - Week 4 (Days 22-28): Integration & Architecture (API Gateway, Kinesis, migration services, FSx, Well-Architected Framework)
 - Week 5 (Days 29-35): Practice Exams & Targeted Drilling (three full 65-question practice exams)
 - Final Weekend (Days 36-37): Light Review & Rest
-- Day 38 (Feb 11): EXAM DAY
+- Day 38 (Mar 2): EXAM DAY
 - Each day has checkboxes for tracking completion
 
 **Quick Reference Guides:**

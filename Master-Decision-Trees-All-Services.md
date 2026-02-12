@@ -4,7 +4,7 @@
 
 **Created:** January 28, 2026
 **Last Updated:** January 28, 2026
-**Exam Date:** February 11, 2026 at 5:15 PM EST
+**Exam Date:** March 2, 2026 at 5:15 PM EST
 
 ---
 

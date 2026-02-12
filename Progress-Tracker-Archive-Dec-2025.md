@@ -2,7 +2,7 @@
 
 **Archived Date:** January 17, 2026
 **Archive Period:** November 21, 2025 - December 18, 2025
-**Original Exam Date:** January 14, 2026 (later rescheduled to February 11, 2026)
+**Original Exam Date:** January 14, 2026 (later rescheduled to February 11, 2026, then to March 2, 2026)
 
 This file contains the archived study progress from the November-December 2025 study period. The exam was rescheduled, and a fresh study period began on January 5, 2026.
 

@@ -1,7 +1,7 @@
 # AWS SAA-C03 Study Schedule - Fresh Start
 
-**Exam Date: February 11, 2026 at 5:15 PM EST**
-**Study Period: January 5 - February 10, 2026 (37 days)**
+**Exam Date: March 2, 2026 at 5:15 PM EST**
+**Study Period: January 5 - March 1, 2026 (56 days)**
 **Daily Commitment: 1.5-2 hours weekdays, 2-3 hours weekends**
 **Target Score: 720/1000 (72% passing)**
 
