@@ -3258,3 +3258,22 @@ Standard → Standard-IA (30d min) → Glacier Flexible (90d min) → Glacier De
 
 **Last Updated:** February 1, 2026, 6:30 PM CST
 **Status:** 🚨 **EMERGENCY RECOVERY - 10 DAYS TO EXAM**
+
+
+---
+
+## Feb 12, 2026 - 20-Question Assessment: 10/20 (50%) - 6 NEW CRITICAL WEAKNESSES
+
+### New Weaknesses Identified:
+- #38: io2 Block Express = 256K IOPS (not 64K) - User dismissed for 100K IOPS req
+- #39: EBS bills 24/7 when stopped - User thought Instance Scheduler saves storage $
+- #40: Cost hierarchy violations (3x) - Sell RIs, prod Scheduler, pure Spot
+- #41: gp3 max 16K IOPS - User chose gp3 for 18K peak (would throttle)
+- #42: Object Lock vs Versioning - Used Object Lock for 'accidental deletion'
+- #43: RDS export vs Backup cold - Chose Parquet export for 'backup cost reduction'
+
+### Drill Status: PENDING (Starting now)
+### Exam: 18 days (March 2, 5:15 PM EST)
+### Current Pass Probability: 40-50%
+
+

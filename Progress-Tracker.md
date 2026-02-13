@@ -2114,3 +2114,104 @@ Does the scenario have time-series analytics needs?
 **Next Session (Tomorrow):** S3 Storage Class Pricing Drill + Cost Hierarchy Drill (40 questions total, target 90%+)
 **Exam Countdown:** 9 DAYS REMAINING
 
+
+### Day 31 - Wednesday, February 12, 2026
+**Topic:** 20-Question Weakness Assessment (Claude Code Session)
+**Time Spent:** 2 hours
+
+**Quiz Performance:**
+- **Overall Score: 10/20 (50%)** ⚠️ **CRITICAL - Exposed Major Gaps**
+
+**Performance by Category:**
+1. **S3 Storage Classes & Pricing: 4/5 (80%)** ✅ Strong
+   - ✅ Q1: Glacier Instant for millisecond + infrequent access
+   - ✅ Q2: Minimum object size trap (128 KB for Standard-IA)
+   - ✅ Q3: Early deletion penalties (Standard-IA 30-day minimum)
+   - ❌ Q4: Chose Glacier Instant migration over Standard retrieval (over-engineered)
+   - ✅ Q5: Double-billing during storage class transitions
+
+2. **Cost Optimization Patterns: 2/5 (40%)** 🔴 **CRITICAL WEAKNESS**
+   - ✅ Q6: Rightsize before committing to RIs ✅ **BREAKTHROUGH!**
+   - ❌ Q7: Tried to sell RIs instead of using auto-apply feature
+   - ❌ Q8: Instance Scheduler on production web app (would cause outages)
+   - ❌ Q9: Pure Spot without On-Demand fallback (reliability risk)
+   - ✅ Q10: Rightsize + RDS RI + VPC endpoints (correct prioritization)
+
+3. **EBS Volume Types & IOPS: 2/5 (40%)** 🔴 **CRITICAL WEAKNESS**
+   - ❌ Q11: Dismissed io2 Block Express (thought 64K IOPS max, actually 256K)
+   - ❌ Q12: Chose gp3 when peak IOPS (18K) exceeded gp3's 16K limit
+   - ✅ Q13: Instance store for temporary video processing ✅ **CORRECT!**
+   - ❌ Q14: Oversized gp2 storage instead of gp3 with provisioned IOPS
+   - ❌ Q15: Thought stopping instances saves EBS costs (it doesn't - EBS bills 24/7)
+
+4. **DR Strategies & Backup: 3/5 (60%)** 🟡 Acceptable
+   - ✅ Q16: Pilot Light for 1-hour RTO / 5-minute RPO
+   - ❌ Q17: Object Lock for "accidental deletion" (versioning alone sufficient)
+   - ✅ Q18: AWS Backup for centralized management + audit trail
+   - ❌ Q19: RDS export to S3 Glacier for "backups" (it's for analytics, not backup)
+   - ✅ Q20: Aurora Global Database managed failover + Route 53
+
+**Critical Weaknesses Identified (MUST FIX - 18 Days to Exam):**
+
+🚨 **WEAKNESS #38: io2 Block Express IOPS Limits**
+- Misconception: io2 maxes at 64,000 IOPS
+- Reality: io2 = 64K max, io2 Block Express = 256K max (4x higher!)
+- Impact: Failed Q11 (dismissed io2 BE for 100K IOPS requirement)
+
+🚨 **WEAKNESS #39: EBS Billing for Stopped Instances**
+- Misconception: Stopping instances saves storage costs
+- Reality: EBS bills 24/7 whether instance is running or stopped
+- Impact: Failed Q15 (thought Instance Scheduler saves storage costs)
+
+🚨 **WEAKNESS #40: Cost Optimization Hierarchy**
+- The Rule: RIGHTSIZE → COMMIT → SCHEDULE → OPTIMIZE
+- Failures: Q7 (sell RIs), Q8 (Instance Scheduler on prod), Q9 (pure Spot)
+- Impact: 3/5 failures in cost optimization category
+
+🚨 **WEAKNESS #41: gp3 16,000 IOPS Limit**
+- Mistake: Chose gp3 for 18K IOPS peak
+- Reality: gp3 maxes at 16,000 IOPS (hard limit)
+- Impact: Failed Q12 (would cause production performance issues)
+
+🚨 **WEAKNESS #42: Object Lock vs Versioning**
+- Mistake: Object Lock for "accidental deletion"
+- Reality: Versioning = deletion protection, Object Lock = WORM/immutable
+- Impact: Failed Q17 (over-engineered compliance solution)
+
+🚨 **WEAKNESS #43: RDS Snapshot Export vs AWS Backup Cold Storage**
+- Mistake: S3 Glacier export for "backup cost reduction"
+- Reality: RDS export = Parquet (analytics), AWS Backup cold = native backup
+- Impact: Failed Q19 (confused data archival with backup/recovery)
+
+**Recovery Plan (18 Days to March 2 Exam):**
+
+**Week 1 (Feb 13-19): Emergency Drill - EBS & Cost Optimization**
+- Daily: 10 EBS IOPS questions (io2 vs io2 BE, gp3 limits)
+- Daily: 10 cost optimization questions (rightsize-first scenarios)
+- Target: 90%+ accuracy by Feb 19
+
+**Week 2 (Feb 20-26): Full Topic Review + Practice Exams**
+- Feb 20-23: S3, DR, Object Lock drills
+- Feb 24-25: Full 65-question practice exams (target 65%+)
+- Feb 26: Review all failures
+
+**Week 3 (Feb 27-Mar 1): Final Review + Rest**
+- Feb 27-28: Light review (Quick-Reference guides)
+- Mar 1: REST DAY (flashcards only)
+- Mar 2: EXAM DAY (5:15 PM EST)
+
+**Realistic Assessment:**
+- Current: 50% (10/20)
+- With drilling: 65-70% on exam
+- Probability of passing: 40-50% (improvable)
+
+**Next Steps:**
+1. Update Weakness-Tracker.md with 6 new weaknesses
+2. Begin targeted drill quizzes (starting now)
+3. Track daily progress
+
+---
+
+**Last Updated:** February 12, 2026, 12:10 PM CST
+**Next Action:** Targeted drills on io2 Block Express IOPS and EBS billing
+**Exam Countdown:** 18 DAYS REMAINING
