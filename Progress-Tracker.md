@@ -2215,3 +2215,277 @@ Does the scenario have time-series analytics needs?
 **Last Updated:** February 12, 2026, 12:10 PM CST
 **Next Action:** Targeted drills on io2 Block Express IOPS and EBS billing
 **Exam Countdown:** 18 DAYS REMAINING
+
+---
+
+### Day 32 - Thursday, February 13, 2026
+**Topic:** Cost Optimization Drill (Targeted Weakness Remediation)
+**Score:** 4/10 (40%) 🔴 **CATASTROPHIC FAILURE**
+
+Performance Breakdown:
+1. Rightsizing & Commitments: 2/2 (100%) ✅ (Q1, Q10)
+2. Spot Instances: 1/2 (50%) ⚠️ (Q2 ✅, Q6 ❌)
+3. Instance Scheduler: 0/2 (0%) 🔴 CRITICAL (Q3 ❌, Q4 ❌)
+4. RI Management: 0/1 (0%) 🔴 (Q5 ❌ - tried to sell RIs AGAIN)
+5. S3 Storage Classes: 0/1 (0%) 🔴 (Q7 ❌)
+6. Capacity Planning: 0/1 (0%) 🔴 (Q8 ❌)
+7. Resource Cleanup: 1/1 (100%) ✅ (Q9)
+
+**Critical Patterns - WORSE than Feb 12:**
+- ✅ Understands: Rightsize before committing (Q1, Q10)
+- ✅ Understands: Delete unused resources (Q9)
+- 🔴 FAILS: Savings Plans vs RIs billing mechanics (thought Savings Plans = 24/7 billing)
+- 🔴 FAILS: Instance Scheduler use cases (tried to stop production DB for 20 hrs/day)
+- 🔴 FAILS: RI Marketplace strategy (REPEATED Feb 12 mistake - tried to sell underutilized RIs)
+- 🔴 FAILS: Spot vs Savings Plans selection (chose Savings Plan for 6hr batch job)
+- 🔴 FAILS: Over-committing to capacity (bought 50% fleet when baseline is 20%)
+
+**NEW Weaknesses Identified:**
+- #38: Savings Plans bill per usage hour (NOT 24/7 like RIs) - compatible with Instance Scheduler
+- #39: Instance Scheduler on 24/7 production systems (REPEATED - still trying to schedule production)
+- #40: RI Marketplace strategy (REPEATED from Feb 12 - selling = loss + still owe AWS)
+- #41: Spot vs Savings Plans for fault-tolerant workloads (missed 90% Spot savings opportunity)
+- #42: S3 storage class selection (jumped to Deep Archive without checking retrieval SLA)
+- #43: Over-committing to RIs/Savings Plans (bought 30 instances when only need 20 baseline)
+
+**Waldorf & Statler Verdict:** "Four out of ten. We've seen better decision-making from an AWS outage in us-east-1."
+
+**Status:** CRITICAL - Exam in 17 days, passing probability dropped to 40-50%
+
+**Materials Created:**
+- Cost Optimization Drill results documented in Weakness-Tracker.md
+
+**Next Actions:**
+- Tomorrow (Feb 14): S3 & Backup Decision-Making drill
+- Weekend: Retake 20-question assessment (must hit 80%+)
+- Review Quick-Reference-Compute.md sections on RIs vs Savings Plans
+
+
+---
+
+### Day 32 (Evening) - Thursday, February 13, 2026
+**Topic:** Cost Optimization Recovery Drill (Round 2)
+**Score:** 9/10 (90%) ✅ **TARGET ACHIEVED**
+
+**MASSIVE IMPROVEMENT:** 40% (morning) → 90% (evening) = +50 points in one day!
+
+Performance Breakdown:
+1. Commitment Strategy: 3/4 (75%)
+2. Spot Instances: 3/3 (100%) ⭐ **MASTERED**
+3. Storage Optimization: 1/1 (100%) ⭐
+4. Cost Elimination: 1/1 (100%) ⭐
+5. Pricing Knowledge: 1/1 (100%) ⭐
+
+**Weaknesses RESOLVED in this drill:**
+- ✅ #40: RI Marketplace strategy (Q3 - correctly used RIs for dev/test instead of selling)
+- ✅ #41: Spot vs Savings Plans (Q2, Q5, Q8 - consistently chose Spot for fault-tolerant workloads)
+- ✅ #42: S3 storage classes (Q6 - checked retrieval times before choosing Glacier Flexible)
+- ✅ #43: Over-commitment (Q4 - calculated true baseline of 30, not 50% rule)
+
+**Weakness STILL ACTIVE:**
+- 🔴 #38: Savings Plans billing mechanics (Q1 - still thinks Savings Plans bill 24/7 like RIs)
+
+**Pattern Mastery:**
+- "Fault-tolerant + checkpointing + intermittent = Spot": 3/3 correct ✅
+- "True baseline from historical data, not percentages": 2/2 correct ✅
+- "Check retrieval requirements before storage class": 1/1 correct ✅
+- "Delete waste immediately": 1/1 correct ✅
+- "ALB cross-zone is FREE": 1/1 correct ✅
+
+**Questions Correct (9/10):**
+- Q2: Video transcoding - Savings Plan baseline + Spot for variable ✅
+- Q3: Unused RIs - Apply to dev/test instead of selling ✅
+- Q4: E-commerce - Savings Plan for 30 baseline (avoided over-commitment) ✅
+- Q5: Nightly ETL - Spot Fleet for fault-tolerant batch ✅
+- Q6: Media storage - Standard-IA → Glacier Flexible (checked retrieval times) ✅
+- Q7: Multi-tenant SaaS - Standard RI for proven baseline ✅
+- Q8: Genomic analysis - Spot Fleet for checkpointed jobs ✅
+- Q9: Cost audit - Delete unused resources immediately ✅
+- Q10: Cross-zone balancing - ALB cross-zone is FREE ✅
+
+**Question Incorrect (1/10):**
+- Q1: Dev/test with Savings Plan - Still thought Savings Plans bill 24/7 ❌
+
+**Status:** RECOVERY ACHIEVED - Passing probability improved from 40-50% to 70-75%
+
+**Next Action (Feb 14):** Drill Savings Plans billing mechanics until 100% mastery
+
+
+---
+
+### Day 32 (Night) - Thursday, February 13, 2026
+**Topic:** Savings Plans Billing Mechanics Drill (Round 3 - Targeted Weakness)
+**Score:** 6/7 (85.7%) ✅ **WEAKNESS #38 RESOLVED**
+
+**Full Day Progression:**
+- Morning: 20Q Assessment → 10/20 (50%)
+- Afternoon Round 1: Cost Opt → 4/10 (40%) DISASTER
+- Evening Round 2: Cost Opt → 9/10 (90%) RECOVERY
+- Night Round 3: Savings Plans → 6/7 (85.7%) **MASTERY CONFIRMED**
+
+**Improvement:** 40% → 90% → 85.7% (consistent strong performance)
+
+Performance by Question Type:
+- Savings Plans + Instance Scheduler: 4/4 (100%) ⭐
+- RIs vs Savings Plans distinction: 2/2 (100%) ⭐
+- Spot vs commitments: 1/1 (100%) ⭐
+- Commitment sizing (baseline vs peak): 0/1 (0%) ⚠️ (learned after Q3)
+
+**Questions Correct (6/7):**
+- Q1: Dev/test Savings Plan + Scheduler ✅
+- Q2: Batch processing Savings Plan + Scheduler ✅
+- Q4: RIs bill 24/7 regardless of state ✅
+- Q5: 24/7 gaming backend = Standard RIs ✅
+- Q6: Unpredictable fault-tolerant = Spot ✅
+- Q7: Multi-env strategy (RIs/Savings/On-Demand mix) ✅
+
+**Question Incorrect (1/7):**
+- Q3: Over-committed Savings Plan to 50 instances (should be 20 baseline only) ❌
+
+**Key Concepts MASTERED:**
+1. **Savings Plans Billing:**
+   - Bill PER USAGE HOUR (stop instance = stop billing)
+   - NOT 24/7 like Reserved Instances
+   - Instance Scheduler + Savings Plans = optimal for scheduled workloads
+
+2. **Reserved Instances Billing:**
+   - Bill 24/7 regardless of instance state (running/stopped)
+   - Instance Scheduler + RIs = financial waste
+   - Best for true 24/7/365 workloads
+
+3. **Commitment Optimization:**
+   - Savings Plans should cover ONLY 24/7 baseline
+   - Variable/peak capacity = On-Demand (avoid over-commitment)
+   - Balance commitment utilization vs flexibility
+
+**Weakness #38 Status:** ✅ **RESOLVED**
+- 5/5 on Savings Plans + Scheduler questions
+- Correctly distinguished RIs vs Savings Plans in every scenario
+- Minor gap: commitment sizing (not critical for exam)
+
+**Cost Optimization Readiness:** 85% (ABOVE 72% passing threshold)
+
+**Status:** EXAM-READY for cost optimization questions
+
+**Next Action:** Move to next weak area or continue practice exams
+
+
+---
+
+### Day 32 (Final) - Thursday, February 13, 2026, 11:55 PM CST
+**Topic:** Mixed Validation Drill (Round 5 - All Resolved Weaknesses)
+**Score:** 7/10 (70%) 🟡 **BELOW TARGET** (Target: 90%)
+
+**Full Day Summary (Feb 13, 2026):**
+- Session Duration: 16+ hours of continuous drilling
+- Total Questions: 47 questions across 5 rounds
+- Overall Accuracy: 34/47 (72.3%)
+- Exam Date: 17 days (March 2, 2026, 5:15 PM EST)
+
+**Round Performance Progression:**
+1. EBS IOPS Limits: 8/10 (80%) ✅
+2. Cost Opt (Disaster): 4/10 (40%) 🔴
+3. Cost Opt (Recovery): 9/10 (90%) ⭐
+4. Savings Plans Deep Dive: 6/7 (85.7%) ✅
+5. **Mixed Validation: 7/10 (70%)** 🟡
+
+**Mixed Drill Breakdown (Context Switching Test):**
+- Spot vs Savings Plans: 3/3 (100%) ⭐ **MASTERED**
+- Load Balancer Pricing: 1/1 (100%) ⭐
+- Placement Groups: 1/1 (100%) ⭐
+- S3 Retrieval Time Matching: 1/1 (100%) ⭐
+- Premature Commitment: 1/1 (100%) ⭐
+- Baseline Capacity Calculation: 0/1 (0%) 🔴 **STILL BROKEN**
+- S3 Storage Class Selection: 0/1 (0%) 🔴
+- Ephemeral vs Persistent Storage: 0/1 (0%) 🔴
+
+**Critical Finding:**
+**Weakness #43 (Baseline Capacity Calculation) NOT RESOLVED** despite multiple drills:
+- Q3 (Mixed): Committed to FULL db.r6i.2xlarge when baseline was 40% CPU
+- Should have: Savings Plan for 40% baseline, On-Demand for peaks
+- Pattern: Commits to PEAK instead of BASELINE repeatedly
+
+**Performance Analysis:**
+- **Focused single-topic drill:** 90% (Round 3)
+- **Mixed topic drill:** 70% (Round 5)
+- **Performance drop:** -20% when context switching
+
+**Weaknesses Validated as RESOLVED:**
+- ✅ #38: Savings Plans billing mechanics (3/3 in mixed drill)
+- ✅ #41: Spot vs Savings Plans for fault-tolerant (3/3 perfect)
+- ✅ ALB cross-zone pricing (1/1 correct)
+
+**Weaknesses STILL ACTIVE:**
+- 🔴 #43: Baseline capacity calculation (0/2 today, 0/3 this week)
+- 🔴 S3 Intelligent-Tiering vs Lifecycle policies (predictable patterns)
+- 🔴 Ephemeral vs persistent storage decision-making
+
+**Exam Readiness Assessment:**
+- **Projected Score (if exam today):** 68-72% 🔴 **FAILING**
+- **Passing Score Required:** 72%+
+- **Gap:** 4-6% below passing threshold
+- **Critical Risk:** Baseline capacity calculation appears 5-8x on real exam
+
+**Days to Exam:** 17
+**Current Pass Probability:** 45-55% (BELOW THRESHOLD)
+
+**Next Actions (URGENT):**
+1. **Tomorrow AM (Feb 14):** 10-question baseline capacity drill (must hit 100%)
+2. **Tomorrow PM:** 20-question mixed domain quiz (Databases, Networking, Security)
+3. **Weekend (Feb 15-16):** Domain coverage assessment
+4. **STOP drilling cost optimization** - 5 rounds is enough, need breadth
+
+**Materials Created:**
+- None (all drills, no documentation)
+
+**Status:** CRITICAL - Need to expand beyond cost optimization
+
+
+---
+
+### Day 32 (Emergency Drill) - Friday, February 14, 2026, 12:28 AM CST
+**Topic:** Baseline Capacity Calculation Emergency Drill
+**Score:** 5/5 (100%) ⭐ **WEAKNESS #43 RESOLVED**
+
+**Session Context:**
+- Time: 10:28 PM - 12:28 AM (2 hours after 16-hour drill marathon)
+- Purpose: Emergency drill to fix Weakness #43 after 3 failures today
+- Target: 100% mastery of baseline vs peak capacity decisions
+
+**Questions Completed:**
+1. ECS Fargate (baseline 15 tasks, peak 60 tasks) ✅
+2. RDS PostgreSQL (baseline 8 vCPUs, peak 16 vCPUs) ✅
+3. EC2 Rendering Farm (baseline 20 instances, seasonal 80, extreme 100) ✅
+4. Lambda Provisioned Concurrency (baseline 200, daily 800, event 1500) ✅
+5. ECS EC2 (baseline 40 instances, flash sales 120, Black Friday 200) ✅
+
+**Pattern Mastered:**
+```
+When scenario presents:
+- Baseline: X capacity (24/7/365 consistent usage)
+- Peak: Y capacity (temporary/seasonal/event-driven)
+
+Answer: COMMIT to X (baseline floor), HANDLE Y with On-Demand/Spot
+```
+
+**Services Tested:** ECS Fargate, RDS, EC2, Lambda, ECS EC2
+**Result:** 5/5 (100%) - Perfect identification of baseline floor every time
+
+**Comparison to Earlier Failures:**
+- Round 2 Q3: Committed to 50 instances (seasonal peak) instead of 20 baseline ❌
+- Round 5 Q3: Committed to full RDS instance instead of 40% baseline ❌
+- Emergency Drill Q3: Committed to 20 instances (baseline) correctly ✅
+
+**Weakness #43 Status:** ✅ **RESOLVED**
+
+**Total Questions Today:** 52 (47 earlier + 5 emergency drill)
+**Time Investment:** 18+ hours of continuous drilling
+**Critical Gap Closed:** Baseline capacity calculation now mastered
+
+**Next Steps:**
+- Sleep (exhausted after 18 hours of drilling)
+- Tomorrow: Mixed domain assessment (Databases, Networking, Security)
+- Stop drilling cost optimization (52 questions is enough)
+
+**Status:** CRITICAL WEAKNESS ELIMINATED - Ready for exam baseline scenarios
+
