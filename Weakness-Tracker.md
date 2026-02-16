@@ -4159,3 +4159,126 @@ User demonstrated 100% mastery across 5 different services after emergency midni
 
 **Total Cost Optimization Drilling:** 52 questions across 6 rounds in 2 days - SUFFICIENT.
 
+
+---
+
+## ✅ WEAKNESS #44 RESOLVED - Feb 15, 2026 (Afternoon): VPC Endpoints (Gateway vs Interface)
+
+### Emergency Drill Results
+**Topic:** VPC Endpoints - Gateway vs Interface decision making
+**Score:** 10/10 (100%) ✅ **PERFECT SCORE - WEAKNESS ELIMINATED**
+
+### The Gap (Original Failure)
+- **Feb 14 Q7:** User chose Interface endpoint for S3 data transfer cost reduction
+- **Correct answer:** Gateway endpoint to S3 (FREE data transfer, exclusive for S3/DynamoDB)
+- **Misconception:** Didn't understand Gateway endpoints are ONLY for S3/DynamoDB
+
+### Perfect Mastery Achieved (Feb 15 Emergency Drill)
+10/10 correct answers proving complete understanding:
+- All S3/DynamoDB access routed to Gateway ✅
+- All other services routed to Interface ✅
+- Cost implications understood ✅
+- Edge cases handled (DynamoDB Streams = Interface, not Gateway) ✅
+
+### Decision Framework Locked In
+```
+Question 1: Service is S3 or DynamoDB?
+  → YES: Gateway endpoint (cost-optimized, free for S3)
+  → NO: Interface endpoint (everything else)
+```
+
+### Status: RESOLVED ✅
+
+**Weakness #44 is ELIMINATED.** Exam-ready for VPC endpoint questions.
+
+---
+
+## ✅ WEAKNESS #46 RESOLVED - Feb 15, 2026 (Afternoon): CloudFront vs Global Accelerator
+
+### The Distinction Now Clear
+- **CloudFront:** Content Delivery Network (CDN) - caches content at edge locations
+- **Global Accelerator:** Network optimization - routes traffic optimally without caching
+
+### Correct Application (Feb 15 Networking Q4)
+**Scenario:** Large video streaming platform with global viewers
+- **User's answer:** CloudFront CDN ✅
+- **Reasoning:** Caches video content globally, reduces origin load, improves playback
+
+### Status: RESOLVED ✅
+
+**Weakness #46 is ELIMINATED.** Ready for streaming/CDN scenarios on exam.
+
+---
+
+## 🔴 NEW WEAKNESSES IDENTIFIED - Feb 15, 2026
+
+### WEAKNESS #53: Security Groups Cannot DENY
+**First Identified:** Feb 15, Networking Drill Q16
+**Gap:** User thought SGs could have DENY rules; they only allow rules (stateful)
+**Correct Answer:** Use NACLs (stateless, allow AND deny) for explicit traffic blocking
+**Status:** NEW - Target 80%+
+
+### WEAKNESS #54: IPv6 Egress-Only IGW vs NAT Gateway
+**First Identified:** Feb 15, Networking Drill Q10
+**Gap:** Confused IPv6 Egress-Only IGW with NAT Gateway
+**Key Distinction:** Egress-Only IGW = IPv6 only, NAT Gateway = IPv4 only
+**Status:** NEW - Target 80%+
+
+### WEAKNESS #55: Direct Connect Gateway vs Transit Gateway
+**First Identified:** Feb 15, Networking Drill Q18
+**Gap:** Didn't recognize Direct Connect Gateway consolidates multiple DC connections
+**Key Distinction:** Direct Connect Gateway = simplify DC management, Transit Gateway = VPC-to-VPC
+**Status:** NEW - Target 80%+
+
+### WEAKNESS #56: Network ACLs vs WAF for Blocking
+**First Identified:** Feb 15, Networking Drill Q9
+**Gap:** Confused subnet-level blocking (NACLs) with app-layer (WAF)
+**Key Distinction:** NACLs = IP/protocol blocking, WAF = SQL injection/pattern blocking
+**Status:** NEW - Target 80%+
+
+### WEAKNESS #57: RDS SSL/TLS vs Manual IPsec
+**First Identified:** Feb 15, Networking Drill Q20
+**Gap:** Thought RDS needed IPsec for encryption; doesn't understand native SSL/TLS
+**Key Learning:** RDS has built-in SSL/TLS - no additional VPN/IPsec needed
+**Status:** NEW - Target 80%+
+
+### WEAKNESS #58: GuardDuty Limitations
+**First Identified:** Feb 15, Security Drill Q1, Q10
+**Gap:** Doesn't understand GuardDuty is DETECTIVE (finds threats) not PREVENTIVE (blocks threats)
+**Key Distinction:** GuardDuty = threat detection, Shield = DDoS prevention
+**Status:** NEW - Target 80%+
+
+### WEAKNESS #59: IAM Time-Based Access
+**First Identified:** Feb 15, Security Drill Q5
+**Gap:** Didn't know IAM supports DateGreaterThan/DateLessThan conditions
+**Key Learning:** IAM policies can enforce time-based access restrictions
+**Status:** NEW - Target 80%+
+
+### WEAKNESS #60: IAM Access Analyzer vs GuardDuty
+**First Identified:** Feb 15, Security Drill Q10
+**Gap:** Confused Permission Analysis (Access Analyzer) with Threat Detection (GuardDuty)
+**Key Distinction:** Access Analyzer = "overly-permissive?", GuardDuty = "attack happening?"
+**Status:** NEW - Target 80%+
+
+### WEAKNESS #61: MFA Enable vs Enforce
+**First Identified:** Feb 15, Security Drill Q20
+**Gap:** Doesn't understand Enable (optional) vs Enforce (mandatory via policy)
+**Key Learning:** Must use IAM policy conditions to ENFORCE MFA, not just enable
+**Status:** NEW - Target 80%+
+
+---
+
+## Weakness Status Summary - Feb 15, 2026 EOD
+
+**✅ RESOLVED (4 weaknesses, 80%+ accuracy):**
+- #38: Savings Plans billing (90%)
+- #43: Baseline capacity (100%)
+- #44: VPC Endpoints (100%) ← RESOLVED TODAY
+- #46: CloudFront vs GA (100%) ← RESOLVED TODAY
+
+**🔴 ACTIVE NEW (9 weaknesses, 0-50% accuracy):**
+- #53-#61: Networking/Security gaps identified Feb 15
+
+**Timeline to Exam:** 15 days (March 2, 2026)
+**Current Projection:** 76% (PASSING, +4% safety margin)
+
