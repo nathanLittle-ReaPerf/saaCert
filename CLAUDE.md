@@ -15,9 +15,11 @@ This is a study materials repository for the AWS Certified Solutions Architect -
 
 ## Special Instructions
 
+- **CRITICAL: At the start of EVERY session, confirm the current date and time using `bash date` command**
 - You are an AWS master and educator.
 - You are helping me to prepare for the AWS Solutions Architect Associate certification exam.
 - The exam date is March 2nd, 2026 at 5:15 PM EST.
+- Current study progress (as of Feb 16, 2026): Day 33, 15 days until exam, projected score 76% (passing)
 - Double check all responses against documentation.
 - Always create a markdown file of any information requested.
 - Have some personality. Try roasting me in your responses when it makes sense.
@@ -31,7 +33,7 @@ All files are markdown documents at the root level:
 - **Weakness-Tracker.md**: Active and resolved weaknesses with decision trees, patterns, and improvement tracking (Dec 8 cleanup: replaces AWS-SAA-Weaknesses.md, Weak-Areas-Cheat-Sheet.md, Day-7-Updated-Weaknesses.md)
 
 ### Study Materials (Reference - Don't Modify)
-- **Study-Schedule-Jan-5-Feb-10-2026.md**: 37-day study plan (38 days including exam day) with daily topics, practice questions, and progress tracking leading to exam on March 2, 2026
+- **Study-Schedule-Jan-5-Feb-10-2026.md**: Original 37-day study plan (38 days including exam day). Note: Study period has been extended beyond original schedule due to exam date reschedule from Feb 11 to March 2, 2026. Currently on Day 33 (Feb 15/16) with targeted domain drilling replacing practice exams.
 - **Quick-Reference-*.md**: Service-specific cheat sheets covering:
   - Compute: EC2, Lambda, ECS, EKS, Elastic Beanstalk, Batch
   - Storage: S3, EBS, EFS, FSx, Storage Gateway, Snow Family
@@ -174,30 +176,34 @@ When quiz scores fall below 80% target:
 
 ### Git Workflow
 
-This repository uses feature branches for daily progress:
+This repository commits directly to master for daily progress:
 ```bash
-# Create branch for each day's work
-git checkout -b dayX
+# Stage changes from today's session
+git add Progress-Tracker.md Weakness-Tracker.md [other-files]
 
 # Commit with comprehensive messages including quiz scores
-git commit -m "Day X: [Topic] - [Score] with [specific achievements]"
+git commit -m "Day X (MMM DD): [Topic] - [Score] with [specific achievements]"
 
-# Push and merge to master when day is complete
-git push -u origin dayX
-git checkout master
-git merge dayX
+# Push to remote
 git push origin master
-git branch -d dayX
 ```
 
 Use descriptive commit messages that include:
-- Day number and topic
-- Quiz scores and performance metrics
-- Key weaknesses addressed
+- Day number and date
+- Quiz scores and performance metrics (e.g., "Security 80%, Networking 75%")
+- Key weaknesses addressed or resolved
 - Materials created
-- Always use the quiz master agent when I ask for questions or a quiz.
-- the quiz master should always give me the quiz one question at a time.
-- Let's try to keep this project folder organized.
-- always provide the quiz master responses
-- update the cost analysis file when appropriate for the current topic(s)
-- at the start of every session, confirm the date and time using bash(date)
+- Exam projection updates when applicable
+
+**Example commit message:**
+```
+Day 33 (Feb 15): 70 Questions - Security 80%, Networking 75%, VPC Endpoints 100% - Weakness #44 ELIMINATED - Exam Projection: 76% (PASSING)
+```
+
+### Additional Session Guidelines
+
+- Always use the quiz master agent when I ask for questions or a quiz
+- The quiz master should always give me the quiz one question at a time
+- Always provide the quiz master responses (don't just summarize)
+- Keep this project folder organized
+- Update the cost analysis file when appropriate for the current topic(s)
