@@ -2732,3 +2732,72 @@ Question 3: Concerned about data transfer costs?
 - Focus: Eliminate Feb 13 cost optimization weaknesses (40% catastrophic failure)
 - Result: 53% - improvement from 40% but still FAILING
 - **EXAM PROJECTION DROPS TO 64-67% (FAILING TERRITORY)**
+
+---
+
+### Day 35 - Tuesday, February 17, 2026
+**Topic:** Cost Optimization Weakness Elimination Drill (Round 2)
+**Total Questions:** 15 (targeted drilling on weaknesses #38-43)
+**Overall Score:** 8/15 (53%) 🔴 **NO IMPROVEMENT FROM DAY 34**
+
+**Session Context:**
+- Date: Tuesday, February 17, 2026, 4:45 PM CST
+- Exam: 13 days remaining (March 2, 2026, 5:15 PM EST)
+- Focus: Eliminate cost optimization weaknesses from Feb 13/16 failures
+- Result: 53% - identical to Day 34. Zero net improvement.
+- **EXAM PROJECTION: 64-67% (FAILING TERRITORY)**
+
+**Questions Correct (8):**
+1. ✅ Q1: Instance Scheduler + Savings Plan — stopping dev instances saves money even under Savings Plan
+2. ✅ Q3: Standard RI instance size flexibility — m5.xlarge RIs can cover m5.2xlarge (2:1 normalization factor)
+3. ✅ Q5: Rightsize before committing to RIs — 22% CPU utilization = oversized, rightsize first
+4. ✅ Q7: No historical data → On-Demand + Auto Scaling, evaluate Savings Plans after 3 months of data
+5. ✅ Q10: Compute Savings Plans cover EC2 + ECS Fargate + Lambda (the only plan covering all three)
+6. ✅ Q12: S3 lifecycle tier-splitting — Standard-IA → Glacier Flexible → Deep Archive matched to access frequency
+7. ✅ Q14: Commit to $42,000/month baseline — spikes auto-covered by On-Demand, never commit to peak
+8. ✅ Q15: RI billing priority — RIs apply FIRST, then Savings Plans, then On-Demand
+
+**Questions Missed (7):**
+1. ❌ Q2: Production + peak traffic → On-Demand, NOT Spot (flagged the issue correctly, answered wrong anyway)
+2. ❌ Q4: S3 30-day minimum rule — cannot transition Standard → Standard-IA before 30 days (chose 7 days)
+3. ❌ Q6: RI sharing in Organizations is ON by default — you opt OUT, not in (said must be explicitly enabled)
+4. ❌ Q8: Batch with no checkpointing → recommend ADDING checkpointing + Spot (not On-Demand for everything)
+5. ❌ Q9: Glacier Flexible Standard retrieval = 3-5 hours, does NOT guarantee a 4-hour SLA
+6. ❌ Q11: Convertible RIs cannot cover Fargate — Compute Savings Plan required (repeated Q10 mistake immediately)
+7. ❌ Q13: Instance Scheduler = STOPS instances; Auto Scaling to 0 = TERMINATES instances (chose Auto Scaling)
+
+**Weakness Status After Day 35:**
+| Weakness | Topic | Today | Status |
+|---|---|---|---|
+| #38 | Savings Plans vs RI mechanics | 2/3 (67%) | Improving |
+| #39 | Instance Scheduler (stop vs terminate) | 0/1 (0%) | 🔴 Still Active |
+| #40 | RI Marketplace strategy | 1/1 (100%) | ✅ RESOLVED |
+| #41 | Spot vs Savings Plans scope | 1/3 (33%) | 🔴 Critical |
+| #42 | S3 storage class selection | 1/3 (33%) | 🔴 Critical |
+| #43 | Over-committing to capacity | 2/3 (67%) | Improving |
+
+**Critical Patterns Still Failing:**
+- **S3 lifecycle rules:** 30-day minimum transition rule; Glacier Flexible retrieval SLA math (3-5 hrs ≠ guaranteed <4 hrs)
+- **Convertible RIs vs Compute Savings Plans:** Convertible RIs are EC2-ONLY. Any Fargate/Lambda question = Compute Savings Plan. Got this wrong in back-to-back questions.
+- **Architect mindset:** When scenario has a missing capability (no checkpointing), recommend ADDING it, not working around it
+- **Trusting instincts:** Correctly identified Q2 production Spot risk, answered wrong anyway
+
+**Key Rules to Memorize:**
+- S3 Standard → Standard-IA minimum: **30 days** (AWS enforces this)
+- Glacier Flexible Standard retrieval: **3-5 hours** (cannot guarantee 4-hour SLA)
+- Glacier Instant minimum storage: **90 days**
+- Convertible RIs: **EC2 only** — no Fargate, no Lambda
+- Compute Savings Plans: **EC2 + Fargate + Lambda**
+- RI billing priority: **RIs first → Savings Plans → On-Demand**
+- Organizations sharing: **ON by default** — opt accounts OUT, not in
+- Instance Scheduler = **STOP/START** (data preserved); Auto Scaling to 0 = **TERMINATE** (data gone)
+
+**Materials Created:**
+- Conceptual review of weaknesses #38-43 delivered pre-quiz
+
+**Next Actions:**
+- Micro-drill on S3 lifecycle rules (30-day minimum, retrieval times, minimum storage durations)
+- Fix Convertible RI vs Compute Savings Plan scope confusion with a dedicated decision tree
+- Drill Spot Instance questions with architect mindset framing
+
+**Status:** 🔴 STUCK — 0% improvement on cost optimization after 3 targeted drills. Root cause: pattern recognition without conceptual depth. Need approach change.
