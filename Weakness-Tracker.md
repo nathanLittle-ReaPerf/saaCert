@@ -1,9 +1,204 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** February 18, 2026 (Post Weakness #43 Targeted Micro-Drill - 6/8 = 75% - IMPROVING, 2 sub-patterns unresolved)
+**Last Updated:** February 18, 2026 (Post Weakness #43 Cold Test - 2/2 = 100% - RESOLVED - Part-time floor sub-pattern confirmed locked in under cold conditions, no hints, different surface scenarios)
 **Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (12 days remaining)
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## February 18, 2026 - Weakness #43 Final Cold Test (2/2 = 100%) -- RESOLVED
+
+### Cold Test Results
+**Topic:** Part-time floor trap -- cold exposure, no warm-up, no pattern hints, different surface scenarios
+**Score:** 2/2 (100%) - TARGET MET
+**Status:** RESOLVED -- Part-time floor sub-pattern confirmed automatic under cold conditions
+
+**Context:** February 18, 2026 (12 days to exam). Final verification drill for Weakness #43 after closing drill left 1 miss on the part-time floor sub-pattern (3/4 = 75%). Two completely fresh scenarios: nightly fraud detection batch job (4-hour window) and weekend tournament matchmaking (Saturday 10 AM to Sunday 6 PM, all instances terminated after each tournament). No framing, no hints, no warm-up.
+
+**Questions:**
+- Q1: Nightly fraud detection batch (4-hour window, 20-60 instances, fault-tolerant) -- all Spot (CORRECT)
+- Q2: Weekend tournament matchmaking (32-hour window, all instances terminated after each event, fault-tolerant) -- all Spot (CORRECT)
+
+**Pattern confirmed locked in:** "Consistent minimum of 20 instances" and "consistent weekly demand" language correctly identified as within-window floor language, not 24/7 continuous demand. RI billing is 24/7 regardless of use window. Part-time + fault-tolerant = all Spot, no exceptions.
+
+**Exam-Day Rule:** When a fleet terminates between job windows and the workload is fault-tolerant, the "consistent floor" language is a decoy -- use Spot for the entire fleet, because Reserved Instances only make sense for capacity you run continuously.
+
+**WEAKNESS #43 STATUS: RESOLVED**
+**COLD TEST:** 2/2 (100%) -- clean sweep, cold, no hints, fresh scenarios
+**FULL DRILL HISTORY:** 6/8 R1 | 4/6 R2 | 4/6 R3 | 3/4 Closing | 2/2 Cold Test (RESOLVED)
+**No further drilling needed.**
+
+---
+
+## February 18, 2026 - Weakness #43 Closing Drill (3/4 = 75%)
+
+### Drill Results
+**Topic:** Weakness #43 closing drill -- part-time floor trap (Q1-Q2) + competing signals (Q3-Q4)
+**Score:** 3/4 (75%) - TARGET MISSED (needed 4/4 = 100% to confirm RESOLVED)
+**Status:** NOT RESOLVED -- Competing signals sub-pattern RESOLVED; part-time floor sub-pattern still active
+
+**Context:** February 18, 2026 (12 days to exam). Fourth dedicated Weakness #43 drill of the day. Closing drill designed to confirm both edge cases resolved. Student has now completed 24 combined questions on this pattern today. Competing signals pattern locked in (2/2 in this drill). Part-time floor pattern not yet automatic (1/2 in this drill -- missed Q1 on first cold exposure, corrected Q2).
+
+**Questions Correct (3/4):**
+- Q2: Daytime batch fleet (8 AM-6 PM, terminated nightly, 20 instances) -- all Spot (CORRECT -- part-time floor recognized, fault-tolerant signal applied)
+- Q3: 30 r6i.2xlarge 24/7, VP says stable, CTO says Fargate evaluation = Convertible RIs (CORRECT -- competing signals, uncertainty wins)
+- Q4: 50 c6g.xlarge 24/7, Head of Infra says stable, VP says x86 benchmark for ARM-incompatible library = Convertible RIs (CORRECT -- competing signals, explicit family change signal caught)
+
+**Questions Incorrect (1/4):**
+- Q1: Nightly batch, instances terminate at 5 AM every morning (6 hrs/day), fully fault-tolerant, stateless -- chose On-Demand, correct was all-Spot
+  - User's answer: D (On-Demand for all 12)
+  - Correct answer: B (Spot for all 12)
+  - Knowledge gap: On-Demand avoids the RI waste problem (correct instinct) but ignores the fault-tolerant signal entirely. When fault-tolerant + part-time are both present, Spot is mandatory from a cost optimization standpoint. On-Demand is not the cost-optimal answer for a workload that can survive interruptions.
+  - Pattern missed: Fault-tolerant + part-time = all Spot. On-Demand is never the right answer when the workload is explicitly fault-tolerant and cost optimization is the ask.
+
+### Sub-Pattern Status After Closing Drill
+
+**CORE PATTERN (Commit to baseline only, not average or peak):** SOLID
+**SUB-PATTERN: Part-time floor vs 24/7 floor:** NOT RESOLVED -- 1/2 (missed Q1, corrected Q2; not yet automatic under cold first-exposure pressure)
+**SUB-PATTERN: Competing signals -- uncertainty wins:** RESOLVED -- 2/2 (both questions caught correctly, including dismissive framing in D options)
+**SUB-PATTERN: Convertible vs Standard RI when architecture may change:** RESOLVED (consistent across Q3 and Q4)
+**SUB-PATTERN: Spot applies to fault-tolerant burst, not fault-tolerant floors:** SOLID on continuous floors; edge case on part-time floors
+
+### Drill History Summary (All Drills Feb 18)
+
+| Drill | Score | Status |
+|-------|-------|--------|
+| Micro-Drill Round 1 | 6/8 (75%) | NOT RESOLVED |
+| Micro-Drill Round 2 | 4/6 (67%) | NOT RESOLVED |
+| Micro-Drill Round 3 | 4/6 (67%) | NOT RESOLVED |
+| Closing Drill | 3/4 (75%) | NOT RESOLVED |
+
+### Remaining Gap -- Part-Time Floor
+
+**Failure mode:** On-Demand chosen over Spot when both fault-tolerant and part-time signals are present. The On-Demand instinct is partially correct (avoids RI waste) but incomplete (misses the fault-tolerant = Spot rule). On exam day, On-Demand costs the point exactly as much as Standard RIs would.
+
+**Trigger phrase recognition needed:**
+- "instances are terminated each morning"
+- "fleet is terminated at end of each job window"
+- "only runs X hours per day / per night"
+- "spun up fresh each run"
+- "zero instances outside the window"
+
+**Rule to automate:** When fault-tolerant + part-time BOTH appear, the answer is all-Spot. Not On-Demand. Not partial RIs. Not split fleet. All Spot.
+
+### Recommended Next Actions for Weakness #43
+
+1. One final 2-question cold mini-drill -- part-time floor only, no warm-up, different surface framing each time
+2. Target 2/2 (100%) to confirm part-time floor sub-pattern resolved
+3. Competing signals: no further drilling needed -- RESOLVED
+4. Mark Weakness #43 RESOLVED only after clean 2/2 on part-time floor cold drill
+
+**WEAKNESS #43 STATUS:** NOT RESOLVED -- IMPROVING (competing signals RESOLVED, part-time floor 1 miss remaining)
+**DRILL HISTORY:** 6/8 (75%) R1 | 4/6 (67%) R2 | 4/6 (67%) R3 | 3/4 (75%) Closing -- flat on part-time floor, competing signals locked
+
+---
+
+## February 18, 2026 - Weakness #43 Sub-Pattern Micro-Drill Round 3 -- Spot Floor Trap (4/6 = 67%)
+
+### Drill Results
+**Topic:** Spot floor trap + Standard vs Convertible RI selection (dedicated 6-question micro-drill)
+**Score:** 4/6 (67%) - TARGET MISSED (needed 5/6 = 83% to confirm RESOLVED)
+**Status:** NOT RESOLVED -- Core Spot floor trap holding; two specific edge cases still producing errors
+
+**Context:** February 18, 2026 (12 days to exam). Third dedicated Weakness #43 drill of the day. Focus: the Spot floor trap sub-pattern specifically. Student has now completed 20 combined questions on this pattern today (6/8 first drill, 4/6 second drill, 4/6 this drill). The raw Spot-on-24/7-floor mistake is no longer occurring. Two specific edge cases are producing all errors.
+
+**Questions Correct (4/6):**
+- Q1: 24/7 floor (8 instances), no arch changes, single family = Standard RIs + Spot burst (CORRECT -- clean signal, correctly identified)
+- Q2: 24/7 floor (4 instances), x86 to Graviton evaluation = Convertible RIs + Spot burst (CORRECT -- explicit migration signal caught)
+- Q4: 24/7 floor (10 GPU instances, 18 months confirmed), CTO states 2+ year CUDA lock-in = Standard RIs + Spot burst (CORRECT -- clean signal, correctly identified)
+- Q5: 24/7 floor (5 instances, 2 years confirmed), active PoC for new instance family in Q3 = Convertible RIs + Spot burst (CORRECT -- PoC signal caught)
+
+**Questions Incorrect (2/6):**
+- Q3: Nightly batch jobs, instances TERMINATE at 5 AM every morning (6 hrs/day = 25% utilization) -- chose Standard RIs for floor, correct was Spot entire fleet
+  - User's answer: A (Standard RIs for 6-instance nightly floor + Spot for burst)
+  - Correct answer: C (Spot for all 24 instances -- workload is fault-tolerant AND part-time)
+  - Knowledge gap: Over-applied "floor gets RIs" pattern without checking whether the floor runs 24/7. RIs bill 24/7 regardless of usage. Buying RIs for a part-time floor that physically terminates each morning means paying for ~18 hours of idle committed capacity daily. RI math only beats Spot when utilization is continuous enough to justify the commitment.
+  - Pattern missed: "Instances terminate every morning" / "jobs only run during X window" = part-time workload. Part-time floor + fault-tolerant = Spot entire fleet. The rule is NOT "floor always gets RIs." The rule is "confirmed 24/7 CONTINUOUS floor gets RIs."
+
+- Q6: Rendering pipeline, CTO said "no instance type changes" AND "exploring Fargate long-term" -- chose Standard RIs, correct was Convertible RIs
+  - User's answer: A (Standard RIs for floor -- stopped at "no instance type changes" signal)
+  - Correct answer: B (Convertible RIs for floor -- Fargate exploration = architectural platform uncertainty)
+  - Knowledge gap: When two CTO statements appear in the same scenario pointing in opposite directions, the uncertainty/change signal overrides the stability signal. "No instance type changes" described today's intent. "Exploring Fargate" described tomorrow's uncertainty. Student read the first signal, matched to Standard RIs, and stopped reading.
+  - Pattern missed: Any signal of potential compute platform migration or architectural evaluation -- including Fargate exploration -- tips the decision to Convertible, even if another statement in the same paragraph signals stability. Always read to end of all CTO/architect quotes before deciding.
+
+### Sub-Pattern Status After Round 3 Micro-Drill
+
+**CORE PATTERN (Spot floor trap -- never Spot a 24/7 continuous floor):** SOLID -- zero clean-signal failures across all 20 questions today
+**SUB-PATTERN: Standard vs Convertible -- clean single signals:** SOLID -- correctly identified on Q2 and Q5
+**SUB-PATTERN: Part-time floor vs 24/7 continuous floor distinction:** NOT RESOLVED -- missed Q3 (daily termination = part-time, Spot entire fleet)
+**SUB-PATTERN: Competing signals in same scenario (stability + uncertainty):** NOT RESOLVED -- missed Q6 (stopped reading after first matching signal)
+
+### Specific Remaining Gaps (Precision Level)
+
+**Gap 1 -- Part-time floor recognition:**
+Trigger phrase: "instances terminate each morning" / "jobs only run during X window" / "6 hours per day" / "instances are terminated between runs"
+Rule: Part-time floor + fault-tolerant workload = Spot for entire fleet. RI math inverts below roughly 40-50% daily utilization.
+Do NOT apply: "floor = RIs" without confirming the floor runs 24/7 continuously.
+
+**Gap 2 -- Competing signals, both in the same question:**
+Trigger: Two statements from CTO/architect, one suggesting stability (stay on current family), one suggesting change (migration, evaluation, PoC, Fargate exploration)
+Rule: Uncertainty/change signal WINS. Standard vs Convertible is decided by the highest-uncertainty signal present, not the first matching signal encountered.
+Do NOT stop reading after the first recognizable pattern. Always read all signals before deciding.
+
+### Recommended Next Actions for Weakness #43
+
+1. One final 4-question micro-drill -- 2 questions on part-time floor vs 24/7 floor, 2 questions on competing signals in the same scenario
+2. Target 4/4 (100%) to confirm both edge cases resolved
+3. Mark Weakness #43 RESOLVED only after clean sweep on both edge case types
+4. Must complete before exam (12 days remaining -- high priority)
+
+**WEAKNESS #43 STATUS:** NOT RESOLVED -- IMPROVING (core pattern solid, 2 precise edge cases remain)
+**DRILL HISTORY:** 6/8 (75%) Round 1 | 4/6 (67%) Round 2 | 4/6 (67%) Round 3 -- flat on edge cases, solid on core
+
+---
+
+## February 18, 2026 - Weakness #43 Sub-Pattern Micro-Drill Round 2 (4/6 = 67%)
+
+### Drill Results
+**Topic:** Convertible RI timing + Spot scoping (targeted sub-pattern re-drill)
+**Score:** 4/6 (67%) - TARGET MISSED - NO IMPROVEMENT from prior drill (75%)
+**Status:** NOT RESOLVED -- Both sub-patterns still producing errors under pressure
+
+**Context:** February 18, 2026 (12 days to exam). Second targeted drill on the two unresolved sub-patterns from the 6/8 drill. 3 questions per sub-pattern. Core baseline-identification pattern continues to hold -- zero baseline-calculation errors across all 14 combined questions. Both sub-patterns produced one miss each under disguised and combined scenarios.
+
+**Questions Correct (4/6):**
+- Q1 (Sub-pattern 1): 4-month confirmed floor + re-architecture coming = Convertible RIs now (CORRECT)
+- Q2 (Sub-pattern 2): 24/7 floor gets RIs, fault-tolerant burst gets Spot (CORRECT)
+- Q4 (Sub-pattern 2): Off-peak burst gets Spot, peak burst with restart penalty gets On-Demand (CORRECT -- nuanced Spot scoping by time window)
+- Q5 (Sub-pattern 1): 6-month confirmed floor + instance family shift on roadmap = Convertible now (CORRECT)
+
+**Questions Incorrect (2/6):**
+- Q3 (Sub-pattern 1): Fargate migration evaluation = type uncertainty = Convertible, not Standard
+  - User's answer: B (Standard RIs -- fell for "maximum discount" language)
+  - Correct answer: C (Convertible RIs -- migration evaluation signals type uncertainty even without explicit instance family change)
+  - Knowledge gap: Applied the pattern correctly when uncertainty was labeled "re-architecture" or "benchmarking" but missed it when framed as a container migration evaluation. The trigger words changed; the underlying signal (type uncertainty) did not.
+  - Pattern missed: ANY documented evaluation, roadmap item, or stated plan that could affect instance family = Convertible. The framing does not matter -- the presence of type uncertainty does.
+
+- Q6 (Sub-pattern 2): Applied Spot to entire Component B fleet including confirmed 12-instance floor
+  - User's answer: C (Standard RIs for Component A + Standard RIs for Component B floor + Spot for entire Component B fleet including floor)
+  - Correct answer: A (Standard RIs for Component A + Convertible RIs for Component B floor + Spot for burst only)
+  - Knowledge gap: Combined scenario with fully fault-tolerant workload description triggered "Spot everything" reflex before checking whether a confirmed floor existed. The 12-instance floor always runs -- it needs stable pricing regardless of fault tolerance.
+  - Pattern missed: Two-question sequence -- (1) Is there a confirmed floor? If yes, floor gets RIs or On-Demand regardless of fault tolerance. (2) Is the burst fault-tolerant? If yes, burst gets Spot. Never collapse into one question.
+
+### Sub-Pattern Status After Round 2 Micro-Drill
+
+**CORE PATTERN (Commit to baseline only, not average or peak):** SOLID -- zero baseline-calculation errors across 14 combined questions
+**SUB-PATTERN: Convertible vs Standard RI when architecture may change:** NOT RESOLVED -- missed Q3 (disguised as migration evaluation framing)
+**SUB-PATTERN: Spot applies to fault-tolerant burst, not fault-tolerant floors:** NOT RESOLVED -- missed Q6 (Spot everything reflex in combined scenario)
+
+### Specific Failure Mode Analysis
+
+**Convertible RI failure mode:** Pattern fires correctly on "re-architecture" and "benchmarking" language but fails on "migration evaluation" and "container migration discussion" framing. The student is keying on specific words rather than the underlying signal (any stated plan that could affect instance family = type uncertainty = Convertible).
+
+**Spot scoping failure mode:** Pattern fires correctly in clean two-tier scenarios (floor vs burst) but fails in combined multi-component scenarios where a fully fault-tolerant workload description activates the Spot reflex before the floor-check question is asked.
+
+### Recommended Next Actions for Weakness #43
+1. One more 6-question targeted drill -- both sub-patterns under combined and disguised scenarios
+2. Target 5/6 minimum (83%) to mark Weakness #43 as resolved
+3. Must complete before exam (12 days remaining -- this is high priority)
+
+**WEAKNESS #43 STATUS:** NOT RESOLVED -- REGRESSION (67% in Round 2 vs 75% in Round 1)
 
 ---
 
