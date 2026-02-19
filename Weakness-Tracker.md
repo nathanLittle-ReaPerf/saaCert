@@ -1,6 +1,6 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** February 18, 2026 (Post Weakness #43 Cold Test - 2/2 = 100% - RESOLVED - Part-time floor sub-pattern confirmed locked in under cold conditions, no hints, different surface scenarios)
+**Last Updated:** February 19, 2026 (Post Weakness #42 Cold Test - 2/2 = 100% - FULLY RESOLVED - Deep Archive early deletion math confirmed automatic under cold conditions, no context, no warm-up)
 **Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (12 days remaining)
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
@@ -4578,4 +4578,136 @@ Question 1: Service is S3 or DynamoDB?
 
 **Timeline to Exam:** 15 days (March 2, 2026)
 **Current Projection:** 76% (PASSING, +4% safety margin)
+
+---
+
+## WEAKNESS #42 RE-DRILL - Feb 19, 2026: S3 Storage Class Selection Targeted Drill
+
+### Drill Results
+**Topic:** S3 Storage Class Selection - 4 Specific Sub-Patterns
+**Score:** 7/8 (87.5%) - TARGET MET (needed 80%+)
+**Date:** February 19, 2026
+
+### Sub-Pattern Breakdown
+
+#### Sub-Pattern 1: Glacier Instant Retrieval (ms retrieval + rarely accessed)
+**Score: 2/2 (100%) - CLOSED**
+
+- **Q1:** Media archive footage, accessed 3-4x/year, millisecond retrieval required, 5-year retention
+  - **User's answer:** C (Glacier Instant Retrieval) CORRECT
+  - **Pattern confirmed:** Less than once/quarter + millisecond retrieval = Glacier Instant Retrieval
+
+- **Q8:** Hospital MRI/CT scans, accessed ~2x/year, must appear "within seconds" for radiologists
+  - **User's answer:** B (Glacier Instant Retrieval) CORRECT
+  - **Pattern confirmed:** Clinical "within seconds" = millisecond signal; twice per year kills Standard-IA on cost
+
+**Key distinctions now solid:**
+- Glacier Flexible Expedited = 1-5 MINUTES, not seconds. Eliminated on any ms requirement.
+- Standard-IA = ms retrieval but more expensive than Glacier Instant for <1x/quarter access.
+- Glacier Instant wins when: ms retrieval + infrequent access (quarterly or less).
+
+#### Sub-Pattern 2: "Accumulating storage charges" = Missing Expiration Rule
+**Score: 2/2 (100%) - CLOSED**
+
+- **Q2:** Batch pipeline generates thousands of small files daily, only needed 24 hours, costs growing monthly, 2 million objects accumulated
+  - **User's answer:** B (Lifecycle expiration rule after 1 day) CORRECT
+  - **Pattern confirmed:** Steady cost growth + objects no longer needed = expiration rule missing
+
+- **Q3:** Compliance tool deposits 500 log files/month, needed 90 days only, costs growing 20%/month, junior architect suggests versioning
+  - **User's answer:** C (Lifecycle expiration after 90 days) CORRECT
+  - **Trap avoided:** Enabling versioning would INCREASE costs (stores every previous version)
+  - **Pattern confirmed:** "Costs growing month over month" + defined retention window = expiration rule
+
+**The signal burned in:**
+"Accumulating" / "growing month over month" / "steadily increasing" with objects that have a defined end-of-life = EXPIRATION RULE. Not cheaper tiers, not Intelligent-Tiering, not Requester Pays. Delete them.
+
+#### Sub-Pattern 3: One Zone-IA Triggers
+**Score: 2/2 (100%) - CLOSED**
+
+- **Q4:** Genomics terrain analysis files, regenerated in 4 hours from source data, accessed every few months, AZ loss tolerable
+  - **User's answer:** C (One Zone-IA) CORRECT
+  - **Both triggers present:** AZ loss tolerable + reproducible data
+
+- **Q5:** Social media thumbnails, derived from original videos (stored separately), infrequent after 30 days, "comfortable accepting reduced redundancy"
+  - **User's answer:** B (One Zone-IA) CORRECT
+  - **Harder version:** Reproducible signal was buried ("derived programmatically from original video files")
+  - **Trap avoided:** "Absolute lowest cost" language tried to pull toward Deep Archive; rejected on retrieval time
+
+**Decision formula locked:**
+AZ loss tolerance + reproducible/recreatable data = One Zone-IA. Deep Archive fails when any reasonable retrieval time is implied.
+
+#### Sub-Pattern 4: Deep Archive Early Deletion Math (from TRANSITION DATE)
+**Score: 1/2 (50%) - PARTIALLY CLOSED**
+
+- **Q6:** Documents created Jan 1, transitioned to Deep Archive Jan 31, deleted Mar 31
+  - **User's answer:** C (90 days penalty) INCORRECT
+  - **Correct answer:** A (120 days penalty)
+  - **The error:** User calculated days from creation date (Jan 1 to Mar 31 ~= 90 days in Deep Archive). Actual time in Deep Archive was Jan 31 to Mar 31 = 60 days. Penalty = 180 - 60 = 120 days.
+  - **Root cause:** Miscounted transition-to-deletion window. Counted from creation date, not transition date.
+
+- **Q7:** Documents created March 1, transitioned April 15, deleted July 14
+  - **User's answer:** D (90 days penalty, 180 - 90 = 90) CORRECT
+  - **Calendar math verified:** April 15 to July 14 = 15 + 31 + 30 + 14 = 90 days in Deep Archive. Penalty = 90 days.
+  - **Critical note:** Answer A also said "90 days penalty" but measured from creation date. User chose D and stated correct reasoning (transition date). Method was correct even though coincidental math matched wrong answer's number.
+
+**The formula (must execute precisely):**
+```
+Step 1: Find TRANSITION DATE (ignore creation date entirely)
+Step 2: Count days from transition date to deletion date (actual calendar math)
+Step 3: Penalty = 180 - (days in Deep Archive)
+Step 4: If result <= 0, no penalty
+```
+
+**Known execution risk:** Under exam pressure, user may revert to counting from creation date. Q6 demonstrated this. Q7 corrected it immediately after feedback -- but that was with fresh reinforcement. Cold test required.
+
+### Weakness #42 Status Update
+
+**Previous status:** CONDITIONALLY RESOLVED - 87.5% accuracy
+**Current status:** FULLY RESOLVED - Cold test 2/2 (100%) - February 19, 2026
+
+**All sub-patterns closed (4 of 4):**
+- Glacier Instant Retrieval: CLOSED (2/2, 100%)
+- Accumulating charges = expiration rule: CLOSED (2/2, 100%)
+- One Zone-IA triggers: CLOSED (2/2, 100%)
+- Deep Archive early deletion math: CLOSED (2/2, 100%) -- cold test, no warm-up, no context, different industry scenarios
+
+### Cold Test Results (February 19, 2026)
+
+**Score:** 2/2 (100%) -- TARGET MET
+**Conditions:** Cold exposure, no warm-up, no recent context about Deep Archive, different surface scenarios (healthcare DICOM archive, media production footage)
+**Creation date trap:** Present in both questions, ignored correctly both times
+
+**Q1:** Healthcare DICOM archive -- created Jan 10, transitioned to Deep Archive Feb 14, deleted May 15
+- Days in Deep Archive: Feb 14 to May 15 = 90 days
+- Penalty: 180 - 90 = 90 days
+- Student answer: B (CORRECT -- used transition date Feb 14, not creation date Jan 10)
+
+**Q2:** Media production footage -- created Mar 3, transitioned to Deep Archive Apr 2, deleted Jun 16
+- Days in Deep Archive: Apr 2 to Jun 16 = 75 days
+- Penalty: 180 - 75 = 105 days
+- Student answer: B (CORRECT -- used transition date Apr 2, not creation date Mar 3)
+
+**Pattern confirmed locked in:** Creation date is irrelevant to early deletion penalty calculation. Clock starts on the TRANSITION DATE. Both answers chose correctly despite trap options (A and D) that counted from creation date.
+
+**WEAKNESS #42 STATUS: FULLY RESOLVED**
+**COLD TEST:** 2/2 (100%) -- clean sweep, cold, no hints, fresh scenarios
+**No further drilling needed.**
+
+### Required Action Before Full Resolution -- COMPLETED
+
+~~Before marking Weakness #42 as fully resolved:~~
+~~- Take 2 cold Deep Archive timeline math questions with NO recent context or warm-up~~
+~~- Target: 2/2 correct~~
+
+COMPLETED February 19, 2026. Cold test passed 2/2. Weakness fully closed.
+
+### Key Facts Reinforced This Session
+
+| Storage Class | Retrieval Time | Min Storage | Best Use Case |
+|---|---|---|---|
+| Standard-IA | Milliseconds | 30 days | Monthly access, multi-AZ needed |
+| Glacier Instant | Milliseconds | 90 days | Less than 1x/quarter, ms retrieval required |
+| Glacier Flexible | Expedited: 1-5 min / Standard: 3-5 hrs / Bulk: 5-12 hrs | 90 days | Occasional access, minutes/hours acceptable |
+| One Zone-IA | Milliseconds | 30 days | Reproducible data + AZ loss tolerable |
+| Deep Archive | 12 hours | 180 days from TRANSITION date | True archival, rarely if ever accessed |
 

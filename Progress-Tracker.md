@@ -2928,3 +2928,41 @@ Conceptual teach-back before quiz broke the plateau. Pure drilling was reinforci
 **Weakness #42 Status:** 🔴 STILL ACTIVE — 60%, needs 80%+ on next targeted drill
 
 **Next Action:** 5-question targeted S3 drill on the 4 gaps above before moving to other domains.
+
+---
+
+### Day 37 — Thursday, February 19, 2026
+**Topic:** S3 Weakness #42 Targeted Drill + Cold Test
+**Time Spent:** ~1 hour
+**Days Until Exam:** 11
+
+#### Day 37 — S3 Targeted Drill (8Q)
+**Score: 7/8 (87.5%) ✅ TARGET MET**
+
+| Sub-Pattern | Score | Status |
+|---|---|---|
+| Glacier Instant Retrieval | 2/2 | ✅ CLOSED |
+| "Accumulating charges" = expiration rule | 2/2 | ✅ CLOSED |
+| One Zone-IA triggers | 2/2 | ✅ CLOSED |
+| Deep Archive early deletion math | 1/2 | ⚠️ Conditional |
+
+**Miss:** Q6 — Deep Archive timeline math. Counted 90 days from creation date (Jan 1 → Mar 31) instead of transition date (Jan 31 → Mar 31 = 60 days). Penalty = 180 - 60 = 120 days, not 90. Method was understood on Q7 (correct).
+
+#### Day 37 — Deep Archive Cold Test (2Q)
+**Score: 2/2 (100%) ✅ CONFIRMED**
+
+- Q1: Feb 14 → May 15 = 90 days in Deep Archive. Penalty = 90 days. ✅
+- Q2: Apr 2 → Jun 16 = 75 days in Deep Archive. Penalty = 105 days. ✅
+
+Both creation-date traps ignored. Calendar math correct on both questions. Method confirmed durable under cold conditions.
+
+**Weakness #42 Status: ✅ FULLY RESOLVED — 87.5% drill + 2/2 cold test**
+
+**Key Rules Locked:**
+- Glacier Instant = ms retrieval + rarely accessed (<1x/quarter). Cheaper than Standard-IA.
+- "Accumulating storage charges" = passive/ongoing = missing **expiration rule**. Not retrieval fees.
+- One Zone-IA = "tolerate AZ loss" + "reproducible data". Overrides "lowest cost" language.
+- Deep Archive early deletion: clock starts at **transition date**. Creation date is irrelevant. Penalty = 180 - days since transition.
+
+**Active Weaknesses:** NONE (all S3 gaps closed)
+**Next Action:** Full mixed-domain practice session or targeted drill on next weakest domain.
