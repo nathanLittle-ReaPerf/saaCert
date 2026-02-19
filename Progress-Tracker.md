@@ -2887,7 +2887,44 @@ Conceptual teach-back before quiz broke the plateau. Pure drilling was reinforci
 **Day 36 Combined Stats:**
 - Drill 1 (Cost Optimization): 8/10 (80%) ✅
 - Drill 2 (Weakness #43): 6/8 (75%) 🟡
-- Total questions: 18
-- Weaknesses resolved today: #38, #39, #41 (RESOLVED); #42 improving; #43 improving
+- Drill 3 (Weakness #43 sub-patterns): 4/6 (67%) 🟡
+- Drill 4 (Spot floor closing drill): 4/4 (100%) ✅ — Weakness #43 RESOLVED
+- Drill 5 (S3 Reassessment): 6/10 (60%) 🔴
+- Total questions today: 38
+- Weaknesses resolved today: #38, #39, #41, #43 (ALL RESOLVED)
+- Still active: #42 (S3 storage class selection — 60%)
 
-**Status:** 🟡 Good progress day — plateau broken on cost optimization, #43 core pattern internalized. Two sub-patterns (#43 Convertible RI timing + Spot scoping) need 1 more targeted drill before exam.
+**Status:** 🟡 Big session — #43 finally closed after 4 drill rounds. S3 reassessment revealed 4 active gaps needing targeted work before exam.
+
+---
+
+#### Day 36 — S3 Reassessment (evening)
+**Topic:** S3 Storage Classes Full Reassessment (Weakness #42)
+**Total Questions:** 10
+**Overall Score:** 6/10 (60%) 🔴 **BELOW TARGET — Weakness #42 Still Active**
+
+**Questions Correct (6):**
+1. ✅ Q2: 30-day minimum from creation date (lifecycle transition rule)
+2. ✅ Q5: Intelligent-Tiering for completely unknown access patterns
+3. ✅ Q6: Glacier Flexible Standard = 3-5 hrs, cannot guarantee 4-hr SLA
+4. ✅ Q7: CRR requires versioning on BOTH buckets (hard prerequisite)
+5. ✅ Q8: Lambda default concurrency limit (1,000) = cause of burst throttling from S3 events
+6. ✅ Q10: Snowball Edge for 500 TB in 2 weeks + Glacier Deep Archive for <1/year access
+
+**Questions Missed (4):**
+1. ❌ Q1: Rarely accessed + millisecond retrieval = **Glacier Instant Retrieval** (not Glacier Flexible, not Standard-IA). Glacier Instant is cheaper than Standard-IA for data accessed <1x/quarter.
+2. ❌ Q3: "Unexpected storage charges ACCUMULATING" = **missing expiration rule** (3rd miss this week). "Accumulating" = passive/ongoing = objects not being deleted. NOT retrieval fees (which require an action).
+3. ❌ Q4: "Can tolerate loss of an AZ" + "reproducible data" = **One Zone-IA**. Don't let "lowest cost" pull you to Deep Archive when AZ tolerance is the explicit exam trigger.
+4. ❌ Q9: Glacier Deep Archive early deletion fee — **work the timeline math explicitly**. Fee clock starts at transition date. 180-day minimum must be tracked from when object entered Deep Archive.
+
+**Active S3 Gaps:**
+| Gap | Rule |
+|-----|------|
+| Glacier Instant Retrieval | Rarely accessed + ms retrieval = Glacier Instant (cheaper than Standard-IA) |
+| "Accumulating" storage charges | "Accumulating" = passive = missing expiration/deletion rule. NOT retrieval fees. |
+| One Zone-IA triggers | "Tolerate AZ loss" + "reproducible data" = One Zone-IA. Overrides "lowest cost" language. |
+| Deep Archive early deletion math | Work timeline explicitly: transition date starts 180-day clock, not creation date. |
+
+**Weakness #42 Status:** 🔴 STILL ACTIVE — 60%, needs 80%+ on next targeted drill
+
+**Next Action:** 5-question targeted S3 drill on the 4 gaps above before moving to other domains.
