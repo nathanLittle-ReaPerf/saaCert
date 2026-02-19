@@ -1,9 +1,111 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** February 13, 2026, 11:30 AM CST (Post Cost Optimization Drill - 40% CATASTROPHIC FAILURE)
-**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (17 days remaining)
+**Last Updated:** February 18, 2026 (Post Weakness #43 Targeted Micro-Drill - 6/8 = 75% - IMPROVING, 2 sub-patterns unresolved)
+**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (12 days remaining)
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## February 18, 2026 - Weakness #43 Targeted Micro-Drill (6/8 = 75%)
+
+### Drill Results
+**Topic:** Over-committing to capacity for variable workloads (Weakness #43 first direct test)
+**Score:** 6/8 (75%) - TARGET MISSED (needed 7/8 = 87% to confirm resolved)
+**Status:** IMPROVING - Core baseline-identification pattern solid; 2 sub-patterns unresolved
+
+**Context:** February 18, 2026 (12 days to exam). First direct test of Weakness #43. Previous cost optimization drills (53%, 53%, 80%) did not directly test this pattern. Student never fell for a baseline-calculation trap across all 8 questions -- the primary weakness pattern is internalized. Two sub-patterns revealed.
+
+**Questions Correct (6/8):**
+- Q1: Identify 4-instance baseline from fleet data (4 vs 14 vs 22 instances), 3-year Standard RI correct
+- Q2: Three-tier mixed fleet: 10 RIs (baseline) + Spot (fault-tolerant burst) + On-Demand (live event peaks)
+- Q3: RI sharing in AWS Organizations defaults ON -- opt-out, not opt-in; mismatch is root cause
+- Q5: Identify 24/7 floor (15 instances) vs predictable-schedule capacity (45 daytime instances) for RI targeting
+- Q6: Compute Savings Plan (not EC2 Instance SP) when Fargate and multi-region signals are present
+- Q8: Precision mixed fleet: 25 Standard RIs (baseline) + Spot (stateless burst) + On-Demand (stateful sessions)
+
+**Questions Incorrect (2/8):**
+- Q4: Convertible vs Standard RIs when architectural change is signaled -- chose to wait instead of committing
+  - User's answer: D (wait 6 more months for more data)
+  - Correct answer: B (Convertible RIs for confirmed baseline with architectural uncertainty in upside)
+  - Knowledge gap: Overcorrected to caution. 4 months of stable floor data is sufficient to commit. Convertible RIs exist for exactly this situation -- confirmed baseline quantity + uncertain future architecture. Waiting costs money.
+  - Pattern missed: Confirmed stable floor = commit now. Architectural uncertainty = Convertible, not Standard. Waiting = paying On-Demand for instances that will run regardless.
+
+- Q7: Over-applying Spot to fault-tolerant workloads -- applied Spot to entire fleet including predictable floor
+  - User's answer: C (20 RIs for Workload A + Spot for ALL of Workload B)
+  - Correct answer: D (20 RIs for Workload A + On-Demand for Workload B floor + Spot for Workload B burst above floor)
+  - Knowledge gap: Fault tolerance permits Spot -- it does not mandate Spot for every instance in the fleet. A part-time predictable floor (every weekday 8 AM-8 PM) still deserves On-Demand stability. Spot for the entire floor risks simultaneous interruption of all Workload B capacity. Spot is for burst above a reliable floor, not a replacement for the floor itself.
+  - Pattern missed: Fault-tolerant = Spot is PERMITTED for burst. Predictable part-time floor = On-Demand (or Scheduled RIs). Mirror-image of Weakness #43: over-applying Spot = same category error as over-applying RIs.
+
+### Sub-Pattern Status After Q43 Micro-Drill
+
+**CORE PATTERN (Commit to baseline only, not average or peak):** SOLID -- never triggered across 8 questions
+**SUB-PATTERN: RI sharing defaults ON in AWS Organizations:** SOLID -- correctly identified in Q3
+**SUB-PATTERN: Compute SP vs EC2 Instance SP selection:** SOLID -- correctly applied in Q6
+**SUB-PATTERN: Convertible vs Standard RI when architecture may change:** NOT RESOLVED -- missed Q4
+**SUB-PATTERN: Spot applies to fault-tolerant burst, not fault-tolerant floors:** NOT RESOLVED -- missed Q7
+
+### Recommended Next Actions for Weakness #43
+1. 4-question targeted drill on Convertible vs Standard RI decision (confirmed baseline + uncertain architecture = Convertible, always)
+2. 4-question targeted drill on Spot scoping (fault-tolerant burst only -- not the predictable floor, not stateful workloads)
+3. Retest at 8 questions -- target 8/8 for full resolution before exam
+
+**WEAKNESS #43 STATUS:** NOT RESOLVED -- IMPROVING (75%, needs 87%+)
+
+---
+
+## February 18, 2026 - Cost Optimization Targeted Micro-Drill (8/10 = 80%)
+
+### Drill Results
+**Topic:** Instance Scheduler vs Auto Scaling, Spot vs Savings Plans, S3 Storage Classes, Compute Savings Plans vs Convertible RIs, Rightsize-First Sequence
+**Score:** 8/10 (80%) - TARGET MET - PLATEAU BROKEN (previous: 53%, 53%, 40%)
+**Status:** 🟡 **IMPROVING - 80% achieved but 2 conceptual gaps remain**
+
+**Context:** February 18, 2026 (12 days to exam). Targeted drill after conceptual teach-back on all 5 weakness areas. First time above 60% on cost optimization topics. Confirmed mastery on 8 concepts, revealed 2 remaining gaps.
+
+**Questions Correct (8/10):**
+- Q1: Instance Scheduler + Compute Savings Plan for dev/test (stop = stop billing) ✅ WEAKNESS #38 CONFIRMED RESOLVED
+- Q2: Compute Savings Plan covers EC2 + Fargate + Lambda in single plan ✅ WEAKNESS #41 (Savings Plans scope) CONFIRMED
+- Q3: Standard-IA at day 30, Glacier Flexible at day 90 (4-hour retrieval SLA) ✅ WEAKNESS #42 IMPROVING
+- Q4: Rightsize with Compute Optimizer BEFORE committing to RIs ✅ Rightsize-first sequence mastered
+- Q5: Spot Fleet for fault-tolerant nightly batch with checkpointing ✅ WEAKNESS #41 (Spot use case) CONFIRMED
+- Q6: Standard-IA minimum 30 days from object creation, not from last access ✅ WEAKNESS #42 IMPROVING
+- Q7: Savings Plan for baseline + On-Demand for unpredictable production peaks ✅ Production Spot trap avoided
+- Q10: Instance Scheduler stop/start preserves EBS vs Auto Scaling terminate destroys state ✅ WEAKNESS #39 CONFIRMED RESOLVED
+
+**Questions Incorrect (2/10):**
+- Q8: S3 lifecycle missing expiration rule (unexpected storage charges) ❌
+  - User's answer: A (retrieval time violation - Glacier Flexible 3-5hr vs 5-min SLA)
+  - Correct answer: B (missing expiration rule causes indefinite object accumulation)
+  - Knowledge gap: Correctly identified a real architectural problem but answered the wrong question. "Unexpected storage charges" = passive accumulation problem (missing delete rule), not a retrieval latency problem.
+  - Pattern missed: Match answer to specific TYPE of charge in the question stem.
+
+- Q9: On-Demand during discovery period, then commit after data established ❌
+  - User's answer: D (Compute Savings Plan at conservative level from day one)
+  - Correct answer: C (On-Demand for 6-month learning period, then commit)
+  - Knowledge gap: Trusted "flexibility" of Compute Savings Plans to absorb uncertainty. Savings Plans are flexible in service coverage (EC2/Fargate/Lambda), NOT in commitment level. Any commitment without baseline data is a guess that can over-commit or under-commit.
+  - Pattern missed: No historical data + new application = On-Demand first. Evaluate after 3+ months. Then commit.
+
+---
+
+### Weakness Status Updates (Post Feb 18 Drill)
+
+**WEAKNESS #38 (Savings Plans vs RIs Billing Mechanics):** 🟢 RESOLVED - Correctly applied in Q1
+**WEAKNESS #39 (Instance Scheduler stop/start vs Auto Scaling terminate):** 🟢 RESOLVED - Correctly identified in Q1 and Q10
+**WEAKNESS #41 (Spot Instances for fault-tolerant workloads):** 🟢 RESOLVED - Correctly applied in Q2 and Q5
+**WEAKNESS #42 (S3 storage class minimum durations and retrieval times):** 🟡 IMPROVING - Correct on Q3 and Q6, but Q8 revealed new gap (question-type matching)
+**WEAKNESS #43 (Over-committing for variable workloads):** NOT RESOLVED -- IMPROVING (75% on 8-question dedicated micro-drill Feb 18; core baseline pattern solid; 2 sub-patterns unresolved: Convertible vs Standard RI selection, Spot scoping to burst only)
+
+**NEW GAP IDENTIFIED: Question-Type Matching**
+- Student identifies correct technical problems but sometimes answers a different question than what was asked
+- Pattern: "Unexpected STORAGE charges" = accumulation/missing delete rule (not retrieval SLA)
+- Pattern: "Unexpected RETRIEVAL charges" = wrong tier selected
+- Must match answer to the specific failure mode described in the question
+
+**NEW GAP IDENTIFIED: Commit Timing for New Applications**
+- Student trusts "conservative" or "flexible" commitment language as safety nets
+- Reality: Any commitment without 3+ months of baseline data risks wrong commitment level
+- Rule: New application + no historical data = On-Demand first, always
 
 ---
 

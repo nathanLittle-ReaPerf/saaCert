@@ -2801,3 +2801,93 @@ Question 3: Concerned about data transfer costs?
 - Drill Spot Instance questions with architect mindset framing
 
 **Status:** 🔴 STUCK — 0% improvement on cost optimization after 3 targeted drills. Root cause: pattern recognition without conceptual depth. Need approach change.
+
+---
+
+### Day 36 - Wednesday, February 18, 2026
+**Topic:** Cost Optimization — Conceptual Teach-Back + Micro-Drill (Weaknesses #38-#43)
+**Total Questions:** 10 (targeted micro-drill after conceptual review)
+**Overall Score:** 8/10 (80%) 🟢 **PLATEAU BROKEN — First passing score on cost optimization**
+
+**Session Context:**
+- Date: Wednesday, February 18, 2026
+- Exam: 12 days remaining (March 2, 2026, 5:15 PM EST)
+- Approach change: conceptual teach-back BEFORE quiz (vs. quiz-first in Days 34-35)
+- Result: 80% — improvement from 53% (Days 34-35) and 40% (Day 33)
+- **EXAM PROJECTION: Recovering toward 72%+ passing territory**
+
+**Questions Correct (8):**
+1. ✅ Q1: Instance Scheduler + Savings Plan sized to actual run hours for dev/test
+2. ✅ Q2: Compute Savings Plans cover EC2 + Fargate + Lambda (only plan covering all three)
+3. ✅ Q3: Standard-IA at day 30, Glacier Flexible at day 90, 4-hr SLA satisfied (3-5 hr Standard retrieval)
+4. ✅ Q4: Rightsize with Compute Optimizer before committing to RIs (8% CPU = massively oversized)
+5. ✅ Q5: Spot Fleet + checkpointing for fault-tolerant nightly batch (up to 90% savings)
+6. ✅ Q6: Standard-IA 30-day minimum from object creation date (not from last access)
+7. ✅ Q7: Savings Plan for 10-instance baseline + On-Demand for unpredictable production peaks
+8. ✅ Q10: Instance Scheduler = stop/start (EBS preserved); Auto Scaling to 0 = terminate (data gone)
+
+**Questions Missed (2):**
+1. ❌ Q8: Missing lifecycle expiration rule causes unexpected STORAGE charges (chose retrieval SLA issue instead — spotted real problem but answered wrong question)
+2. ❌ Q9: New app + no baseline data = On-Demand first, commit after 3 months (chose "conservative Savings Plan" — still a commitment without data)
+
+**Weakness Status After Day 36:**
+| Weakness | Topic | Today | Status |
+|---|---|---|---|
+| #38 | Savings Plans vs RI billing | 2/2 (100%) | ✅ RESOLVED |
+| #39 | Instance Scheduler vs terminate | 2/2 (100%) | ✅ RESOLVED |
+| #41 | Spot for fault-tolerant workloads | 2/2 (100%) | ✅ RESOLVED |
+| #42 | S3 storage class selection | 2/3 (67%) | 🟡 Improving |
+| #43 | Over-committing for variable workloads | Not directly tested | ⚠️ Unconfirmed |
+
+**Remaining Gaps:**
+- **Q8 pattern:** "Unexpected STORAGE charges" = objects not being deleted (missing expiration rule), NOT a retrieval SLA issue. Storage charges = passive/continuous. Retrieval charges = require an action.
+- **Q9 pattern:** No baseline data = On-Demand first, always. "Conservative Savings Plan" is still a commitment. Wait for 3+ months of data before committing.
+- **Weakness #43:** Over-committing for variable workloads — commit only to actual minimum baseline, Auto Scaling for everything above.
+
+**Key Insight — Why Today Worked:**
+Conceptual teach-back before quiz broke the plateau. Pure drilling was reinforcing pattern matching without understanding. Once the "why" was established (stop vs terminate mechanics, Savings Plan coverage scope, S3 minimum duration rules), correct answers followed naturally.
+
+**Materials Created:**
+- Conceptual teach-back on Weaknesses #39, #41, #42 delivered pre-quiz
+
+**Status:** 🟢 PLATEAU BROKEN — 80% after three consecutive 53% or below. Two remaining gaps (Q8 question framing, Q9 no-data commitment rule) need targeted reinforcement before exam.
+
+---
+
+#### Day 36 — Weakness #43 Drill (continued)
+**Topic:** Over-committing to capacity for variable workloads
+**Total Questions:** 8 (targeted drill)
+**Overall Score:** 6/8 (75%) 🟡 **IMPROVING — TARGET MISSED (needed 7/8)**
+
+**Questions Correct (6):**
+1. ✅ Q1: Commit to 4-instance floor (not 14 average, not 22 peak) — 3-year RI
+2. ✅ Q2: Three-tier fleet — RIs for 24/7 baseline, Spot for fault-tolerant burst, On-Demand for untouchable live peaks
+3. ✅ Q3: RI sharing in Organizations is ON by default — opt OUT, not in
+4. ✅ Q5: 15-instance 24/7 floor gets 3-year RIs; predictable part-time daytime fleet gets On-Demand/Scheduled RIs
+5. ✅ Q6: Compute Savings Plan at 40-instance baseline (not 70 average, not 100 peak); Compute SP chosen for Fargate/multi-region flexibility
+6. ✅ Q8: RIs for baseline + Spot for fault-tolerant burst + On-Demand for stateful session workloads
+
+**Questions Missed (2):**
+1. ❌ Q4: Confirmed stable baseline (4+ months) = commit NOW with Convertible RIs, don't wait. Enterprise deal uncertainty lives above the baseline, not at it. Chose D (wait) instead of B (Convertible RIs now).
+2. ❌ Q7: Fault-tolerant workloads deserve Spot for BURST, not for the entire fleet including the floor. Predictable part-time floor = On-Demand. Chose C (all Spot for Workload B) instead of D (On-Demand floor + Spot burst).
+
+**Weakness #43 Sub-Pattern Status:**
+| Sub-Pattern | Status |
+|---|---|
+| Commit to floor, not average/peak | ✅ RESOLVED |
+| Three-tier fleet strategy (RIs + Spot + On-Demand) | ✅ RESOLVED |
+| RI sharing Organizations default | ✅ RESOLVED |
+| Convertible RI timing (confirmed floor = commit now) | 🔴 Still Active |
+| Spot scoping (burst only, not entire fleet) | 🔴 Still Active |
+
+**Remaining Sub-Pattern Rules:**
+- **Convertible RI timing:** 4+ months of confirmed stable floor = commit immediately. Uncertainty above the baseline doesn't affect the baseline commitment. Waiting = paying On-Demand for no reason.
+- **Spot scoping:** Fault tolerance = green light for Spot on BURST. A predictable part-time floor (e.g., every weekday same hours) = On-Demand for stability. Never Spot the entire fleet just because it's fault-tolerant.
+
+**Day 36 Combined Stats:**
+- Drill 1 (Cost Optimization): 8/10 (80%) ✅
+- Drill 2 (Weakness #43): 6/8 (75%) 🟡
+- Total questions: 18
+- Weaknesses resolved today: #38, #39, #41 (RESOLVED); #42 improving; #43 improving
+
+**Status:** 🟡 Good progress day — plateau broken on cost optimization, #43 core pattern internalized. Two sub-patterns (#43 Convertible RI timing + Spot scoping) need 1 more targeted drill before exam.
