@@ -2966,3 +2966,33 @@ Both creation-date traps ignored. Calendar math correct on both questions. Metho
 
 **Active Weaknesses:** NONE (all S3 gaps closed)
 **Next Action:** Full mixed-domain practice session or targeted drill on next weakest domain.
+
+---
+
+#### Day 37 — Full 65-Question Projection Exam
+**Score: 37/65 (56.9%) ❌ FAILING — 10 questions below 72% passing threshold**
+**Time:** ~2.5 hours
+**Days Until Exam:** 11
+
+| Domain | Score | % |
+|---|---|---|
+| Resilient Architectures | ~9/15 | 60% |
+| High-Performing Architectures | ~9/14 | 64% |
+| Secure Applications | ~13/19 | 68% |
+| Cost-Optimized Architectures | ~6/11 | 54% |
+
+**Questions Correct (37):** Q2, Q3, Q4, Q5, Q6, Q7, Q10, Q11, Q13, Q14, Q15, Q16, Q17, Q21, Q22, Q23, Q24, Q26, Q27, Q28, Q29, Q30, Q31, Q35, Q37, Q39, Q40, Q42, Q43, Q44, Q45, Q46, Q47, Q52, Q53, Q58, Q63, Q64, Q65
+
+**Questions Missed (28):** Q1, Q8, Q9, Q12, Q18, Q19, Q25, Q32, Q33, Q34, Q36, Q38, Q41, Q48, Q49, Q51, Q54, Q55, Q56, Q57, Q59, Q61, Q62, Q50, Q60
+
+**Top 5 Weakness Patterns:**
+1. **Service Differentiation (8 misses):** SES vs SNS, Config vs Security Hub, Kinesis vs SQS at scale, Reserved vs Provisioned concurrency, CloudTrail data vs management events, Athena vs Redshift, Firehose vs Glue ETL, API GW cache vs CloudFront
+2. **Security Group Chaining vs NACLs (2 misses — Q18 and Q54):** Missed same pattern TWICE in same exam → Weakness #44 (new)
+3. **Reading Answer Choices (3 misses):** Chose answers that explicitly violated stated requirements (no env vars, minimize licensing, config problem not architecture problem)
+4. **Over-Engineering (3 misses):** 4-service Kinesis stack for simple CDC, SQS rewrite for circuit breaker problem, direct Lambda instead of SQS buffer
+5. **Cost Tier Selection (4 misses):** Picked over-engineered DR (Warm Standby vs Pilot Light), over-provisioned capacity (License Included vs BYOL, permanent RCU/WCU vs On-Demand, Spot Fleet vs AWS Batch)
+
+**New Weaknesses Identified:** #44 (SG Chaining), #45 (SES vs SNS), #46 (Config vs Security Hub), #47 (Lambda concurrency types), #48 (CloudTrail data events), #49 (Athena vs Redshift), #50 (SQS visibility timeout), #51 (AWS Batch), #52 (DR strategy selection), #53 (RDS PITR vs snapshots)
+
+**Exam Projection:** 56.9% → Need to close ~10 more correct answers in 11 days
+**Status:** 🔴 CRITICAL — Full targeted drilling required on all identified gaps

@@ -1,9 +1,197 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** February 19, 2026 (Post Weakness #42 Cold Test - 2/2 = 100% - FULLY RESOLVED - Deep Archive early deletion math confirmed automatic under cold conditions, no context, no warm-up)
-**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (12 days remaining)
+**Last Updated:** February 19, 2026 (Post 65-Question Projection Exam - 37/65 = 56.9% FAILING - New weaknesses #44-#53 identified)
+**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (11 days remaining)
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## February 19, 2026 - 65-Question Projection Exam (37/65 = 56.9%) -- FAILING
+
+### Exam Results
+**Score:** 37/65 (56.9%)
+**Passing Threshold:** 72% (47/65)
+**Result:** FAILING -- 10 questions short of passing
+**Context:** Full SAA-C03 projection exam, 11 days before March 2, 2026 exam date. Real exam difficulty and domain distribution.
+
+### Domain Breakdown
+- Resilient Architectures: ~9/15 (60%)
+- High-Performing Architectures: ~9/14 (64%)
+- Secure Applications: ~13/19 (68%)
+- Cost-Optimized Architectures: ~6/11 (54%)
+
+### Questions Missed (28 total)
+
+**Q1 -- RDS Multi-AZ Regional Scope**
+**User's Answer:** D (Multi-AZ in primary region only)
+**Correct Answer:** B (Cross-region Read Replica + Route 53 health checks)
+**Knowledge Gap:** Believed Multi-AZ protects against regional failures. Multi-AZ only handles AZ-level failures within a single region. For regional DR with 15-min RTO and 5-min RPO, cross-region Read Replica + Route 53 failover is required.
+**Review Action:** Quick-Reference-Databases.md -- RDS Multi-AZ vs Read Replica section
+
+**Q8 -- PITR vs Automated Snapshots**
+**User's Answer:** C (Restore from most recent automated snapshot)
+**Correct Answer:** B (PITR to new instance, extract records, import to existing DB)
+**Knowledge Gap:** Chose daily snapshot over PITR despite "point-in-time recovery enabled" being explicitly stated. Snapshots are daily (up to 24-hour RPO). PITR restores to any second. Also: PITR always creates a NEW instance, never replaces in place.
+**Review Action:** Quick-Reference-Databases.md -- RDS PITR section. Key rule: "PITR enabled" in a question = use PITR, not snapshots.
+
+**Q9 -- Kinesis vs SQS FIFO at Scale**
+**User's Answer:** B (SQS FIFO with Lambda)
+**Correct Answer:** A (Kinesis Data Streams with Lambda, per-customer partition keys)
+**Knowledge Gap:** Pattern-matched from previous question (Q4 used FIFO). SQS FIFO with message groups serializes per group -- catastrophic throughput bottleneck at 50,000 TPS. Kinesis handles high-throughput ordered streaming with partition keys for per-customer ordering.
+**Review Action:** Quick-Reference-Analytics.md -- Kinesis vs SQS decision tree. Rule: 50,000 TPS + ordered per key = Kinesis. Moderate throughput + exactly-once = SQS FIFO.
+
+**Q12 -- DynamoDB On-Demand vs Provisioned**
+**User's Answer:** D (Increase to 5,000 RCU/WCU permanently)
+**Correct Answer:** A (Switch to On-Demand capacity mode)
+**Knowledge Gap:** Read the technical requirement (need more capacity) but ignored the cost constraint (minimal cost increase). Permanently provisioning 5,000 RCU/WCU is 10x the cost 24/7. On-Demand charges per request, costs baseline at baseline traffic, handles instant unpredictable spikes.
+**Review Action:** Quick-Reference-Databases.md -- DynamoDB capacity modes. Rule: "Unpredictable + no warning" = On-Demand. "Gradual/predictable" = Auto Scaling.
+
+**Q18 -- Security Group Chaining vs NACLs**
+**User's Answer:** C (NACL blocking all except port 80/443 from ALB IPs)
+**Correct Answer:** B (EC2 SG with source = ALB security group ID)
+**Knowledge Gap:** ALBs have dynamic IPs -- NACL rules against ALB IPs break constantly as IPs rotate. Security group chaining references SG ID as source, allowing only resources attached to that specific SG. NACLs filter by CIDR, not SG membership.
+**Review Action:** Quick-Reference-Networking.md -- Security groups vs NACLs. Key fact: ALB = dynamic DNS, no static IPs. NLB = static IPs, Elastic IP assignable.
+
+**Q19 -- Reserved vs Provisioned Concurrency**
+**User's Answer:** C (Provisioned concurrency)
+**Correct Answer:** B (Reserved concurrency)
+**Knowledge Gap:** Confused the two Lambda concurrency types. Provisioned concurrency pre-warms execution environments to eliminate cold starts (latency tool). Reserved concurrency carves a dedicated slice from account pool to prevent throttling (availability tool). Provisioned does NOT protect against throttling.
+**Review Action:** Quick-Reference-Compute.md -- Lambda concurrency section. Rule: Reserved = throttling protection. Provisioned = cold start elimination.
+
+**Q25 -- Custom AMI vs Scheduled Scaling for Bootstrapping**
+**User's Answer:** D (Scheduled scaling to pre-provision before traffic)
+**Correct Answer:** C (Custom AMI with pre-installed application)
+**Knowledge Gap:** Scheduled scaling pre-provisions earlier but bootstrapping still takes 8 minutes -- the delay still exists for unexpected spikes. Custom AMI bakes the application in, reducing instance ready time from 8 minutes to under 2. Fix the root cause, not the timing.
+**Review Action:** Exam-Strategy-Tips.md -- Root cause vs symptom treatment. Rule: Slow bootstrapping = custom AMI. Traffic routing to unready instances = lifecycle hooks.
+
+**Q32 -- Athena vs Redshift Cost for Full-Scan Workloads**
+**User's Answer:** B (Athena with partitioned S3 data)
+**Correct Answer:** C (Redshift with pause/resume, business hours only)
+**Knowledge Gap:** Athena is cost-effective when partition pruning limits scanned data. When queries scan 100% of data every time, Athena charges $5/TB scanned per query -- becomes expensive fast for frequent full-dataset queries. Redshift pause/resume runs only during business hours (220 hours/month), dramatically cheaper for repeated full-scan analytics.
+**Review Action:** Quick-Reference-Analytics.md -- Athena vs Redshift cost model. Rule: Ad-hoc + partition-pruned = Athena. Frequent + full-scan + business hours = Redshift pause/resume.
+
+**Q33 -- SQS Buffer Pattern for High Concurrency**
+**User's Answer:** A (Direct S3 to Lambda trigger)
+**Correct Answer:** B (S3 to SQS queue to Lambda with reserved concurrency)
+**Knowledge Gap:** Direct S3 to Lambda at 1,000 concurrent uploads saturates the account-level Lambda concurrency limit with one workload. SQS buffer absorbs the spike durably, Lambda processes at controlled rate within reserved concurrency. Nothing lost during spikes.
+**Review Action:** Serverless-Architecture-Patterns.md -- S3 event processing pattern. Rule: S3 upload → SQS → Lambda is the standard decoupled pattern.
+
+**Q34 -- Aurora Global vs RDS Multi-AZ DB Cluster for Sub-30s Failover**
+**User's Answer:** C (RDS Multi-AZ DB Cluster with two standbys)
+**Correct Answer:** B (Aurora PostgreSQL)
+**Knowledge Gap:** RDS Multi-AZ DB Cluster reduces failover time vs standard Multi-AZ but does not consistently guarantee under 30 seconds. Aurora's shared storage architecture eliminates log replay on failover -- new primary already has all data, achieves sub-30-second failover consistently.
+**Review Action:** Quick-Reference-Databases.md -- Aurora failover architecture. Rule: Sub-30-second failover requirement = Aurora. Aurora shared storage = no log replay = fastest failover.
+
+**Q36 -- Circuit Breaker vs SQS for Cascading Failures**
+**User's Answer:** D (SQS queue between each service pair)
+**Correct Answer:** B (App Mesh with Envoy circuit breaker)
+**Knowledge Gap:** Cascading failure from synchronous REST APIs requires a circuit breaker, not async messaging conversion. Converting to SQS requires rewriting all inter-service communication as async -- massive architectural overhaul. App Mesh implements circuit breakers at infrastructure layer with no application code changes.
+**Review Action:** Serverless-Architecture-Patterns.md -- Microservices resilience patterns. Rule: Cascading failure in synchronous microservices = circuit breaker = App Mesh.
+
+**Q38 -- AWS Glue/Athena Data Lake vs Kinesis Firehose**
+**User's Answer:** C (Kinesis Firehose for transform, Athena for query)
+**Correct Answer:** A (Glue Crawler + Glue ETL + Athena)
+**Knowledge Gap:** Kinesis Firehose is a streaming delivery service that ingests real-time data and delivers to destinations. It cannot process existing S3 data. Canonical serverless data lake stack: S3 → Glue Crawler (catalog) → Glue ETL (transform) → S3 → Athena (query).
+**Review Action:** Quick-Reference-Analytics.md -- Data lake architecture. Rule: Firehose = streaming delivery, not batch ETL for existing S3 data.
+
+**Q41 -- Pilot Light vs Warm Standby DR Strategy**
+**User's Answer:** B (Warm Standby)
+**Correct Answer:** C (Pilot Light)
+**Knowledge Gap:** Warm Standby has RTO of minutes to 1 hour -- far faster than the required 4-hour RTO. Over-engineered and more expensive (EC2 instances running continuously in DR region). Pilot Light keeps only data replication running, launches EC2 from AMIs on disaster, achieves RTO of 1-3 hours at lower cost.
+**Review Action:** Quick-Reference-Monitoring-DR-Other.md -- DR strategy spectrum. Rule: Pick cheapest strategy that meets (not exceeds) the requirement. 4-hour RTO = Pilot Light.
+
+**Q48 -- IAM DB Authentication vs Environment Variables**
+**User's Answer:** B (Secrets Manager injected as environment variables)
+**Correct Answer:** D (IAM database authentication for RDS)
+**Knowledge Gap:** Option B explicitly stated "injects as environment variables" -- the requirement explicitly prohibited environment variables. IAM database authentication eliminates password credentials entirely: task uses IAM role to generate 15-minute tokens, no passwords anywhere.
+**Review Action:** Quick-Reference-Security-IAM.md -- Credential management patterns. Rule: When prohibition covers ALL credential storage AND an option eliminates credentials entirely, choose elimination.
+
+**Q49 -- DynamoDB Streams to Lambda vs Kinesis Stack**
+**User's Answer:** C (DynamoDB Streams → Kinesis Data Streams → Kinesis Analytics → Firehose → S3)
+**Correct Answer:** A (DynamoDB Streams → Lambda → S3)
+**Knowledge Gap:** Over-engineered with 4-service Kinesis stack for a simple change capture use case. Kinesis Analytics requires SQL/Flink code -- not minimal custom code. DynamoDB Streams → Lambda → S3 is the canonical CDC pattern: stream captures item changes, Lambda triggers automatically, writes to S3.
+**Review Action:** Serverless-Architecture-Patterns.md -- DynamoDB change capture pattern. Rule: DynamoDB item changes near-real-time = Streams → Lambda → destination. Kinesis stack for massive throughput streaming analytics only.
+
+**Q51 -- RDS License Included vs BYOL**
+**User's Answer:** A (RDS for SQL Server with License Included)
+**Correct Answer:** C (RDS Custom for SQL Server with BYOL)
+**Knowledge Gap:** License Included means AWS charges for the SQL Server license in the hourly rate -- maximizes licensing costs. BYOL uses existing on-premises license -- minimizes licensing costs. RDS Custom supports SQL Server Agent jobs (standard RDS for SQL Server may have limitations).
+**Review Action:** Quick-Reference-Databases.md -- RDS SQL Server licensing. Rule: Minimize licensing costs = BYOL. License Included = pay AWS for the license.
+
+**Q54 -- Security Group Chaining vs NACLs (second miss)**
+**User's Answer:** A (NACLs on each subnet)
+**Correct Answer:** B (Security group chaining -- app tier SG source = web tier SG, DB tier SG source = app tier SG)
+**Knowledge Gap:** Same gap as Q18. NACLs are subnet-level, filter by CIDR, stateless. Security group chaining is instance-level, filters by SG ID, stateful. NACLs cannot enforce "only from web tier instances" -- they allow all traffic from the web tier subnet.
+**Review Action:** Same as Q18. This pattern appeared twice. Requires dedicated drill.
+
+**Q55 -- AWS Batch vs Spot Fleet for Batch Workloads**
+**User's Answer:** B (Spot Fleet with capacityOptimized + On-Demand fallback)
+**Correct Answer:** D (AWS Batch with Spot compute environment)
+**Knowledge Gap:** Spot Fleet On-Demand fallback protects against capacity unavailability at launch -- does NOT handle mid-job interruptions. AWS Batch automatically retries jobs on Spot interruption, manages compute lifecycle, handles job queuing. Purpose-built managed batch service.
+**Review Action:** Quick-Reference-Compute.md -- AWS Batch section. Rule: Batch workload + minimize costs + managed = AWS Batch + Spot. Spot Fleet = manual management, no automatic retry.
+
+**Q56 -- CloudFront Global Cache vs API Gateway Regional Cache**
+**User's Answer:** A (API Gateway caching with 5-minute TTL)
+**Correct Answer:** B (CloudFront distribution with 5-minute TTL cache behavior)
+**Knowledge Gap:** API Gateway caching is regional -- serves cached responses from a single region. Global mobile clients still traverse the internet to reach that region. CloudFront has 200+ global edge PoPs -- caches response nearest to client. Global users + cacheable responses = CloudFront edge caching.
+**Review Action:** Quick-Reference-Networking.md -- CloudFront vs API Gateway caching. Rule: Global users + cacheable = CloudFront. Regional + API-specific = API Gateway cache.
+
+**Q57 -- CloudTrail Data Events + Object Lock vs S3 Server Access Logging**
+**User's Answer:** A (S3 server access logging + SNS for delete events)
+**Correct Answer:** B (CloudTrail data events + Object Lock on log bucket + EventBridge → SNS)
+**Knowledge Gap:** S3 server access logs write to a regular S3 bucket -- not tamper-proof (anyone with permissions can delete them). Object Lock on CloudTrail log destination = tamper-proof. Also: CloudTrail data events log object-level API calls (GetObject, PutObject, DeleteObject). Management events do NOT log these.
+**Review Action:** Quick-Reference-Security-IAM.md -- Audit logging section. Rule: Tamper-proof logs = CloudTrail + Object Lock Compliance on destination bucket. Data events = object-level operations. Management events = control-plane operations.
+
+**Q59 -- AWS Config Aggregator vs Security Hub**
+**User's Answer:** D (Security Hub with Foundational Security Best Practices)
+**Correct Answer:** B (Config aggregator + advanced queries)
+**Knowledge Gap:** Security Hub aggregates security findings and checks CURRENT compliance posture. It does not provide historical configuration change tracking. Config records every configuration change with timestamps and retains history. Config aggregator centralizes cross-account data; advanced queries enable SQL-like historical queries.
+**Review Action:** Quick-Reference-Monitoring-DR-Other.md -- Config vs Security Hub. Rule: Config = change history tracking. Security Hub = current compliance posture/security findings.
+
+**Q61 -- SES vs SNS for Transactional Email**
+**User's Answer:** C (Amazon SNS)
+**Correct Answer:** B (Amazon SES)
+**Knowledge Gap:** SNS email requires recipients to confirm a subscription before receiving messages. SNS is for pub/sub A2A messaging and operational notifications. SES is purpose-built for transactional and marketing email to end users with high deliverability, SMTP interface, and dynamic content support.
+**Review Action:** Quick-Reference-Compute.md or service overview. Rule: SES = transactional/marketing email to customers. SNS = pub/sub notifications to subscribed systems/operators.
+
+**Q62 -- SQS Visibility Timeout vs FIFO Migration**
+**User's Answer:** C (Migrate to FIFO queue)
+**Correct Answer:** B (Increase visibility timeout to exceed processing time)
+**Knowledge Gap:** Duplicate processing from visibility timeout expiry is a configuration problem, not a queue type problem. When visibility timeout (e.g., 30 sec) is shorter than processing time (45 sec), the message reappears while still being processed. FIFO queues also require correct visibility timeout settings.
+**Review Action:** Quick-Reference-Compute.md -- SQS section. Rule: Duplicate processing = check visibility timeout first. Visibility timeout must always exceed maximum processing time.
+
+### Pattern Summary -- Top 5 Gaps
+
+**Gap 1: Service Differentiation (8 misses)**
+SES vs SNS, Config vs Security Hub, Kinesis vs SQS scale thresholds, Reserved vs Provisioned Concurrency, CloudTrail Data Events vs Management Events, Athena vs Redshift cost model, Firehose vs Glue ETL, API GW cache vs CloudFront edge cache. Build dedicated comparison tables and drill until reflexive.
+
+**Gap 2: Security Group Chaining (2 misses -- same gap twice)**
+Q18 and Q54 both tested SG chaining vs NACLs. Both missed. SG chaining = instance-level, SG ID as source, stateful. NACLs = subnet-level, CIDR as source, stateless. ALB has no static IPs. Requires targeted drill.
+
+**Gap 3: Missing Explicit Requirement Language in Answer Choices (3 misses)**
+Q48 said "never in environment variables" -- chose option that said "injects as environment variables." Q51 said "minimize licensing costs" -- chose License Included. Q62 was a configuration problem -- chose architectural migration. Slow down and read every word of every answer choice.
+
+**Gap 4: Over-Engineering Solutions (3 misses)**
+Q36 converted synchronous circuit breaker problem to async messaging redesign. Q49 used 4-service Kinesis stack for simple CDC. Q33 skipped the SQS buffer. When a simple managed solution exists, that is the exam answer.
+
+**Gap 5: Cost Optimization Tier Selection (4 misses)**
+Q12 (On-Demand vs provisioned), Q32 (Redshift vs Athena for full scans), Q41 (Pilot Light vs Warm Standby), Q55 (AWS Batch vs Spot Fleet). Rule: Pick cheapest option that meets requirements exactly -- not the one that exceeds them.
+
+### Weaknesses to Drill Before Exam (11 Days)
+
+| # | Gap | Priority | Target |
+|---|-----|----------|--------|
+| 44 | Security Group Chaining vs NACLs | CRITICAL (missed twice) | 5/5 drill |
+| 45 | SES vs SNS | HIGH | 3/3 drill |
+| 46 | Config vs Security Hub | HIGH | 3/3 drill |
+| 47 | Reserved vs Provisioned Lambda Concurrency | HIGH | 3/3 drill |
+| 48 | CloudTrail Data Events vs Management Events | HIGH | 3/3 drill |
+| 49 | Athena vs Redshift cost model (full-scan trigger) | HIGH | 3/3 drill |
+| 50 | SQS Visibility Timeout (duplicate processing) | MEDIUM | 3/3 drill |
+| 51 | AWS Batch for batch workloads | MEDIUM | 3/3 drill |
+| 52 | DR strategy selection (Pilot Light vs Warm Standby) | MEDIUM | 3/3 drill |
+| 53 | RDS PITR vs Snapshots | MEDIUM | 3/3 drill |
 
 ---
 
