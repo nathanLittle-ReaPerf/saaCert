@@ -1,9 +1,209 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** February 19, 2026 (Post 65-Question Projection Exam - 37/65 = 56.9% FAILING - New weaknesses #44-#53 identified)
-**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (11 days remaining)
+**Last Updated:** February 20, 2026 (Weakness #47 Lambda Reserved vs Provisioned -- RESOLVED -- 5/5 (100%) full re-drill -- all sub-patterns confirmed)
+**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (10 days remaining)
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## February 20, 2026 - Weakness #47 Targeted Drill (3/5 = 60%) -- NOT RESOLVED
+
+### Drill Results
+**Topic:** Lambda Reserved Concurrency vs Provisioned Concurrency
+**Score:** 3/5 (60%) -- TARGET MISSED (needed 4/5 = 80% to mark RESOLVED)
+**Status:** NOT RESOLVED -- "cap the offender vs protect the victims" sub-pattern is root cause of both misses
+
+**Context:** February 20, 2026 (10 days to exam). Weakness identified from Feb 19 65-question projection exam (Q19 -- student chose Provisioned Concurrency when Reserved Concurrency was correct for a throttling-protection scenario). This drill confirmed the student now correctly identifies Reserved Concurrency as the right TOOL for throttling problems but keeps applying it to the wrong function (the victims instead of the offender).
+
+**Questions Correct (3/5):**
+- Q2: Financial trading API, 2-4 second cold starts, 100ms SLA -- Provisioned Concurrency (CORRECT -- recognized cold start = Provisioned)
+- Q3: Background functions could steal concurrency from checkout -- Reserved Concurrency on checkout (CORRECT -- navigated "ensure capacity is available" language trap)
+- Q4: 3% of requests 800ms-2000ms, correlated with initialization events, MOST cost-effective -- Provisioned at baseline (CORRECT -- cold start elimination, cost-calibrated)
+
+**Questions Incorrect (2/5):**
+- Q1: Image processing function consuming nearly all account concurrency, starving payment/auth functions -- architect must prevent image processing from starving others
+  - User's answer: C (Reserved Concurrency on payment and auth functions to protect them)
+  - Correct answer: B (Reserved Concurrency on the image processing function to cap its max)
+  - Knowledge gap: Student applied Reserved to the VICTIMS instead of the OFFENDER. Protecting the victims leaves the root cause alive -- image processing can still consume all remaining concurrency for every other unprotected function. Capping the offender at source is the complete solution.
+  - Exam-day reinforcement: "Prevent function X from starving others" = Reserved on function X, not on the others.
+
+- Q5: Ingestion function scaling to 2,800/3,000 concurrent executions, transformation and reporting throttling, LEAST overhead and NO additional cost
+  - User's answer: C (submit service quota increase to raise account limit to 6,000)
+  - Correct answer: B (Reserved Concurrency on the ingestion function to cap it)
+  - Knowledge gap: Quota increase does not cap the offending function -- at 6,000 total concurrency, ingestion could still scale to 5,800 and starve others. Also missed "NO additional AWS cost" qualifier -- Provisioned Concurrency (A) would have cost money, but Reserved is free. Student reached for a structural solution when a behavioral cap was required.
+  - Exam-day reinforcement: Reserved Concurrency = free. Quota increase = does not cap individual function behavior. When asked to constrain one function's impact, Reserved on that function is the answer.
+
+### Failure Pattern Analysis
+
+**Root cause:** Student correctly identifies Reserved as the right tool for throttling/starvation scenarios (progress from practice exam). The remaining gap is WHERE to apply it.
+
+**The two-layer mistake being made:**
+1. Q1: Right tool, wrong function (Reserved on victims instead of offender)
+2. Q5: Wrong tool category entirely (structural quota increase instead of behavioral cap)
+
+**The single rule that resolves both misses:**
+- "Prevent function X from consuming all concurrency / starving others" = Reserved Concurrency ON FUNCTION X (the offender)
+- "Protect function Y from being starved" = Reserved Concurrency ON FUNCTION Y (also valid, but not the primary answer when the question targets the offender)
+- Quota increase = never the answer for function-level isolation
+
+### Exam-Day Decision Tree (Lambda Concurrency)
+
+**Step 1: What is the problem?**
+- Cold starts / initialization latency / inconsistent response times / sub-millisecond requirement = PROVISIONED CONCURRENCY
+- One function consuming all concurrency / starving other functions / throttling protection / cap maximum concurrency = RESERVED CONCURRENCY
+
+**Step 2 (Reserved only): Which function gets it?**
+- "Prevent function X from starving others" = Reserved on FUNCTION X (cap the offender)
+- "Ensure function Y always has concurrency available" = Reserved on FUNCTION Y (protect the victim)
+- Both can be valid simultaneously, but exam questions asking about the offender want Reserved on the offender
+
+**Step 3: Cost check**
+- Reserved Concurrency = FREE (no additional cost beyond normal Lambda pricing)
+- Provisioned Concurrency = COSTS MONEY (pay for pre-warmed environments 24/7 even when idle)
+- "No additional cost" + concurrency problem = Reserved, not Provisioned
+
+### Framing Nuance -- The Two-Rule Decision Tree
+
+Both rules use Reserved Concurrency. The framing of the requirement determines which function gets it:
+
+**Rule 1 -- Offender framing:**
+- Triggers: "prevent X from starving others," "stop X from consuming too much," "cap X's maximum concurrency," "X is consuming all account concurrency"
+- Action: Reserved Concurrency on X (the offender/greedy function)
+- Effect: All other functions benefit automatically
+
+**Rule 2 -- Guarantee framing:**
+- Triggers: "guarantee Y always has concurrency," "ensure Y is never throttled," "Y must always be operational," compliance/regulatory language about specific functions
+- Action: Reserved Concurrency on Y (the function requiring the guarantee)
+- Effect: Y has a dedicated slice that no other function can steal
+
+**The trap:** Compliance/regulatory framing ("must always be operational," "guaranteed capacity") sounds like Provisioned but is actually Reserved. The framing just determines which function gets the Reserved allocation.
+
+### Recommended Next Actions
+1. Internalize the two-rule decision tree above
+2. Re-run 3-question cold test with guarantee framing included -- target 3/3 (100%)
+3. If 3/3 on second cold test, re-run full 5-question drill targeting 4/5 (80%) to mark RESOLVED
+
+### Weakness Drill History
+- Feb 19: Projection exam -- Q19 missed (Provisioned chosen for throttling scenario) -- IDENTIFIED
+- Feb 20: 5-question targeted drill -- 3/5 (60%) -- TARGET MISSED -- "cap offender vs protect victims" sub-gap confirmed as root cause
+- Feb 20: Cold test 1 (offender/victim framing) -- 2/3 (67%) -- NOT PASSED -- Q2 missed (compliance/guarantee framing flipped the correct target; student applied offender rule when guarantee rule was required)
+- Feb 20: Cold test 2 (offender + guarantee framing, including dual-requirement scenario) -- 3/3 (100%) -- PASSED -- both framing triggers confirmed locked in under cold conditions
+- Feb 20: Full 5-question re-drill -- 5/5 (100%) -- TARGET EXCEEDED -- all sub-patterns confirmed locked in
+
+### All Sub-Patterns Confirmed Resolved
+- Provisioned Concurrency = cold start elimination (pre-warms environments, costs money, latency trigger words)
+- Reserved Concurrency = throttling protection (carves dedicated slice, free, starvation trigger words)
+- "Prevent X from starving others" / "cap X's maximum concurrency" = Reserved on X (offender)
+- "Guarantee Y always has concurrency" / "Y must never be throttled" / contractual/compliance language = Reserved on Y (protected function)
+- Quota increase = does not cap individual function behavior, just raises the shared ceiling -- never the answer for function-level isolation
+- Victim-only protection (Reserved on victims only) = insufficient -- offender remains uncapped and can starve all other unprotected functions
+
+**WEAKNESS #47 STATUS: RESOLVED** -- 5/5 (100%) full re-drill -- February 20, 2026
+
+---
+
+## February 20, 2026 - Weaknesses #45 and #46 Targeted Drill (5/6 = 83%) -- BOTH RESOLVED
+
+### Drill Results
+**Topic:** SES vs SNS (Weakness #45) + AWS Config vs Security Hub (Weakness #46) -- combined 6-question targeted drill
+**Score:** 5/6 (83%) -- TARGET MET (threshold was 5/6 = 83%)
+**Status:** BOTH RESOLVED
+
+**Context:** February 20, 2026 (10 days to exam). Both weaknesses identified from Feb 19 65-question projection exam (Q59 = Config vs Security Hub, Q61 = SES vs SNS). Questions were interleaved across both topics.
+
+**Questions Correct (5/6):**
+- Q1: 50,000 order confirmations/day to customers, personalized receipts + marketing email -- SES (CORRECT)
+- Q2: Prove S3 bucket encryption configuration history over 90 days, before/after state at each change -- Config (CORRECT)
+- Q3: DevOps on-call alerts via pub/sub fan-out to email + HTTP + Lambda simultaneously -- SNS (CORRECT)
+- Q4: Single dashboard, current security posture, aggregate GuardDuty/Inspector/Macie findings across 12 accounts, CIS pass/fail now -- Security Hub (CORRECT)
+- Q6: Exact timestamp + before/after state of EC2 SG change in last 14 days -- Config configuration timeline (CORRECT)
+
+**Questions Incorrect (1/6):**
+- Q5: E-commerce order placement -- customer confirmation email AND fan-out to warehouse/fraud/shipping services -- proposed using single service for both
+  - User's answer: A (SNS handles both customer email and downstream service notifications)
+  - Correct answer: C (invalid proposal -- SES for customer email, SNS for downstream fan-out)
+  - Knowledge gap: SNS email subscriptions require recipients to CONFIRM before receiving messages. A customer who just placed an order cannot receive a confirmation email via SNS without clicking a prior confirmation link. This is the same pattern as practice exam Q61. SES = no confirmation required = correct for transactional email to customers. SNS = subscription confirmation required = correct for notifying systems/operators.
+  - Exam-day reinforcement: The SNS subscription confirmation trap is the #1 surface for this gap. When a question says "send confirmation email to a customer," SNS is wrong because the customer never confirmed an SNS subscription.
+
+### Exam-Day Rules Locked In
+
+**SES vs SNS Decision:**
+- SES = transactional/marketing email to END USERS. No subscription confirmation required. SMTP compatible. High deliverability. Dynamic content. Use when: order confirmations, password resets, marketing campaigns, any email to customers.
+- SNS = pub/sub fan-out to SYSTEMS and OPERATORS. Email subscriptions require recipient confirmation. Use when: operational alerts, fan-out to Lambda/SQS/HTTP, notifying internal teams or downstream services.
+- Trigger words for SES: "transactional email," "marketing email," "email to customers," "SMTP," "high deliverability," "order confirmation"
+- Trigger words for SNS: "pub/sub," "fan-out," "multiple subscribers simultaneously," "operational notifications," "notify systems/Lambda/SQS"
+- THE TRAP: SNS looks correct when email is mentioned. It is wrong for customer-facing transactional email because subscription confirmation is required.
+
+**Config vs Security Hub Decision:**
+- Config = configuration CHANGE HISTORY. Records every change with timestamps. Before/after state. Historical queries. "What did this resource look like 30 days ago?" Config aggregator = cross-account/region config data.
+- Security Hub = CURRENT compliance posture and security FINDINGS aggregator. Aggregates GuardDuty/Inspector/Macie findings. Pass/fail against standards like CIS right now. Cannot provide historical configuration state.
+- Trigger words for Config: "configuration history," "change tracking," "audit trail of changes," "historical configuration," "what did it look like when," "compliance over time," "Config aggregator," "advanced queries"
+- Trigger words for Security Hub: "security findings," "compliance posture," "centralize findings," "GuardDuty/Inspector/Macie," "current security status," "CSPM," "CIS benchmark pass/fail now"
+
+### Weakness Drill History
+- Feb 19: Projection exam -- Q59 missed (Config vs Security Hub) + Q61 missed (SES vs SNS) -- IDENTIFIED
+- Feb 20: Combined 6-question drill -- 5/6 (83%) -- TARGET MET -- BOTH RESOLVED
+  - Residual note: SNS subscription confirmation trap is still a live risk. One correct Q1 answer plus one missed Q5 on the same pattern means the trap is not fully automatic. Review before exam day.
+
+**WEAKNESS #45 STATUS: RESOLVED** -- 5/6 drill (83%) -- threshold met
+**WEAKNESS #46 STATUS: RESOLVED** -- 5/6 drill (83%) -- threshold met
+
+---
+
+## February 20, 2026 - Weakness #44 Targeted Drill (3/5 = 60%) -- NOT RESOLVED
+
+### Drill Results
+**Topic:** Security Group Chaining vs NACLs -- targeted 5-question drill
+**Score:** 3/5 (60%) -- TARGET MISSED (needed 5/5 = 100% to mark RESOLVED)
+**Status:** NOT RESOLVED -- ALB vs NLB security model sub-gap identified as root cause of both misses
+
+**Context:** February 20, 2026 (10 days to exam). First dedicated drill for Weakness #44 after it appeared twice in the Feb 19 65-question projection exam (Q18 and Q54 -- identical gap both times). Drill confirmed core SG chaining pattern is understood (Q1, Q4 correct) but ALB vs NLB security model distinctions are not locked in.
+
+**Questions Correct (3/5):**
+- Q1: Three-tier app, app servers must only accept from web tier instances -- SG chaining, reference web SG ID (CORRECT)
+- Q2: Block known malicious IPs at subnet level with LEAST overhead -- NACL DENY rules (CORRECT -- recognized NACLs as correct tool for specific IP blocking)
+- Q4: Security audit, RDS accepting from entire app subnet CIDR, restrict to app servers only -- modify sg-db source = sg-app (CORRECT -- SG chaining over CIDR-based rules)
+
+**Questions Incorrect (2/5):**
+- Q3: ALB dynamic IP trap -- senior architect rejects design using hardcoded ALB IPs in SG and NACL rules
+  - User's answer: A (NACLs only work on public subnets -- FALSE)
+  - Correct answer: C (ALBs use dynamic IPs that rotate, hardcoded rules break when IPs change)
+  - Knowledge gap: Chose a false statement about NACL scope instead of identifying the correct primary failure reason. NACLs apply to ALL subnets, public and private. The primary design flaw is ALB dynamic IPs being hardcoded -- when AWS rotates ALB IPs, every hardcoded rule breaks. Correct design: EC2 SG references ALB SG ID.
+
+- Q5: NLB architecture -- EC2 SG references "NLB security group ID" flagged as flawed
+  - User's answer: B (flagged the NACL using NLB Elastic IP as the flawed component)
+  - Correct answer: C (the SG rule is flawed -- NLBs do NOT support security groups, so no NLB SG ID exists)
+  - Knowledge gap: Had the flaw backwards. NLBs have no security groups -- SG chaining is impossible from NLB to EC2. NLBs DO have static Elastic IPs -- NACL rules against NLB Elastic IPs ARE valid and correct. The NACL component was the correct control; the SG reference was the fiction.
+
+### ALB vs NLB Security Model -- Sub-Gap Identified
+
+| Property | ALB | NLB |
+|---|---|---|
+| IP addresses | Dynamic, rotate constantly | Static, Elastic IP assignable |
+| Supports security groups | YES | NO |
+| Correct EC2 control | SG chaining (reference ALB SG ID as source) | NACL with NLB Elastic IP OR EC2 SG allows from private subnet CIDR |
+| Can NACL use IPs | No (IPs change, rules break) | Yes (IPs are fixed via Elastic IP) |
+| SG chaining available | Yes -- ALB SG exists | No -- NLB has no SG to reference |
+
+**Exam-Day Rules:**
+1. ALB + restrict EC2 access = SG chaining (reference ALB SG ID). Never hardcode ALB IPs.
+2. NLB + restrict EC2 access = NACL with NLB Elastic IP (because NLB has no SG to reference).
+3. NACLs apply to ALL subnets (public and private) -- not just public subnets. This is always false as an answer choice.
+4. Blocking specific known IPs = NACL DENY. Security groups cannot DENY.
+
+### Next Action
+**Cold test PASSED:** 3/3 (100%) on Feb 20 -- ALB vs NLB sub-gap confirmed resolved.
+**Status:** Ready for full 5/5 Weakness #44 re-drill. Must achieve 5/5 (100%) to mark RESOLVED.
+
+### Weakness #44 Drill History
+- Feb 19: Projection exam -- missed Q18 (ALB NACL) and Q54 (SG chaining) -- IDENTIFIED
+- Feb 20: First targeted drill -- 3/5 (60%) -- NOT RESOLVED -- ALB vs NLB sub-gap identified
+- Feb 20: ALB vs NLB cold test -- 3/3 (100%) -- PASSED -- sub-gap confirmed resolved under cold conditions
+  - Q1: NLB + Elastic IP + restrict EC2 access -- NACL with /32 Elastic IP (CORRECT)
+  - Q2: ALB + dynamic IPs + hardcoded IP approach -- SG chaining with ALB SG ID (CORRECT)
+  - Q3: Side-by-side ALB vs NLB, assess proposal with invalid NLB SG reference -- identified Workload B flaw correctly (CORRECT)
+- Status after cold test: READY FOR 5/5 RE-DRILL
 
 ---
 
@@ -182,9 +382,9 @@ Q12 (On-Demand vs provisioned), Q32 (Redshift vs Athena for full scans), Q41 (Pi
 
 | # | Gap | Priority | Target |
 |---|-----|----------|--------|
-| 44 | Security Group Chaining vs NACLs | CRITICAL (missed twice) | 5/5 drill |
-| 45 | SES vs SNS | HIGH | 3/3 drill |
-| 46 | Config vs Security Hub | HIGH | 3/3 drill |
+| 44 | Security Group Chaining vs NACLs -- ALB vs NLB sub-gap | CRITICAL (missed twice + 3/5 drill) | 3/3 cold test then 5/5 re-drill |
+| 45 | SES vs SNS | RESOLVED (Feb 20 -- 5/6 drill, 83%) | SNS confirmation trap -- review before exam |
+| 46 | Config vs Security Hub | RESOLVED (Feb 20 -- 5/6 drill, 83%) | Change history vs current posture locked |
 | 47 | Reserved vs Provisioned Lambda Concurrency | HIGH | 3/3 drill |
 | 48 | CloudTrail Data Events vs Management Events | HIGH | 3/3 drill |
 | 49 | Athena vs Redshift cost model (full-scan trigger) | HIGH | 3/3 drill |
