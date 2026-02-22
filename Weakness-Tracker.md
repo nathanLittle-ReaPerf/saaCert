@@ -1,9 +1,139 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** February 20, 2026 (Weakness #47 Lambda Reserved vs Provisioned -- RESOLVED -- 5/5 (100%) full re-drill -- all sub-patterns confirmed)
-**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (10 days remaining)
+**Last Updated:** February 22, 2026 (Weakness #48 CloudTrail Data Events vs Management Events -- RESOLVED -- 4/5 (80%) re-drill -- all sub-patterns confirmed)
+**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (8 days remaining)
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## February 22, 2026 - Weakness #48 Re-Drill (4/5 = 80%) -- RESOLVED
+
+### Re-Drill Results
+**Topic:** CloudTrail Data Events vs Management Events
+**Score:** 4/5 (80%) -- TARGET MET (needed 4/5 = 80% to mark RESOLVED)
+**Status:** RESOLVED -- all critical data vs management event classifications confirmed locked in
+
+**Questions Correct (4/5):**
+- Q1: Lambda PCI-DSS invocation audit, tamper-proof 13-month retention -- CloudTrail data events + Object Lock Compliance mode (CORRECT -- Lambda Invoke = data event, Compliance mode = no bypass)
+- Q3: GetObject alert on classified S3 prefix within 5 minutes with IAM identity -- CloudTrail data events + EventBridge (CORRECT -- GetObject = data event, EventBridge native integration)
+- Q4: DeleteSecurityGroup alert across organization -- management events by default + EventBridge (CORRECT -- deleting EC2 resource = management event, no additional config needed)
+- Q5: GetObject + Lambda Invoke + UpdateFunctionCode -- data events for S3 and Lambda + management events + Object Lock Compliance (CORRECT -- correctly identified all three operation types, recognized both event types required)
+
+**Question Incorrect (1/5):**
+- Q2: PutRolePolicy/AttachRolePolicy on IAM role -- determine if IAM role was modified in 72 hours
+  - User's answer: A (CloudTrail data events filtered by role ARN)
+  - Correct answer: B (CloudTrail management events, no additional config needed)
+  - Knowledge gap: Overcorrection from Lambda Invoke fix. Student internalized "invocation-type operations = data events" and misapplied that logic to IAM policy modifications. PutRolePolicy and AttachRolePolicy modify the IAM role resource itself -- these are control-plane operations = management events, captured by default. IAM resource modifications are not data plane operations regardless of framing.
+  - Exam-day reinforcement: If the operation modifies the AWS resource itself (its configuration, policies, code, permissions), it is a management event. Data events are reserved for reading/writing/deleting data INSIDE the resource (S3 objects, Lambda invocations).
+
+### All Sub-Patterns Confirmed Resolved
+- GetObject / PutObject / DeleteObject = data events (operations on objects INSIDE the S3 bucket)
+- Lambda Invoke = data event (executing code INSIDE the function -- not modifying the function itself)
+- UpdateFunctionCode / CreateFunction / DeleteFunction = management events (modifying the Lambda resource)
+- DeleteBucket / CreateBucket / PutBucketPolicy = management events (operating ON the bucket resource)
+- PutRolePolicy / AttachRolePolicy / CreateUser = management events (operating ON the IAM resource)
+- DeleteSecurityGroup / RunInstances / TerminateInstances = management events (operating ON EC2 resources)
+- Tamper-proof audit trail = CloudTrail + Object Lock Compliance mode on destination S3 bucket
+- Object Lock Governance mode = has escape hatch for privileged users = NOT tamper-proof for compliance
+- EventBridge integrates natively with CloudTrail for real-time alerting on both data AND management events
+- S3 server access logs = best effort delivery, no structured IAM principal, no native EventBridge = wrong for audit/compliance/alerting
+- CloudWatch Logs = captures only what application code writes (stdout/stderr) = not a substitute for CloudTrail API-level audit
+
+### Residual Watch Item
+- IAM operation classification under "invocation" framing: Student overcorrected from Lambda Invoke fix and classified PutRolePolicy as a data event. The rule is stable but the overcorrection pattern is a risk. On exam day: if the operation sounds like "invoking" or "calling" something but it is modifying an IAM, EC2, or other AWS resource -- it is a management event.
+
+## February 22, 2026 - Weakness #48 Targeted Drill (2/5 = 40%) -- NOT RESOLVED (Superseded by Re-Drill)
+
+### Drill Results
+**Topic:** CloudTrail Data Events vs Management Events
+**Score:** 2/5 (40%) -- TARGET MISSED (needed 4/5 = 80% to mark RESOLVED)
+**Status:** NOT RESOLVED -- consistency gap confirmed: student knows the rule in isolation but cannot apply it reliably under varying question framing
+
+**Context:** February 22, 2026 (8 days to exam). Weakness identified from Feb 21 65-question practice exam (Q57 -- student chose S3 server access logging + SNS when correct answer was CloudTrail data events + Object Lock + EventBridge). This drill confirmed the student understands the theory but cannot consistently classify individual API operations as data vs management events.
+
+**Questions Correct (2/5):**
+- Q1: Financial audit, prove no one read/downloaded S3 objects, logs must be tamper-proof -- CloudTrail data events + Object Lock Compliance mode (CORRECT -- recognized object-level access = data events, tamper-proof = Object Lock Compliance)
+- Q2: Compromised IAM user, determine if they created IAM roles/attached policies/launched EC2 instances -- CloudTrail management events, no additional config needed (CORRECT -- recognized control-plane operations = management events, enabled by default)
+
+**Questions Incorrect (3/5):**
+- Q3: Alert within minutes of S3 file deletion, identify IAM principal, LEAST operational overhead
+  - User's answer: C (CloudTrail management events + EventBridge)
+  - Correct answer: B (CloudTrail DATA events + EventBridge)
+  - Knowledge gap: DeleteObject is an object-level data plane operation = data event. Management events cannot log S3 object-level API calls regardless of configuration. Student applied management events to an object operation immediately after correctly answering Q2 (which was a genuine management event scenario).
+  - Exam-day reinforcement: "DeleteObject" = DELETE something INSIDE a bucket = data event. "DeleteBucket" = DELETE the bucket itself = management event. The word "Object" is the tell.
+
+- Q4: Lambda invocation logging for compliance, capture caller identity and payload, logs must be queryable
+  - User's answer: C (CloudWatch Logs with manual instrumentation)
+  - Correct answer: B (CloudTrail data events for Lambda)
+  - Knowledge gap: CloudWatch Logs captures only what the Lambda function itself writes (stdout/stderr from application code). CloudTrail data events log the Invoke API call automatically -- no code changes required, captures IAM principal, function ARN, invocation details in structured format. Lambda invocations are data plane operations = data events. Management events do not capture Lambda invocations.
+  - Exam-day reinforcement: "Log every Lambda invocation" / "audit Lambda calls" / "capture who invoked Lambda" = CloudTrail data events for Lambda. CloudWatch Logs = application-level logging only.
+
+- Q5: S3 bucket deleted by junior engineer, prevent recurrence, alert on future DeleteBucket attempts
+  - User's answer: D (Object Lock + CloudTrail data events + EventBridge)
+  - Correct answer: C (S3 bucket policy denying DeleteBucket + CloudTrail management events + EventBridge)
+  - Knowledge gap: Two errors. First, Object Lock protects OBJECTS inside a bucket -- it does not prevent the bucket itself from being deleted. A bucket policy denying DeleteBucket is the correct prevention mechanism. Second, DeleteBucket is a CONTROL-PLANE operation (deleting the AWS resource itself) = management event, not a data event. Student applied data events to a bucket-level operation and applied Object Lock to a bucket-deletion problem.
+  - Exam-day reinforcement: DeleteBucket = management event (resource is the target). DeleteObject = data event (resource is the container). Object Lock = protects objects inside buckets, not buckets themselves.
+
+### Root Cause Analysis
+
+**Primary gap:** Student cannot consistently classify individual API operations as data vs management events under varying question framing. Q2 was answered correctly (clear control-plane scenario) but Q3 and Q5 required applying the same rule to edge cases where the framing was less obvious -- and both were missed. This is a consistency gap, not a knowledge gap.
+
+**The reversal pattern observed:**
+- Q3: DeleteObject looks like it could be management (it has "Delete" in the name) but the target is an OBJECT inside the bucket = data event
+- Q5: DeleteBucket student answered data event (wrong) -- the target IS the bucket = management event
+- Student flipped the correct classification on both questions involving "Delete" + S3
+
+**Secondary gap:** Conflation of CloudWatch Logs with CloudTrail data events for Lambda. These are fundamentally different:
+- CloudWatch Logs = what your application code writes (manually instrumented)
+- CloudTrail data events = what AWS automatically records about API calls made against the resource
+
+### The Single Decision Rule That Resolves All Three Misses
+
+**Ask: "Is the resource the TARGET or the CONTAINER?"**
+
+- If the resource IS THE TARGET of the operation (you are doing something TO the resource itself): MANAGEMENT EVENT
+  - Examples: CreateBucket (creating the bucket), DeleteBucket (deleting the bucket), RunInstances (launching an EC2), CreateUser (creating an IAM user), AttachPolicy (modifying IAM)
+- If the resource IS THE CONTAINER and the operation touches something INSIDE it: DATA EVENT
+  - Examples: S3 GetObject/PutObject/DeleteObject (touching objects inside the bucket), Lambda Invoke (executing code inside the function)
+
+**The S3 specific tells:**
+- Anything with "Object" in the API name = data event (GetObject, PutObject, DeleteObject, CopyObject)
+- Anything with "Bucket" in the API name = management event (CreateBucket, DeleteBucket, PutBucketPolicy)
+
+**Lambda specific tell:**
+- Lambda Invoke = data event (you are executing code inside the function, not modifying the function itself)
+- CreateFunction/UpdateFunctionCode/DeleteFunction = management events (you are modifying the Lambda resource itself)
+
+### Exam-Day Decision Tree (CloudTrail Events)
+
+**Step 1: What kind of operation is this?**
+- Creating/deleting/modifying an AWS RESOURCE (the bucket, the user, the instance, the function definition) = MANAGEMENT EVENT (enabled by default, free for one trail)
+- Reading/writing/deleting DATA inside a resource (objects in S3, invoking Lambda) = DATA EVENT (disabled by default, costs extra, must enable explicitly)
+
+**Step 2: Is there a tamper-proof requirement?**
+- "Tamper-proof audit trail" / "auditors cannot modify logs" / "compliance requires immutable logs" = CloudTrail + S3 Object Lock COMPLIANCE mode on the destination bucket
+- Object Lock Governance mode = has an escape hatch (privileged users can bypass) = NOT tamper-proof
+- S3 server access logs = best-effort delivery, no native EventBridge integration, not tamper-proof = WRONG for compliance audit scenarios
+
+**Step 3: Is there an alerting/notification requirement?**
+- "Alert when specific API call occurs" / "notify within minutes" = CloudTrail + EventBridge rule matching the specific API call + SNS/Lambda
+- S3 server access logs do NOT natively integrate with EventBridge -- a Lambda polling function would be required = NOT least operational overhead
+
+**Step 4: S3 server access logging -- when IS it correct?**
+- HTTP request analysis, traffic pattern analysis, access log analytics (who is hitting the bucket, what paths, response codes)
+- NOT for: tamper-proof audit trails, real-time alerting, compliance requirements, identifying IAM principal for specific API calls
+
+### Recommended Next Actions
+1. Classify 10 individual API calls as data vs management (cold exercise, no hints): CreateBucket, DeleteObject, PutObject, RunInstances, AttachPolicy, Lambda Invoke, DeleteBucket, GetObject, CreateUser, PutBucketPolicy
+2. Re-run 5-question cold drill -- target 4/5 (80%) to mark RESOLVED
+3. If missed again on Q3/Q5 pattern (S3 object operations vs bucket operations), add "Object in name = data event, Bucket in name = management event" as standalone flashcard
+
+### Weakness Drill History
+- Feb 21: 65-question projection exam -- Q57 missed (S3 server access logging chosen for tamper-proof audit trail) -- IDENTIFIED
+- Feb 22: 5-question targeted drill -- 2/5 (40%) -- TARGET MISSED -- consistency gap confirmed (management/data classification unstable under varying framing)
+
+**WEAKNESS #48 STATUS: NOT RESOLVED** -- 2/5 (40%) -- February 22, 2026
 
 ---
 
