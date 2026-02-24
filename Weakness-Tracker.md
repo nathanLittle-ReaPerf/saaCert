@@ -1,9 +1,102 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** February 22, 2026 (Weakness #48 CloudTrail Data Events vs Management Events -- RESOLVED -- 4/5 (80%) re-drill -- all sub-patterns confirmed)
-**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (8 days remaining)
+**Last Updated:** February 23, 2026 (Day 40 -- 65Q Full Projection Exam -- 50/65 (76.9%) -- 7 days to exam -- 6 misses documented below)
+**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (7 days remaining)
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## February 23, 2026 - Day 40 Full 65Q Projection Exam -- 50/65 (76.9%)
+
+### Exam Results Summary
+**Score:** 50/65 (76.9%) -- AT passing threshold (passing = 72%)
+**Status:** PASSING but fragile -- 6 misses across multiple domains -- needs targeted review before March 2
+
+**Domain Breakdown (estimated):**
+- Domain 1 Resilient Architectures: ~12/15 (80%)
+- Domain 2 High-Performing Architectures: ~13/16 (81%)
+- Domain 3 Secure Applications: ~16/20 (80%)
+- Domain 4 Cost-Optimized Architectures: ~9/14 (64%) -- weakest domain
+
+**Questions Missed (6 total):**
+- Q2: SQS FIFO vs Kinesis throughput limit (chose B=SQS FIFO, correct=C=Kinesis) -- Weakness #50 pattern
+- Q8: RDS PITR creates NEW instance, not overwrites (chose B=overwrites, correct=C=new instance) -- Weakness #53 pattern
+- Q18: Provisioned vs Reserved Concurrency cold start guarantee (chose C=Reserved, correct=B=Provisioned) -- Weakness #47 residual
+- Q24: CloudTrail default settings -- S3 object access requires data events enabled (chose A=both default, correct=B=data events needed for S3) -- Weakness #48 residual
+- Q27: S3 Glacier Instant vs Flexible Retrieval cost optimization (chose B=Instant, correct=A=Flexible) -- Storage class cost hierarchy gap
+- Q48: ElastiCache Redis TTL precision vs DynamoDB TTL imprecision for session expiry (chose D=DynamoDB, correct=B=ElastiCache) -- Session state pattern gap
+- Q65: Config vs CloudTrail for continuous compliance history (chose D=CloudTrail for all, correct=A=Config+CloudTrail) -- Config vs CloudTrail use case confusion
+
+---
+
+### Q2 Miss -- February 23, 2026
+**Topic:** SQS FIFO throughput limit vs Kinesis Data Streams at scale
+**User's Answer:** B (SQS FIFO with message group IDs)
+**Correct Answer:** C (Kinesis Data Streams with partition keys)
+**Knowledge Gap:** SQS FIFO is capped at 300 TPS (3,000 with batching). The scenario had 800 TPS which exceeds the FIFO hard limit. Student selected FIFO because the ordering-by-message-group-ID pattern was correctly identified, but missed the throughput disqualification.
+**Exam Pattern Missed:** High throughput (hundreds to thousands TPS) + strict per-key ordering = Kinesis. SQS FIFO = ordering at low-to-moderate throughput only.
+**Review Action:** Quick-Reference-Analytics.md -- Kinesis vs SQS comparison table. Memorize: SQS FIFO hard cap = 300 TPS. Any scenario with 500+ TPS + ordering = Kinesis automatically.
+
+---
+
+### Q8 Miss -- February 23, 2026
+**Topic:** RDS Point-In-Time Recovery behavior -- creates NEW instance, never overwrites
+**User's Answer:** B (PITR overwrites existing instance)
+**Correct Answer:** C (PITR creates a new DB instance)
+**Knowledge Gap:** Student knew PITR was the correct service and understood the second-level precision, but selected the option describing non-existent overwrite behavior. RDS PITR ALWAYS creates a new DB instance with a new endpoint. The old instance is left running until manually decommissioned.
+**Exam Pattern Missed:** "PITR = new instance" is an absolute rule. After PITR: update application connection string to new endpoint, decommission old instance manually.
+**Review Action:** Quick-Reference-Databases.md -- RDS PITR section. Memorize the three PITR facts: (1) any second within retention window, (2) always new instance, (3) new endpoint.
+
+---
+
+### Q18 Miss -- February 23, 2026
+**Topic:** Lambda Provisioned Concurrency vs Reserved Concurrency for cold start elimination
+**User's Answer:** C (Reserved Concurrency)
+**Correct Answer:** B (Provisioned Concurrency)
+**Knowledge Gap:** Student chose Reserved Concurrency for a "guaranteed sub-100ms cold start latency" requirement. Reserved Concurrency reserves capacity but does NOT pre-warm execution environments -- cold starts still occur. Only Provisioned Concurrency eliminates cold starts by keeping environments pre-initialized.
+**Exam Pattern Missed:** "Sub-Xms cold start guarantee" / "zero cold starts" / "pre-warmed environments" = Provisioned Concurrency. "Cap maximum concurrency" / "prevent starving other functions" = Reserved Concurrency.
+**Review Action:** Weakness #47 decision tree in this file. The offender/victim framing is solid -- the cold start vs capacity distinction needs one more reinforcement pass.
+
+---
+
+### Q24 Miss -- February 23, 2026
+**Topic:** CloudTrail default configuration -- management events enabled by default, data events are NOT
+**User's Answer:** A (both S3 object access and IAM role modifications captured by default)
+**Correct Answer:** B (S3 object access requires data events enabled; IAM modifications captured by default)
+**Knowledge Gap:** Student selected "both captured by default" despite knowing the data vs management event rule. The two-part question framing may have caused the student to anchor on the correctly-identified IAM component (management events, captured by default) and extend that logic incorrectly to S3 object access.
+**Exam Pattern Missed:** CloudTrail default = management events ONLY. S3 GetObject/PutObject/DeleteObject = data events = NOT enabled by default = must be explicitly configured.
+**Review Action:** Weakness #48 decision tree in this file. This is a direct regression from a recently resolved weakness. Review the "Step 1: What kind of operation?" decision tree before exam day.
+
+---
+
+### Q27 Miss -- February 23, 2026
+**Topic:** S3 Glacier storage class cost hierarchy -- Instant vs Flexible Retrieval vs Deep Archive
+**User's Answer:** B (Glacier Instant Retrieval for 1-5 year archive window)
+**Correct Answer:** A (Glacier Flexible Retrieval for 1-5 year window, Deep Archive for 5+ years)
+**Knowledge Gap:** Student selected Glacier Instant Retrieval for data accessed less than once per quarter. Glacier Instant Retrieval is significantly more expensive than Flexible Retrieval and is priced for millisecond retrieval. When the SLA allows up to 12 hours, Flexible Retrieval is the cost-optimal choice. Student matched the retrieval frequency pattern (quarterly) to the wrong tier.
+**Exam Pattern Missed:** Match retrieval tier to SLA, not just access frequency. If 12-hour retrieval is acceptable, Glacier Flexible Retrieval is cheaper than Instant. Instant Retrieval = milliseconds = premium cost = only justified when millisecond retrieval is an actual requirement.
+**Review Action:** Quick-Reference-Storage.md -- S3 Glacier storage classes table. Memorize retrieval time AND cost hierarchy: Standard-IA > Glacier Instant > Glacier Flexible > Glacier Deep Archive (cost descending).
+
+---
+
+### Q48 Miss -- February 23, 2026
+**Topic:** Session state storage -- ElastiCache Redis TTL precision vs DynamoDB TTL imprecision
+**User's Answer:** D (DynamoDB with TTL)
+**Correct Answer:** B (ElastiCache for Redis with TTL)
+**Knowledge Gap:** Student chose DynamoDB TTL for a 30-minute session inactivity expiration requirement. DynamoDB TTL expiration is imprecise -- expired items can persist up to 48 hours past the TTL timestamp before actual deletion. This makes it unsuitable for precise time-based session expiry requirements. Redis TTL is precise to the second and resets on each access (sliding window), which is the correct behavior for "expire after 30 minutes of inactivity."
+**Exam Pattern Missed:** Session state + precise inactivity-based expiry = ElastiCache Redis. DynamoDB TTL = eventual deletion (up to 48 hours delay) = acceptable for loose cleanup but not precise session management.
+**Review Action:** Quick-Reference-Databases.md -- ElastiCache section. Add to memory: DynamoDB TTL = best-effort eventual deletion (up to 48h delay). Redis TTL = precise, sliding on access, sub-second expiration.
+
+---
+
+### Q65 Miss -- February 23, 2026
+**Topic:** AWS Config continuous compliance history vs CloudTrail API audit log
+**User's Answer:** D (CloudTrail handles all three requirements)
+**Correct Answer:** A (AWS Config for compliance history, CloudTrail for API call audit)
+**Knowledge Gap:** Student applied CloudTrail to a 12-month continuous compliance history requirement (S3 public access state, EBS encryption state). CloudTrail logs API calls but cannot easily prove that a resource was CONTINUOUSLY compliant over a 12-month window. AWS Config maintains a configuration history timeline showing the exact state of every resource attribute at every point in time -- purpose-built for compliance evidence. CloudTrail is correct for requirement 3 (IAM role API calls during a specific 3-day window).
+**Exam Pattern Missed:** "Prove continuous compliance over time" / "configuration history" / "was this resource always encrypted/private?" = AWS Config. "Audit which API calls were made by whom" = CloudTrail.
+**Review Action:** Weakness #46 patterns in this file. Config = resource configuration state over time. CloudTrail = API call audit. These are complementary, not interchangeable.
 
 ---
 

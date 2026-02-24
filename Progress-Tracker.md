@@ -6,6 +6,53 @@
 
 ---
 
+## Day 40 -- February 23, 2026 -- 7 Days to Exam
+
+**Topic:** Full 65-Question SAA-C03 Domain Distribution Projection Exam
+**Time Spent:** Full session
+**Score:** 50/65 (76.9%) -- AT passing threshold -- PASSING but fragile
+
+**Domain Breakdown (estimated):**
+- Domain 1 Resilient Architectures: ~12/15 (80%)
+- Domain 2 High-Performing Architectures: ~13/16 (81%)
+- Domain 3 Secure Applications: ~16/20 (80%)
+- Domain 4 Cost-Optimized Architectures: ~9/14 (64%) -- weakest domain today
+
+**Questions Missed (6):**
+- Q2: SQS FIFO 300 TPS limit -- Kinesis required at 800 TPS (Weakness #50 pattern)
+- Q8: RDS PITR creates NEW instance, not overwrites (Weakness #53 pattern)
+- Q18: Provisioned Concurrency eliminates cold starts, Reserved does NOT (Weakness #47 residual)
+- Q24: S3 object access = data events, NOT captured by default CloudTrail (Weakness #48 residual)
+- Q27: Glacier Flexible Retrieval cheaper than Instant when 12h SLA acceptable (new gap)
+- Q48: DynamoDB TTL imprecise (up to 48h delay) vs Redis TTL precise for session expiry (new gap)
+- Q65: Config = continuous compliance history, CloudTrail = API audit (Weakness #46 residual)
+
+**Weaknesses Identified / Updated:**
+- Weakness #48 (CloudTrail Data vs Management): REGRESSION -- Q24 missed again
+- Weakness #47 (Lambda Concurrency): REGRESSION -- Q18 missed (Provisioned vs Reserved cold start)
+- Weakness #46 (Config vs Security Hub): REGRESSION -- Q65 missed (Config vs CloudTrail scope)
+- New gap: S3 Glacier storage class cost hierarchy (Instant vs Flexible vs Deep Archive)
+- New gap: DynamoDB TTL imprecision vs ElastiCache Redis TTL precision for session state
+
+**Strong Areas Confirmed:**
+- SG chaining vs NACLs (Q1, Q15, Q20 all correct)
+- AWS Batch for long-running jobs (Q5 correct)
+- DR strategy selection -- Pilot Light for 15-min RTO (Q4 correct)
+- Kinesis fan-out with enhanced fan-out (Q21 correct)
+- SNS fan-out pattern (Q45 correct)
+- VPC Gateway Endpoints for S3/DynamoDB (Q19 correct)
+- Transit Gateway over VPC Peering mesh (Q37 correct)
+- Route 53 Failover routing (Q52 correct)
+- GuardDuty = threat detection (Q53 correct after confusion on Q25)
+- OAC vs OAI (Q59 correct)
+
+**Materials Created:**
+- Weakness-Tracker.md updated with 6 miss analyses
+
+**Exam Projection:** 76.9% (passing threshold is 72%) -- 4.9% buffer -- tight but passing
+
+---
+
 ## 📊 Fresh Start - January 2026 Study Period
 
 ### Week 1: Foundation Reset (Jan 5-11)
