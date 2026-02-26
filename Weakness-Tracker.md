@@ -1,9 +1,355 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** February 23, 2026 (Day 40 -- 65Q Full Projection Exam -- 50/65 (76.9%) -- 7 days to exam -- 6 misses documented below)
-**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (7 days remaining)
+**Last Updated:** February 25, 2026 (Day 41 -- Hard 20Q General Weakness Drill -- 18/20 (90%) -- 5 days to exam -- 2 gaps confirmed: Lambda Reserved vs Provisioned (#47 reinforced), Kinesis single-shard throughput limit (#50 reinforced))
+**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (5 days remaining)
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## February 25, 2026 - Day 41 Hard 20Q General Weakness Drill -- 18/20 (90%)
+
+### Drill Results Summary
+**Score:** 18/20 (90%) -- ABOVE TARGET
+**Focus Areas:** All 15 priority weakness areas -- Config vs CloudTrail, Lambda concurrency, CloudTrail data events, SQS FIFO vs Kinesis, RDS PITR, S3 Glacier hierarchy, DynamoDB TTL, DynamoDB capacity modes, Regional vs AZ RIs, Scheduled RIs, cross-AZ pricing, S3 lifecycle minimums, RDS Stop/Start vs Aurora Serverless, Spot disqualifiers, VPC Endpoints
+**Days to Exam:** 5
+
+**Question Results:**
+| Q | Topic | Result |
+|---|---|---|
+| Q1 | SQS FIFO 300 TPS cap -- 800 TPS + ordering = Kinesis | CORRECT |
+| Q2 | Config vs CloudTrail -- IAM history + S3 data events | CORRECT |
+| Q3 | One Zone-IA disqualified for irreplaceable/compliance data | CORRECT |
+| Q4 | Reserved + Provisioned Concurrency used together | CORRECT |
+| Q5 | RDS PITR creates new endpoint -- update connection string + decommission old | CORRECT |
+| Q6 | S3 Gateway Endpoint (FREE) + private IP for cross-AZ | CORRECT |
+| Q7 | S3 DeleteObject = data event, not captured by default | CORRECT |
+| Q8 | DynamoDB TTL imprecise (48h delay) -- Redis for exact session expiry | CORRECT |
+| Q9 | Aurora Serverless v2 does NOT scale to zero -- RDS Stop/Start for idle windows | CORRECT |
+| Q10 | Regional RIs = AZ flexibility -- Scheduled RIs = discontinued trap | CORRECT |
+| Q11 | Config = continuous compliance state, CloudTrail = IAM principal attribution | CORRECT |
+| Q12 | DynamoDB On-Demand at launch, Provisioned + Auto Scaling after stabilization | CORRECT |
+| Q13 | Spot disqualified -- non-interruptible jobs + contractual 4-hour SLA | CORRECT |
+| Q14 | Scheduled RIs = discontinued trap -- On-Demand + Compute Savings Plan | CORRECT |
+| Q15 | Standard-IA 30-day minimum -- exit at day 35 (20 days in) triggers penalty | CORRECT |
+| Q16 | Org-wide CloudTrail + Config aggregator for continuous encryption compliance | CORRECT |
+| Q17 | Standard RI + Compute Savings Plan + Spot -- Scheduled RIs eliminated | CORRECT |
+| Q18 | Reserved Concurrency does NOT pre-warm -- Provisioned eliminates cold starts | INCORRECT |
+| Q19 | Kinesis single shard = 1,000 rec/sec limit -- 1,200 rec/sec exceeds capacity | INCORRECT |
+| Q20 | ElastiCache regional (no cross-region), data events disabled, PITR new endpoint | CORRECT |
+
+**Weaknesses Reinforced:** #47 (Lambda Reserved vs Provisioned), #50 (Kinesis shard throughput limit)
+**Areas Confirmed SOLID:** Config vs CloudTrail (#46), CloudTrail data events (#48), S3 lifecycle minimums (#58), RDS PITR (#53), DynamoDB TTL, VPC Endpoints, Spot disqualifiers, Scheduled RIs discontinued, Regional vs AZ RIs, RDS Stop/Start vs Aurora Serverless, DynamoDB On-Demand vs Provisioned
+
+---
+
+### Q18 Miss -- February 25, 2026 -- Weakness #47 Reinforced
+**Topic:** Lambda Reserved Concurrency mistakenly identified as eliminating cold starts
+**User's Answer:** A (Reserved Concurrency of 100 guarantees pre-warmed environments)
+**Correct Answer:** B (Provisioned Concurrency of 20 partially eliminates cold starts for up to 20 simultaneous invocations -- peaks of 60 still experience cold starts)
+**Knowledge Gap:** Student selected Reserved Concurrency as the cold start solution despite correctly answering Q4 on the same topic. The trap was the word "guarantee" in option A -- Reserved Concurrency does guarantee capacity allocation from the account pool, but does NOT guarantee warm execution environments. Any Lambda latency/cold start scenario = Provisioned Concurrency. Reserved Concurrency = cap + pool reservation only.
+**Pattern Missed:** "Guarantee capacity is always available" sounds like pre-warming but is not. Reserved = allocation from pool. Provisioned = actual warm environments. These are different guarantees. Cold start keyword = Provisioned, always.
+**Review Action:** Write the two-sentence definition of each by hand. Drill until first keyword in scenario triggers instant elimination of the wrong one. "Cold start / latency SLA" = Provisioned. "Cap / starve other functions" = Reserved. No overlap.
+
+---
+
+### Q19 Miss -- February 25, 2026 -- Weakness #50 Reinforced
+**Topic:** Kinesis single shard throughput limit -- 1,200 rec/sec exceeds 1,000 rec/sec single-shard cap
+**User's Answer:** B (Single Kinesis shard guarantees global ordering and handles 1,200 records/second)
+**Correct Answer:** D (None of the three options satisfy both requirements -- single shard fails on throughput at 1,200 rec/sec, multiple shards lose global ordering, SQS FIFO fails on throughput)
+**Knowledge Gap:** Correctly identified that a single shard guarantees global ordering but missed the hard throughput spec. Single Kinesis shard = 1,000 records/second write limit (or 1 MB/second). 1,200 records/second exceeds this by 20%. The question required doing the math before selecting an answer.
+**Pattern Missed:** Any Kinesis scenario with a records-per-second figure requires explicit math check against shard capacity BEFORE selecting. Do not assume the scenario's proposed solution fits within limits -- check the numbers.
+**Review Action:** Burn in Kinesis shard limits: 1 shard = 1,000 rec/sec write, 1 MB/sec write, 2 MB/sec read, up to 5 read transactions/sec. Multiple shards multiply linearly. Global ordering = single shard only. Always do the division when given throughput figures.
+
+---
+
+## February 25, 2026 - Day 41 Flash Drill: Data Transfer Costs + S3 Minimum Durations -- 9/10 (90%)
+
+### Drill Results Summary
+**Score:** 9/10 (90%) -- ABOVE TARGET
+**Focus Areas:** Data transfer cost hierarchy (same-AZ/cross-AZ/cross-region/internet/CloudFront), S3 minimum storage durations
+**Days to Exam:** 5
+
+**Question Results:**
+| Q | Topic | Result |
+|---|---|---|
+| Q1 | Same AZ + private IP = FREE | CORRECT |
+| Q2 | Standard-IA 30-day minimum -- lifecycle at day 15 triggers fee | CORRECT |
+| Q3 | Internet egress $0.09/GB -- 1 TB = $92.16 | CORRECT |
+| Q4 | Intelligent-Tiering has NO minimum storage duration | CORRECT |
+| Q5 | Cross-AZ public IP $0.02/GB each direction -- 50 GB both ways = $2.00 | CORRECT |
+| Q6 | Glacier Deep Archive 180-day minimum -- deleting at 91 days incurs charge | CORRECT |
+| Q7 | EC2-to-CloudFront free + CloudFront egress cheaper than EC2 direct | CORRECT |
+| Q8 | Glacier Instant Retrieval 90-day minimum -- stored 45 days = billed 90 | CORRECT |
+| Q9 | Internet ingress = FREE | CORRECT |
+| Q10 | One Zone-IA 30-day minimum -- transitioning at day 25 does NOT save money | INCORRECT |
+
+**Weakness Reinforced:** #58 (S3 lifecycle minimums) -- specifically One Zone-IA 30-day minimum applied to cost-savings analysis
+
+---
+
+### Q10 Miss -- February 25, 2026 -- Weakness #58 Reinforcement
+**Topic:** S3 One Zone-IA minimum storage duration applied to cost-savings lifecycle analysis
+**User's Answer:** A (One Zone-IA is cheaper per GB so savings begin immediately on transition)
+**Correct Answer:** C (One Zone-IA has a 30-day minimum -- transitioning at day 25 incurs charges for remaining 5 days)
+**Knowledge Gap:** Student knew the per-GB rate of One Zone-IA is cheaper than Standard, but failed to apply the 30-day minimum duration rule to the cost-savings calculation. Transitioning at day 25 triggers billing for 25 days in Standard PLUS the full 30-day minimum in One Zone-IA, making the early transition MORE expensive, not less. The per-GB rate advantage is irrelevant when the minimum duration penalty outweighs it.
+**Pattern Missed:** "Will this lifecycle policy save money?" requires checking minimum storage duration BEFORE comparing per-GB rates. If transition age < minimum duration of destination class, the policy costs more. For IA classes: must stay at least 30 days before any savings are realized.
+**Review Action:** Weakness #58 table. Burn in: savings only begin AFTER the minimum duration threshold. Early transitions do not save money -- they add a penalty on top of Standard pricing.
+
+---
+
+## February 25, 2026 - Day 41 Domain 4 Cost Optimization 15Q Drill -- 9/15 (60%)
+
+### Drill Results Summary
+**Score:** 9/15 (60%) -- BELOW TARGET (target: 12/15 = 80%)
+**Focus Areas:** EC2 purchasing options, S3 lifecycle costs, data transfer pricing, RDS cost optimization, Lambda/Fargate/EC2 tradeoffs, Auto Scaling, CloudFront, VPC Endpoints, Spot Instances, DynamoDB capacity modes
+**Days to Exam:** 5
+
+**Question Results:**
+| Q | Topic | Result |
+|---|---|---|
+| Q1 | EC2 Reserved - steady state 24/7 | CORRECT |
+| Q2 | Compute Savings Plans - flexible instance needs + known duration | INCORRECT |
+| Q3 | Spot - fault-tolerant batch with restart | INCORRECT |
+| Q4 | S3 Glacier lifecycle - 12-hour SLA (Flexible Retrieval) | CORRECT |
+| Q5 | Lambda - spiky stateless workload | CORRECT |
+| Q6 | CloudFront - static asset egress reduction | CORRECT |
+| Q7 | VPC Gateway Endpoint - S3 NAT Gateway cost elimination | CORRECT |
+| Q8 | RDS Stop/Start vs Aurora Serverless for business-hours-only workload | INCORRECT |
+| Q9 | Reserved baseline + Spot burst hybrid | CORRECT |
+| Q10 | DynamoDB On-Demand - unpredictable flash sale spikes | CORRECT |
+| Q11 | Cross-AZ data transfer pricing ($0.01/GB each direction) | INCORRECT |
+| Q12 | ECS on EC2 Spot - long-running fault-tolerant containers | CORRECT |
+| Q13 | S3 lifecycle minimums - One Zone-IA 30-day trap + compliance data rule | INCORRECT |
+| Q14 | Right-size FIRST, establish baseline SECOND, Reserved Instances THIRD | INCORRECT |
+| Q15 | EMR Spot core/task + On-Demand master + RDS Stop/Start | CORRECT |
+
+**New Weaknesses Identified:** #54 (Compute Savings Plans vs On-Demand), #55 (Spot comfort for fault-tolerant batch), #56 (RDS Stop/Start vs Aurora Serverless), #57 (Cross-AZ data transfer pricing), #58 (S3 lifecycle minimum durations + One Zone-IA compliance), #59 (Reserved Instance ordering: right-size before committing)
+
+---
+
+### Q2 Miss -- February 25, 2026 -- Weakness #54
+**Topic:** Compute Savings Plans vs On-Demand for unknown instance type + known duration
+**User's Answer:** A (On-Demand - no commitment, full flexibility)
+**Correct Answer:** C (Compute Savings Plans, 1-year term)
+**Knowledge Gap:** Defaulted to On-Demand for "unknown traffic volume" without recognizing that the workload DURATION (1 year) is known even when instance type needs are flexible. Compute Savings Plans commit to a minimum dollar-per-hour spend across ANY instance family, size, region, or OS. The trigger for On-Demand is genuinely short-term or truly unpredictable-duration workloads -- not unknown instance type preferences.
+**Exam Pattern Missed:** Unknown instance type + known duration (1+ year) = Compute Savings Plans. On-Demand = genuinely short-term (days/weeks) or business requirement for zero commitment. The key question is not "do I know what instances I need" but "do I know I will be running SOMETHING for the next year."
+**Review Action:** Quick-Reference-Compute.md -- Pricing Models table. Burn in: Compute Savings Plans = flexible across instance families, covers the commitment gap when instance type is unknown but duration is not.
+
+---
+
+### Q3 Miss -- February 25, 2026 -- Weakness #55
+**Topic:** Spot Instances for fault-tolerant batch processing with restart capability
+**User's Answer:** B (On-Demand with Scheduled Auto Scaling)
+**Correct Answer:** A (Spot Instances only)
+**Knowledge Gap:** Overcorrected from Q2 and avoided Spot on a workload explicitly described as fault-tolerant with restart capability. The "financial data" framing may have triggered a conservative instinct. But the exam explicitly told you the workload can restart from the beginning -- that is the Spot permission slip. On-Demand with scheduled scaling is operationally correct but wastes 70-90% in potential savings.
+**Exam Pattern Missed:** "Fault-tolerant" + "batch processing" + "can restart" + "flexible timing" = Spot Instances. The disqualifying factors for Spot are: real-time customer-facing transactions, stateful workloads that cannot checkpoint, strict SLA where ANY interruption fails. When none of those apply, choose Spot.
+**Review Action:** Quick-Reference-Compute.md -- Pricing Models table. Spot green lights: fault-tolerant, flexible start/end, batch, HPC, big data, CI/CD, stateless. Spot red lights: production web servers, real-time transactions, databases, anything with strict uptime SLA.
+
+---
+
+### Q8 Miss -- February 25, 2026 -- Weakness #56
+**Topic:** RDS Stop/Start scheduling vs Aurora Serverless for business-hours-only workload
+**User's Answer:** C (Aurora Serverless v2)
+**Correct Answer:** D (Stop RDS instance outside business hours with automation)
+**Knowledge Gap:** Aurora Serverless v2 seduced with its variable-workload story. Missed the decisive detail: the workload is only active during business hours (8 AM - 6 PM weekdays = 40 hours/week). The instance is OFF 76% of the time. Aurora Serverless v2 still runs at minimum ACU capacity 24/7 -- you pay for 168 hours when you only need 40. Stop/Start automation eliminates payment for the 128 idle hours per week.
+**Exam Pattern Missed:** Workload trigger words -- "only used during business hours" / "only runs at night" / "used only on weekdays" = Stop/Start scheduling wins. "Continuously running but highly variable intensity" = Aurora Serverless wins. The distinction is OFF vs QUIET. Off = Stop/Start. Quiet = Serverless.
+**Review Action:** Quick-Reference-Databases.md -- RDS cost optimization section. Decision rule: (1) Is the database OFF for predictable periods? Yes = Stop/Start. (2) Is the database ON continuously but with unpredictable load? Yes = Aurora Serverless. (3) Predictable steady-state load? = Reserved Instances.
+
+---
+
+### Q11 Miss -- February 25, 2026 -- Weakness #57
+**Topic:** Cross-AZ data transfer pricing -- $0.01/GB each direction
+**User's Answer:** A (Cross-AZ data transfer is free -- no action needed)
+**Correct Answer:** B (Cross-AZ costs $0.01/GB each direction -- consolidate to single AZ)
+**Knowledge Gap:** Incorrectly believed cross-AZ data transfer within the same region is free. This is one of the most commonly tested data transfer pricing facts on the exam.
+**Data Transfer Cost Hierarchy (MEMORIZE):**
+- Same AZ, private IP = FREE
+- Cross-AZ, private IP = $0.01/GB EACH DIRECTION
+- Cross-AZ, public/Elastic IP = $0.02/GB each direction
+- Cross-Region = $0.02/GB (varies)
+- Internet egress = $0.09/GB (first 10 TB)
+**Exam Pattern Missed:** Placement groups reduce latency but do NOT change data transfer pricing. The only way to eliminate cross-AZ charges is to consolidate to a single AZ (accepting reduced redundancy) or use services that do not charge for cross-AZ traffic (e.g., S3 replication within a region is free, but EC2-to-EC2 is not).
+**Review Action:** Quick-Reference-Networking.md -- Data Transfer Costs section. Memorize the four-tier pricing table above. At scale (100+ TB/month) cross-AZ charges become significant budget items.
+
+---
+
+### Q13 Miss -- February 25, 2026 -- Weakness #58
+**Topic:** S3 storage class minimum storage durations + One Zone-IA compliance disqualifier
+**User's Answer:** D (One Zone-IA at 7 days, then Glacier Deep Archive at 90 days)
+**Correct Answer:** B (Glacier Flexible Retrieval after 7 days)
+**Knowledge Gap:** Two simultaneous errors: (1) Used One Zone-IA for compliance logs -- One Zone-IA stores in a single AZ and is unsuitable for compliance or irreplaceable data. (2) Transitioning to Standard-IA or One Zone-IA before 30 days triggers the 30-day minimum storage fee -- you pay for 30 days even if the object is only 7 days old, making early IA transitions cost MORE than staying in Standard.
+**Minimum Storage Durations (MEMORIZE):**
+- S3 Standard: None
+- S3 Intelligent-Tiering: None (monitoring fee applies)
+- S3 Standard-IA: 30 days minimum
+- S3 One Zone-IA: 30 days minimum
+- S3 Glacier Instant Retrieval: 90 days minimum
+- S3 Glacier Flexible Retrieval: 90 days minimum
+- S3 Glacier Deep Archive: 180 days minimum
+**One Zone-IA Rule:** Never use for compliance data, audit logs, disaster recovery, or any data that is irreplaceable. Single-AZ storage = data loss risk if AZ fails.
+**Review Action:** Quick-Reference-Storage.md -- Storage Class Transitions section. Memorize minimum durations. For data accessed after 7 days and retained 1 year: skip IA entirely (30-day minimum makes it expensive), go directly to Glacier Flexible Retrieval at 90-day minimum.
+
+---
+
+### Q14 Miss -- February 25, 2026 -- Weakness #59
+**Topic:** Reserved Instance purchasing order of operations -- right-size before committing
+**User's Answer:** B (Right-size instances, then purchase Reserved Instances for the right-sized fleet)
+**Correct Answer:** C (Target Tracking at 70% CPU + Reserved Instances for minimum baseline only)
+**Knowledge Gap:** Correctly identified right-sizing but missed the second problem: purchasing Reserved Instances for the entire fleet BEFORE letting Auto Scaling compress the fleet to its natural efficient size. At 15-25% CPU, Target Tracking at 70% will dramatically reduce instance count. If Reserved Instances are purchased for 20 instances pre-compression, you are over-committed on reservations for capacity Auto Scaling will eliminate.
+**Correct Order of Operations:** (1) Right-size instances to appropriate type. (2) Set Target Tracking policy and observe the stable minimum baseline over time. (3) Purchase Reserved Instances ONLY for the confirmed minimum baseline. (4) Let variable demand above baseline use On-Demand or Spot.
+**Exam Pattern Missed:** Never commit to Reserved Instances before establishing the true baseline. CPU utilization at 15-25% = right-sizing AND over-provisioning problem simultaneously. Solve both before committing.
+**Review Action:** Quick-Reference-Compute.md -- Auto Scaling Policies + Pricing Models. The order matters: observe actual baseline THEN commit. Reservations for over-provisioned fleets lock in waste.
+
+---
+
+### New Weakness Status Summary -- February 25, 2026 (Updated After Retake)
+
+| Weakness | Topic | Status | Priority |
+|---|---|---|---|
+| #54 | Compute Savings Plans vs On-Demand (known duration, flexible type) | RESOLVED (1/1 retake) | -- |
+| #55 | Spot comfort level -- fault-tolerant batch with restart | RESOLVED (2/2 retake) | -- |
+| #56 | RDS Stop/Start vs Aurora Serverless (OFF vs QUIET distinction) | RESOLVED (2/2 retake) | -- |
+| #57 | Cross-AZ data transfer pricing ($0.01/GB each direction) | RESOLVED (2/2 retake) | -- |
+| #58 | S3 lifecycle minimums + One Zone-IA compliance disqualifier | RESOLVED (2/2 retake) | -- |
+| #59 | Reserved Instance ordering (right-size + baseline first) | RESOLVED (1/1 retake) | -- |
+| #60 | DynamoDB On-Demand vs Provisioned+Auto Scaling (reaction lag) | ACTIVE | Medium |
+| #61 | Regional vs AZ-scoped Reserved Instances (flexibility vs capacity reservation) | ACTIVE | Medium |
+| #62 | Scheduled Reserved Instances discontinued -- use Savings Plan instead | ACTIVE | HIGH |
+
+**Pre-Exam Priority Actions (5 days remaining -- updated):**
+1. DynamoDB On-Demand vs Auto Scaling reaction lag (#60) -- 15 minutes
+2. Regional vs AZ-scoped RI scope distinction (#61) -- 15 minutes
+3. Scheduled RIs discontinued -- On-Demand + Savings Plan for non-fault-tolerant recurring (#62) -- 10 minutes
+
+---
+
+## February 25, 2026 - Day 41 Domain 4 Targeted Retake 15Q Drill -- 13/15 (87%)
+
+### Drill Results Summary
+**Score:** 13/15 (87%) -- TARGET MET
+**Focus Areas:** Weaknesses #54-#59 (all targeted gaps from morning session)
+**Days to Exam:** 5
+
+**Question Results:**
+| Q | Topic | Weakness | Result |
+|---|---|---|---|
+| Q1 | Compute Savings Plans - unknown type, known 18-month duration | #54 | CORRECT |
+| Q2 | Spot - fault-tolerant genomics batch, node-level restart only | #55 | CORRECT |
+| Q3 | RDS Stop/Start - business hours only database, OFF 70% of week | #56 | CORRECT |
+| Q4 | Cross-AZ data transfer $0.01/GB each direction, three-tier app | #57 | CORRECT |
+| Q5 | S3 lifecycle minimums - penalty on early EXIT not early ENTRY | #58 | CORRECT |
+| Q6 | RI order of operations - right-size + baseline before committing | #59 | CORRECT |
+| Q7 | VPC Gateway Endpoint - S3/DynamoDB free, eliminate NAT Gateway | Supporting | CORRECT |
+| Q8 | Lambda - unpredictable spiky stateless API workload | Supporting | CORRECT |
+| Q9 | Glacier Flexible Retrieval - 12-hour SLA + multi-AZ compliance | #58 | CORRECT |
+| Q10 | Split fleet - RIs for 24/7 enterprise, Stop/Start for business-hours | #56 | CORRECT |
+| Q11 | Spot - GPU training with 30-minute S3 checkpointing | #55 | CORRECT |
+| Q12 | DynamoDB On-Demand vs Provisioned+Auto Scaling reaction lag | Supporting | INCORRECT |
+| Q13 | Cross-AZ consolidation - $4,000/month transfer cost elimination | #57 | CORRECT |
+| Q14 | Regional vs AZ-scoped Reserved Instances - stable fleet | Supporting | INCORRECT |
+| Q15 | Scheduled RIs discontinued - On-Demand + Savings Plan | Supporting | INCORRECT |
+
+**Weaknesses Resolved:** #54, #55, #56, #57, #58, #59 (all 100% on retake)
+**New Weaknesses Identified:** #60 (DynamoDB On-Demand vs Auto Scaling reaction lag), #61 (Regional vs AZ-scoped RI scope), #62 (Scheduled RIs discontinued)
+
+---
+
+### Q12 Miss -- February 25, 2026 -- Weakness #60
+**Topic:** DynamoDB On-Demand vs Provisioned with Auto Scaling for zero-to-peak spikes
+**User's Answer:** A (Provisioned with Auto Scaling)
+**Correct Answer:** B (On-Demand capacity mode)
+**Knowledge Gap:** Provisioned with Auto Scaling has reaction lag -- it responds to sustained traffic changes, not instantaneous spikes from zero to peak. Truly unpredictable traffic that can spike from near-zero to 500 WCU/s instantly will cause throttling during the Auto Scaling reaction window. On-Demand handles zero-to-peak instantly with no reaction lag and no capacity planning.
+**Decision Rule:**
+- On-Demand: truly unpredictable spikes, instantaneous zero-to-peak, zero tolerance for throttling, no capacity planning desired
+- Provisioned + Auto Scaling: variable but somewhat gradual ramp patterns, cost-sensitive workloads where per-request On-Demand premium matters
+**Review Action:** Quick-Reference-Databases.md -- DynamoDB capacity modes. Burn in: Auto Scaling reacts, On-Demand absorbs. When the scenario says "completely unpredictable" + "no capacity planning" = On-Demand.
+
+---
+
+### Q14 Miss -- February 25, 2026 -- Weakness #61
+**Topic:** Regional vs AZ-scoped Reserved Instances for stable known fleet
+**User's Answer:** C (AZ-scoped Standard RIs, All Upfront)
+**Correct Answer:** D (Regional Standard RIs, All Upfront)
+**Knowledge Gap:** AZ-scoped RIs provide a capacity reservation in a specific AZ but lose flexibility -- the discount only applies to that exact AZ. Regional RIs provide AZ flexibility and instance size flexibility within the family, with equal discount percentage and no capacity reservation. For a stable fleet with no capacity reservation requirement, regional scope is strictly superior.
+**Scope Comparison:**
+- AZ-scoped: capacity reservation guaranteed, discount tied to specific AZ, no size flexibility
+- Regional: no capacity reservation, discount applies to any AZ in region, instance size flexibility within family
+**Rule:** Use AZ-scoped ONLY when hard capacity reservation is required. Use Regional for all other stable fleet scenarios.
+**Review Action:** Quick-Reference-Compute.md -- Reserved Instance scope options. Memorize: regional = more flexible + equal discount = correct default for stable fleets.
+
+---
+
+### Q15 Miss -- February 25, 2026 -- Weakness #62
+**Topic:** Scheduled Reserved Instances discontinued -- correct alternative for recurring non-fault-tolerant workloads
+**User's Answer:** C (Scheduled Reserved Instances)
+**Correct Answer:** D (On-Demand + Compute Savings Plan)
+**Knowledge Gap:** Scheduled Reserved Instances were retired by AWS and are no longer available for purchase. The exam will not present them as a correct answer. For non-fault-tolerant workloads with a known recurring schedule, the correct approach is On-Demand (for reliability) combined with a Compute Savings Plan (to discount the On-Demand rate for the known usage).
+**Decision Rule for recurring non-fault-tolerant workloads:**
+- Spot = ELIMINATED (interruption causes SLA violation)
+- Scheduled RIs = ELIMINATED (product discontinued)
+- On-Demand alone = valid but suboptimal
+- On-Demand + Compute Savings Plan = correct (reliable + discounted)
+**Review Action:** Burn in: Scheduled RIs do not exist anymore. When you see them as an answer option, treat them as a trap. Non-fault-tolerant + known duration = On-Demand + Savings Plan.
+
+---
+
+## February 25, 2026 - Day 41 Targeted 10Q Weakness Drill -- 8/10 (80%)
+
+### Drill Results Summary
+**Score:** 8/10 (80%) -- TARGET MET
+**Focus Areas:** #47 Lambda Concurrency, #48 CloudTrail Events, #46 Config vs CloudTrail, S3 Glacier Cost Hierarchy, DynamoDB TTL vs Redis TTL
+**Days to Exam:** 5
+
+**Question Results:**
+| Q | Weakness | Result |
+|---|---|---|
+| Q1 | #47 Lambda Provisioned vs Reserved -- dual-tool solution | CORRECT |
+| Q2 | #47 Lambda Reserved caps offender, does not pre-warm | CORRECT |
+| Q3 | #48 CloudTrail default -- IAM role creation present, S3 GetObject absent | CORRECT |
+| Q4 | #48 EC2/RDS = management events, Lambda invoke/S3 DeleteObject = data events | CORRECT |
+| Q5 | #46 Config for continuous configuration history timeline | CORRECT |
+| Q6 | #46 CloudTrail answers WHO/WHEN, Config answers WHAT STATE -- missed, chose A (CloudTrail does both) | INCORRECT |
+| Q7 | Glacier cost hierarchy -- 12h SLA + occasional access = Flexible, not Deep Archive -- missed, chose C | INCORRECT |
+| Q8 | Glacier cost hierarchy -- 48h SLA + extremely rare access + minimize storage cost = Deep Archive | CORRECT |
+| Q9 | Redis TTL precise, DynamoDB TTL up to 48h delay -- Redis for exact session expiry | CORRECT |
+| Q10 | DynamoDB TTL = expired items remain READABLE until deletion sweep (up to 48h) | CORRECT |
+
+---
+
+### Q6 Miss -- February 25, 2026
+**Topic:** Config vs CloudTrail -- two-question scenario requiring both services
+**User's Answer:** A (CloudTrail answers both questions)
+**Correct Answer:** C (CloudTrail answers Q1 WHO/WHEN, Config answers Q2 resource state history)
+**Knowledge Gap:** When CloudTrail is framed as "it records API calls including configuration changes," student extends that logic to conclude it can also answer "was this resource ever in state X." CloudTrail records the event of a change, not the resulting configuration state. Config maintains the configuration timeline and can answer point-in-time state queries. Neither service replaces the other.
+**Exam Pattern Missed:** "Which IAM principal called DeleteBucket at 2:47 AM" = CloudTrail. "Was public access block ever disabled in the last 90 days" = Config. Two different questions requiring two different services.
+**Review Action:** Weakness #46 patterns. Burn in: CloudTrail = security camera footage (who, what action, when). Config = inventory ledger (what did the resource look like at any point in time). They answer fundamentally different questions.
+
+---
+
+### Q7 Miss -- February 25, 2026
+**Topic:** S3 Glacier cost hierarchy -- 12-hour SLA + occasional access pattern
+**User's Answer:** C (Glacier Deep Archive)
+**Correct Answer:** A (Glacier Flexible Retrieval)
+**Knowledge Gap:** Student pattern-matched "12-hour SLA acceptable" to Deep Archive without weighing access frequency and retrieval costs. For data accessed occasionally (quarterly legal reviews), retrieval costs are non-trivial. Glacier Flexible Retrieval has lower retrieval costs than Deep Archive and delivers within the 12-hour SLA via bulk tier. Deep Archive is optimized for data essentially never retrieved -- its retrieval costs are higher, making it less cost-effective when access frequency is not near-zero.
+**Exam Pattern Missed:** Match retrieval tier to BOTH SLA AND access frequency together. 12h SLA + occasional access = Flexible Retrieval. 48h SLA + extremely rare access (years between retrievals) + "minimize storage cost above all" = Deep Archive.
+**Review Action:** Quick-Reference-Storage.md -- S3 Glacier table. Three-tier decision rule: (1) milliseconds required = Instant, (2) hours acceptable + occasional access = Flexible, (3) 48h+ acceptable + near-zero access + storage cost dominates = Deep Archive.
+
+---
+
+### Weakness Status After Feb 25 Drill
+
+| Weakness | Status | Evidence |
+|---|---|---|
+| #47 Lambda Provisioned vs Reserved | CONFIRMED RESOLVED | 2/2 correct, clean distinction demonstrated |
+| #48 CloudTrail Data vs Management Events | CONFIRMED RESOLVED | 2/2 correct, all operation types correctly categorized |
+| #46 Config vs CloudTrail | STILL ACTIVE | 1/2 -- fails when CloudTrail framed as unified solution |
+| S3 Glacier Cost Hierarchy | STILL ACTIVE | 1/2 -- Flexible vs Deep Archive boundary not automatic |
+| DynamoDB TTL vs Redis TTL | CONFIRMED RESOLVED | 2/2 correct, mechanism understood precisely |
+
+**Pre-Exam Priority Actions:**
+1. Config vs CloudTrail: One more read of Weakness #46 decision tree. Lock in: they answer different questions. Neither replaces the other.
+2. S3 Glacier: Memorize the three-tier decision rule with access frequency as a second variable alongside SLA.
 
 ---
 

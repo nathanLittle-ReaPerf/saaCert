@@ -53,6 +53,110 @@
 
 ---
 
+## Day 41 -- February 25, 2026 -- 5 Days to Exam
+
+**Topic:** Targeted Weakness Drilling + Domain 4 Cost Optimization Deep Dive
+**Time Spent:** Full session (4+ hours)
+**Overall Score: 48/60 (80%) -- ABOVE TARGET + Strong recovery on Domain 4**
+
+### Session Breakdown
+
+**1. Targeted Weakness Drill (8 weaknesses, 10 questions): 8/10 (80%)**
+- Focus Areas: #47 Lambda Concurrency, #48 CloudTrail Data Events, #46 Config vs CloudTrail, S3 Glacier hierarchy, DynamoDB TTL vs Redis TTL
+- Topics Covered: Lambda Provisioned vs Reserved vs Reserved Concurrency, CloudTrail management vs data events vs S3 object access, Config continuous compliance, S3 Glacier retrieval hierarchy, DynamoDB TTL imprecision vs ElastiCache Redis precision
+- Key Win: 7/8 weaknesses scored correctly -- #47 still shaky but manageable
+- Misses: Q8 (Lambda Provisioned Concurrency cold start guarantee vs Reserved Concurrency capacity pool) -- conceptual confusion persisting
+- VERDICT: Core weakness concepts reinforced, #47 needs one final drill
+
+**2. Domain 4 Cost Optimization Round 1 (15 questions): 9/15 (60%)**
+- Focus Areas: EC2 purchasing options (RI/Compute SP/Spot), S3 lifecycle costs, data transfer pricing, RDS optimization, Lambda vs Fargate vs EC2, DynamoDB capacity modes, Cross-AZ pricing
+- Misses Identified: Q2 (Compute SP for unknown instance type), Q3 (Spot for fault-tolerant batch), Q8 (RDS Stop/Start vs Aurora Serverless), Q11 (Cross-AZ data transfer), Q13 (S3 lifecycle minimums), Q14 (Reserved Instance purchasing order)
+- New Weaknesses Created: #54-#59 (detailed in Weakness-Tracker.md)
+- VERDICT: Domain 4 weakness identified as critical blocker
+
+**3. Domain 4 Cost Optimization Round 2 (15 questions): 13/15 (87%) -- MASSIVE IMPROVEMENT**
+- Focus Areas: Same as Round 1 (RI ordering, Spot disqualifiers, S3 minimums, data transfer costs, RDS Stop/Start timing)
+- Correct Application: All Q2-Q8 patterns corrected from Round 1
+  - Q2: Compute SP (not On-Demand) for unknown instance type + known duration
+  - Q3: Spot (not On-Demand) for fault-tolerant batch with 70% savings
+  - Q8: RDS Stop/Start (not Aurora Serverless) for business-hours-only (OFF vs QUIET distinction locked)
+  - Q11: Cross-AZ transfer $0.01/GB each direction (memorized)
+  - Q13: Glacier Flexible (not One Zone-IA) for compliance logs (single-AZ disqualified)
+  - Q14: Correct RI ordering (right-size → baseline → RIs only)
+- Misses: Q2 (Scheduled RIs trap again -- discontinued), Q5 (Aurora Serverless nuance)
+- VERDICT: Turned 60% into 87% through active reinforcement -- Domain 4 weakness pattern BROKEN
+
+**4. Memorization Flash Quiz (10 questions): 9/10 (90%)**
+- Focus Areas: Data transfer pricing table (same-AZ/cross-AZ/internet), S3 minimum storage durations (Standard/Standard-IA/One Zone-IA/Glacier variants)
+- Topic Details:
+  - Same AZ + private IP = FREE
+  - Cross-AZ + private IP = $0.01/GB each direction
+  - Internet egress = $0.09/GB (first 10 TB/month)
+  - Standard-IA & One Zone-IA = 30-day minimum
+  - Glacier Flexible & Instant = 90-day minimum
+  - Glacier Deep Archive = 180-day minimum
+  - Intelligent-Tiering = NO minimum
+- Miss: Q10 (One Zone-IA 30-day minimum applied to early transition cost analysis)
+- VERDICT: Cost memorization locked at 90%
+
+**5. Hard 20-Question General Weakness Drill (targeting ALL weak points): 18/20 (90%)**
+- Focus Areas: Config vs CloudTrail (#46), Lambda Provisioned/Reserved/Concurrency (#47), CloudTrail data events (#48), SQS FIFO vs Kinesis (#50), RDS PITR (#53), S3 Glacier hierarchy, DynamoDB TTL, DynamoDB On-Demand vs Provisioned, Regional vs AZ RIs, Scheduled RIs discontinued, Cross-AZ pricing, S3 lifecycle minimums, RDS Stop/Start vs Aurora Serverless, Spot disqualifiers, VPC Endpoints
+- Correct Areas: 18/20 (Q1-Q17, Q20 all correct)
+- Misses:
+  - Q18: Lambda Reserved Concurrency (TRAP: sounds like it pre-warms but only allocates from pool -- Provisioned Concurrency eliminates cold starts)
+  - Q19: Kinesis single shard 1,000 rec/sec throughput limit (1,200 rec/sec exceeds capacity)
+- New Gap Confirmed: Kinesis shard throughput math (1 shard = 1,000 records/sec write limit)
+- VERDICT: #47 still requires one more drill, Kinesis shard limits now documented as priority
+
+**Domain Breakdown Estimated:**
+- Domain 1 Resilient Architectures: ~12/15 (80%) -- stable
+- Domain 2 High-Performing Architectures: ~13/16 (81%) -- stable
+- Domain 3 Secure Applications: ~16/20 (80%) -- stable
+- Domain 4 Cost-Optimized Architectures: ~13/14 (93%) -- MAJOR IMPROVEMENT from 64%
+
+**Weaknesses CLOSED Today (8):**
+- #54 Compute Savings Plans (unknown instance type + known duration = Compute SP)
+- #55 Spot Instances (fault-tolerant batch = Spot, 70% savings, restart capability)
+- #56 RDS Stop/Start vs Aurora Serverless (OFF = Stop/Start, QUIET = Serverless)
+- #57 Cross-AZ Data Transfer ($0.01/GB each direction -- critical pricing fact)
+- #58 S3 Lifecycle Minimums (30/90/180-day rules, One Zone-IA disqualified for compliance)
+- #59 Reserved Instance Ordering (right-size → baseline → RIs, not backwards)
+- Scheduled RIs (trap answer -- discontinued)
+- DynamoDB TTL vs Redis TTL (imprecise vs precise, session state requirements)
+
+**Weaknesses REINFORCED (still active but progressing):**
+- #47 Lambda Provisioned vs Reserved: Still occasionally trips up (Q18 in 20Q drill) -- concept understood but needs ONE MORE DRILL before exam
+- #48 CloudTrail Data vs Management Events: SOLID (3/3 in final quiz) -- moving to "confirmed strong"
+- #46 Config vs CloudTrail: Confirmed SOLID (2/2 in drills) -- moving to "confirmed strong"
+- #50 Kinesis Single Shard Throughput: NEW GAP IDENTIFIED (1,000 rec/sec limit, Q19 in 20Q drill missed)
+
+**Key Facts Memorized Today:**
+- Data transfer pricing: Same AZ private IP = FREE, cross-AZ = $0.01/GB EACH DIRECTION, internet = $0.09/GB
+- S3 minimum durations: Standard-IA/One Zone-IA = 30d, Glacier Flexible/Instant = 90d, Deep Archive = 180d, Intelligent-Tiering = NONE
+- Scheduled RIs = DISCONTINUED (constant exam trap)
+- DynamoDB TTL = imprecise up to 48h, Redis TTL = precise (for session state, TTL matters)
+- PITR = creates NEW instance + new endpoint (update connection strings)
+- Aurora Serverless v2 = does NOT scale to zero (still costs at minimum ACU)
+- Reserved Concurrency ≠ Provisioned Concurrency (capacity pool vs warm environments)
+- Kinesis single shard = 1,000 rec/sec write, 1 MB/sec write, 2 MB/sec read limits
+
+**Materials Created/Updated:**
+- Weakness-Tracker.md: Day 41 drill entries (8 new weaknesses documented, drill results logged)
+- Progress-Tracker.md: Day 41 session summary (this entry)
+
+**Exam Projection:** 80% (estimated) -- PASSING with strong buffer
+- Day 40: 76.9% (50/65)
+- Day 41 Domain 4 breakthrough: 87% (13/15 Round 2) suggests ~77-80% on full exam after weakness closure
+- Confidence: Cost Optimization domain weakness BROKEN, Kinesis shard math only remaining critical gap
+- Days to Exam: 5 (March 2, 2026 at 5:15 PM EST)
+
+**Tomorrow's Agenda (Day 42 -- February 26, 4 days to exam):**
+1. Quick seal drill: Lambda Provisioned/Reserved (#47) + Kinesis shard math (#50)
+2. Full 65-question practice exam
+3. Triage results and final targeted drilling
+
+---
+
 ## 📊 Fresh Start - January 2026 Study Period
 
 ### Week 1: Foundation Reset (Jan 5-11)
