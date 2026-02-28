@@ -1,9 +1,320 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** February 25, 2026 (Day 41 -- Hard 20Q General Weakness Drill -- 18/20 (90%) -- 5 days to exam -- 2 gaps confirmed: Lambda Reserved vs Provisioned (#47 reinforced), Kinesis single-shard throughput limit (#50 reinforced))
-**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (5 days remaining)
+**Last Updated:** February 28, 2026 (Day 44 -- 7-Pattern Targeted Drill -- 11/14 (78.6%) -- 2 days to exam -- Q1 and Q2 (SQS FIFO throughput + global ordering scope) and Q6 (Active/Active live traffic requirement) remain as drill misses)
+**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (3 days remaining)
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## February 28, 2026 - Day 44 Targeted 7-Pattern Drill -- 11/14 (78.6%)
+
+### Drill Results Summary
+**Score:** 11/14 (78.6%) -- below 86% target
+**Topic:** 7 specific miss patterns from Day 43 full exam (harder/trickier versions)
+**Days to Exam:** 2
+**Missed Questions:** Q1 (SQS FIFO per-group ordering misidentified), Q2 (SQS FIFO TPS cap + multi-shard Kinesis), Q6 (Active/Active live traffic requirement)
+
+---
+
+### Drill Q1 Miss -- February 28, 2026
+**Topic:** SQS FIFO per-group ordering vs Kinesis global ordering -- identifying which requirement FIFO fails
+**User's Answer:** A (SQS FIFO cannot guarantee ordering within a group)
+**Correct Answer:** B (SQS FIFO fails the global sequence numbering requirement across all groups)
+**Knowledge Gap:** Student attacked SQS FIFO's core strength -- per-group ordering -- which is exactly what the distractor intended. SQS FIFO absolutely guarantees ordering within a single message group. What it CANNOT do is provide global ordering ACROSS groups, because groups are processed independently in parallel. The question presented TWO requirements and required identifying which one FIFO fails. Student identified the wrong one.
+**Pattern Missed:** When a question gives multiple requirements, evaluate FIFO against each independently. Per-entity ordering = FIFO succeeds. Cross-entity global ordering = FIFO fails. The distractor always attacks FIFO's strength to bait you into choosing it.
+**Review Action:** Burn in: SQS FIFO per-group ordering = bulletproof. SQS FIFO cross-group global ordering = impossible. Kinesis single shard = true global sequence across ALL records.
+
+---
+
+### Drill Q2 Miss -- February 28, 2026
+**Topic:** SQS FIFO TPS cap (write-side hard limit) vs Kinesis multi-shard throughput + per-entity ordering
+**User's Answer:** B (SQS FIFO with batching handles 4,500 TPS spread across consumers)
+**Correct Answer:** C (Kinesis multi-shard with customer ID partition key -- only option that meets throughput AND per-customer ordering)
+**Knowledge Gap:** Two simultaneous errors: (1) Misunderstood that SQS FIFO's 3,000 TPS cap is a WRITE-SIDE queue limit, not a consumer-side limit -- adding more consumers does not increase write throughput. (2) Forgot that per-customer ordering with Kinesis does NOT require a single shard -- it requires a consistent partition key. Multiple shards with customer ID partition key routes each customer to exactly one shard, preserving per-customer order while scaling throughput linearly.
+**Pattern Missed:** SQS FIFO TPS cap = write limit on the queue itself, consumers irrelevant. Multi-shard Kinesis + consistent partition key = per-entity ordering without global ordering. Only single shard = true global ordering.
+**Review Action:** SQS FIFO 3,000 TPS batching cap is absolute. If throughput exceeds it, FIFO is eliminated regardless of consumer count. Kinesis per-entity ordering = partition key, not single shard.
+
+---
+
+### Drill Q6 Miss -- February 28, 2026
+**Topic:** DR strategy Active/Active requirement -- "DR environment processes live production traffic continuously"
+**User's Answer:** D (Warm Standby with Aurora Global Database)
+**Correct Answer:** B (Multi-Site Active/Active across two regions)
+**Knowledge Gap:** Student was seduced by Aurora Global Database's impressive technical specs (RPO < 1 second, RTO < 60 seconds) and missed the third requirement entirely: the failover environment must process live production traffic CONTINUOUSLY -- not just during a disaster. Warm Standby, no matter how fast it can be promoted, is still a standby. It does not serve live traffic until a failover event. Active/Active is the ONLY strategy where both environments serve production traffic simultaneously, which is the definition of "processes live traffic continuously."
+**Pattern Missed:** "DR environment processes live production traffic continuously" = Active/Active, period. No other DR strategy meets this by definition. Impressive RTO/RPO numbers in distractors are irrelevant if the baseline operational requirement (live traffic) is not met.
+**Review Action:** Scan ALL requirements before evaluating options. "Live traffic continuously" eliminates every non-Active/Active option immediately regardless of cost or RTO/RPO specs.
+
+---
+
+## February 26, 2026 - Day 43 Full 65Q Practice Exam -- 47/65 (72.3%)
+
+### Exam Results Summary
+**Score:** 47/65 (72.3%) -- BELOW PASSING THRESHOLD (720/1000 target)
+**Domain Breakdown:**
+- Domain 1 (Resilient): ~10/14 (~71%)
+- Domain 2 (High-Performing): ~11/16 (~69%)
+- Domain 3 (Secure): ~15/20 (~75%)
+- Domain 4 (Cost-Optimized): ~11/13 (~77%)
+**Days to Exam:** 3
+
+**Missed Questions:** Q13, Q17, Q20, Q21, Q23, Q28, Q31, Q33, Q34, Q37, Q38, Q41, Q42, Q53, Q54, Q57, Q60, Q64, Q65
+
+---
+
+### Q13 Miss -- February 26, 2026
+**Topic:** CloudFront + ALB lockdown -- prevent direct ALB access bypassing CloudFront
+**User's Answer:** D (AWS Shield Advanced blocks non-CloudFront traffic)
+**Correct Answer:** B (ALB security group restricted to CloudFront managed prefix list + secret custom header validated at ALB listener rule)
+**Knowledge Gap:** Student selected Shield Advanced, which is a DDoS protection service with no ability to filter traffic based on origin being CloudFront vs direct. The correct pattern is two-layer: (1) restrict ALB security group to CloudFront's managed prefix list of IP ranges, and (2) CloudFront injects a secret custom header that ALB validates via listener rule — ensuring only traffic that passed through CloudFront reaches the origin.
+**Review Action:** CloudFront + ALB lockdown = prefix list on SG + custom header. Shield = DDoS only. Moving WAF to ALB (C) enforces rules but does not prevent CloudFront bypass.
+
+---
+
+### Q17 Miss -- February 26, 2026
+**Topic:** Per-customer ordering vs global ordering -- SQS FIFO vs Kinesis single shard
+**User's Answer:** C (Kinesis single shard for global ordering)
+**Correct Answer:** B (SQS FIFO with customer ID as message group ID)
+**Knowledge Gap:** Student saw "ordering" and defaulted to Kinesis single shard. The requirement was per-CUSTOMER ordering ("orders from the same customer"), not global ordering across all records. SQS FIFO with message group ID = ordering within each group (per customer). Kinesis single shard = ordering across ALL records globally. 500 orders/sec fits within SQS FIFO limits with batching (3,000 TPS). Also: Kinesis does not provide exactly-once natively.
+**Pattern Missed:** "Orders from the same customer must be in order" = group-scoped ordering = SQS FIFO with customer ID as group ID. "All records globally ordered" = Kinesis single shard. The scope of the ordering requirement is the decision trigger.
+**Review Action:** Burn in the two trigger phrases: "same customer / same entity / within a group" = SQS FIFO. "All records / globally / across all groups" = Kinesis single shard.
+
+---
+
+### Q20 Miss -- February 26, 2026
+**Topic:** DR strategy selection -- Pilot Light vs Warm Standby for 1hr RPO / 4hr RTO
+**User's Answer:** C (Warm Standby)
+**Correct Answer:** B (Pilot Light)
+**Knowledge Gap:** Student selected Warm Standby, which meets the requirements but over-engineers the solution. Warm Standby runs a scaled-down fully functional environment 24/7, costing more than necessary when a 4-hour RTO gives ample time for Pilot Light scale-up. Pilot Light continuously replicates the DB (RPO ~0, well within 1 hour) and scales up EC2 in 1-2 hours (well within 4-hour RTO) at lower cost.
+**Pattern Missed:** Match DR strategy to RTO/RPO exactly -- do not over-engineer. Formula: Backup/Restore (hours-days RTO), Pilot Light (1-4 hour RTO), Warm Standby (minutes-1 hour RTO), Multi-Site (near-zero RTO). 4-hour RTO = Pilot Light. Sub-1-hour RTO = Warm Standby.
+**Review Action:** Drill the RTO/RPO cutoff table. Cost-effective + 4-hour RTO = Pilot Light every time.
+
+---
+
+### Q21 Miss -- February 26, 2026
+**Topic:** S3 Glacier cost hierarchy -- Standard-IA vs Glacier Instant Retrieval for monthly access
+**User's Answer:** D (Glacier Instant Retrieval)
+**Correct Answer:** B (S3 Standard-IA)
+**Knowledge Gap:** Student selected Glacier Instant Retrieval, which has millisecond retrieval but $0.03/GB retrieval fee vs Standard-IA's $0.01/GB. For monthly access of the full 5 TB dataset, retrieval costs flip the total cost calculation in Standard-IA's favor. Glacier Instant Retrieval is optimized for quarterly or less frequent access, not monthly.
+**Pattern Missed:** Glacier Instant Retrieval retrieval fee ($0.03/GB) is 3x Standard-IA ($0.01/GB). For monthly full-dataset access, storage savings are outweighed by retrieval costs. Access frequency is the tiebreaker: monthly = Standard-IA, quarterly or less = Glacier Instant.
+**Review Action:** For any S3 cost question: identify access frequency first, then apply retrieval fee math. Monthly at scale = Standard-IA. Quarterly or less = Glacier Instant. Both offer millisecond retrieval.
+
+---
+
+### Q23 Miss -- February 26, 2026
+**Topic:** SNS fan-out pattern vs SQS competing consumers
+**User's Answer:** A (SQS Standard queue with all services polling same queue)
+**Correct Answer:** B (SNS topic with SQS queue per downstream service)
+**Knowledge Gap:** Student selected SQS Standard with multiple consumers -- this is the competing consumers pattern where each message goes to exactly ONE consumer. Multiple services compete for messages; they do NOT each receive the same event. The requirement was that "multiple downstream services receive the same event simultaneously" -- this is the SNS fan-out pattern: one SNS publish delivers a copy to every subscribed SQS queue.
+**Pattern Missed:** "Multiple services receive the SAME event" = SNS fan-out (one topic, multiple SQS subscriptions). "Multiple workers process messages faster" = SQS competing consumers (one queue, multiple pollers). These are fundamentally different patterns.
+**Review Action:** Fan-out trigger: "all services receive," "simultaneously," "each service gets a copy" = SNS + SQS per service. Competition trigger: "process faster," "parallel workers," "distribute load" = one SQS queue, multiple consumers.
+
+---
+
+### Q28 Miss -- February 26, 2026
+**Topic:** Aurora reader endpoint for read distribution across all reader instances
+**User's Answer:** D (Auto Scaling + primary endpoint)
+**Correct Answer:** B (Reader endpoint)
+**Knowledge Gap:** Student selected Aurora Auto Scaling connected to the primary instance endpoint. Two errors: (1) The primary/cluster endpoint routes to the WRITER instance -- reads sent there hit the writer, not readers. (2) Adding readers via Auto Scaling only helps if the application actually connects to the reader endpoint. Aurora reader endpoint is the built-in load balancer that automatically distributes connections across all reader instances and auto-includes new readers added by Auto Scaling.
+**Pattern Missed:** Adding Aurora readers only improves read performance if the application connects to the READER endpoint. Reader endpoint = load balances across all readers automatically. Cluster/primary endpoint = writer only.
+**Review Action:** Aurora has three endpoint types: cluster endpoint (writer), reader endpoint (all readers, load balanced), instance endpoints (specific instance). Read scaling = reader endpoint. Write = cluster endpoint.
+
+---
+
+### Q31 Miss -- February 26, 2026
+**Topic:** EFS cost optimization -- EFS Lifecycle Management vs S3 lifecycle policy
+**User's Answer:** C (S3 lifecycle policy to transition EFS files)
+**Correct Answer:** B (EFS Lifecycle Management / Intelligent-Tiering)
+**Knowledge Gap:** Student attempted to apply an S3 lifecycle policy to EFS files. EFS and S3 are completely separate storage services -- S3 lifecycle policies have zero visibility into EFS. EFS has its own native Lifecycle Management feature that automatically moves files to EFS Infrequent Access (EFS IA) storage class after configurable inactivity periods (7, 14, 30, 60, or 90 days). Files remain accessible at the identical file path.
+**Pattern Missed:** EFS cost optimization = EFS Lifecycle Management (native feature within EFS). Do not apply S3 concepts to EFS. EFS IA is a tier within EFS, not a separate service.
+**Review Action:** EFS has two storage classes: EFS Standard and EFS IA. Lifecycle Management transitions between them automatically. Zero application changes -- same mount point, same path.
+
+---
+
+### Q33 Miss -- February 26, 2026
+**Topic:** Minimum instance count for AZ failure tolerance with zero capacity gap
+**User's Answer:** A (Minimum 3 instances)
+**Correct Answer:** B (Minimum 6 instances)
+**Knowledge Gap:** Student set minimum to 3, which does not guarantee desired capacity (4) is maintained during an AZ failure without Auto Scaling lag. With minimum=3 across 3 AZs, distribution can be 2-1-1. Losing the AZ with 2 instances leaves only 2 running -- Auto Scaling tries to restore to desired=4 but takes 2-5 minutes.
+**Formula Missed:** Minimum instances for AZ fault tolerance = desired_capacity x (total_AZs / (total_AZs - 1)). For desired=4, 3 AZs: 4 x (3/2) = 6. With 6 instances (2 per AZ), losing one AZ immediately leaves exactly 4 running -- no lag, no gap.
+**Review Action:** Memorize the formula. "Guarantee survival of AZ failure while maintaining desired capacity" = apply the formula. Rely on it, not intuition.
+
+---
+
+### Q34 Miss -- February 26, 2026
+**Topic:** S3 public access prevention -- preventive vs reactive controls
+**User's Answer:** D (AWS Config auto-remediation)
+**Correct Answer:** B (S3 Block Public Access at account level)
+**Knowledge Gap:** Student selected Config auto-remediation, which is a reactive/detective control. Config detects a policy violation AFTER the bucket becomes public, then triggers remediation -- there is always a window of exposure. "Strongest and most comprehensive protection" requires a preventive control. S3 Block Public Access at account level is a hard override applied before any request completes -- it is impossible to make an object public while it is enabled, regardless of bucket policies or ACLs. Also covers all future buckets automatically.
+**Pattern Missed:** "Prevent" / "strongest protection" / "cannot ever happen" = preventive controls (Block Public Access, SCPs, bucket policy Deny). "Detect and respond" / "remediate" = Config, CloudWatch, EventBridge. Reactive controls always have an exposure window.
+**Review Action:** Preventive > Detective > Corrective. When question uses "prevent" or "strongest," the answer is a service that blocks the action before it completes.
+
+---
+
+### Q37 Miss -- February 26, 2026
+**Topic:** DynamoDB GSI vs LSI -- cross-partition query requirement
+**User's Answer:** A (Local Secondary Index on productCategory)
+**Correct Answer:** B (Global Secondary Index with productCategory as partition key)
+**Knowledge Gap:** Student selected LSI, which shares the base table's partition key (customerId). An LSI on productCategory only allows querying productCategory WITHIN a single customer's orders -- you must still specify customerId. The application needs to query by productCategory ACROSS all customers, which requires a GSI with productCategory as its own partition key. Also: LSIs can only be created at table creation time, not added to existing tables.
+**Pattern Missed:** LSI = queries within one partition (same base partition key). GSI = queries across the entire table (independent partition key). Cross-entity / cross-partition queries always require a GSI.
+**Review Action:** Two questions to ask: (1) Do I need to query across different values of the base partition key? Yes = GSI required. (2) Is the table already created? Yes = LSI not available, must use GSI.
+
+---
+
+### Q38 Miss -- February 26, 2026
+**Topic:** Fargate GPU limitation -- GPU workloads require EC2 launch type
+**User's Answer:** B (Fargate with GPU support)
+**Correct Answer:** A (ECS with EC2 launch type using P3 GPU instances)
+**Knowledge Gap:** Student selected Fargate, which does not support GPU instances. Fargate is serverless container compute but GPU workloads are a hard platform limitation -- Fargate cannot run them regardless of task definition configuration. When GPU is required, EC2 launch type is mandatory. ECS with EC2 Auto Scaling minimizes management overhead while meeting the GPU requirement.
+**Pattern Missed:** GPU requirement immediately eliminates Fargate. No workaround exists. When scenario combines "GPU" with "avoid managing servers," the correct answer acknowledges the GPU constraint forces EC2 launch type and minimizes overhead via ECS + Auto Scaling.
+**Review Action:** Fargate limitations: no GPU, no Windows containers (as of exam scope), no privileged containers. GPU = EC2 launch type, period.
+
+---
+
+### Q41 Miss -- February 26, 2026
+**Topic:** Serverless data lake -- Athena + Glue vs Redshift Spectrum
+**User's Answer:** B and C (Redshift Spectrum + Glue)
+**Correct Answer:** A and C (Athena + Glue)
+**Knowledge Gap:** Student selected Redshift Spectrum, which requires an underlying Redshift cluster -- not serverless. Redshift Serverless exists but was not offered as an option. Standard Redshift Spectrum = always-on cluster cost. Athena is fully serverless: no cluster, no infrastructure, pay-per-query on data scanned. Both query S3 directly with SQL, but Athena has no persistent compute cost.
+**Pattern Missed:** "Serverless" requirement eliminates Redshift Spectrum (requires cluster). Athena = serverless SQL on S3. Glue = serverless ETL. These two are the canonical serverless data lake pair.
+**Review Action:** Serverless data lake = Athena (query) + Glue (ETL + catalog). Redshift = only when you need a persistent data warehouse. Redshift Spectrum = Redshift feature that extends queries to S3, still requires a cluster.
+
+---
+
+### Q42 Miss -- February 26, 2026
+**Topic:** Atomicity across DynamoDB and SQS -- least overhead compensating pattern
+**User's Answer:** B (DynamoDB Streams -> Lambda -> SQS)
+**Correct Answer:** D (Single Lambda try/catch with compensating delete on SQS failure)
+**Knowledge Gap:** Student selected DynamoDB Streams triggering a second Lambda. This is asynchronous -- if the Streams Lambda fails permanently after all retries, the DynamoDB record exists but the SQS message was never sent, creating split-brain state. Also adds more infrastructure (Streams, second Lambda). Single Lambda with try/catch: attempt DynamoDB write, then SQS send; if SQS fails, compensating delete on DynamoDB. One function, no additional services, synchronous failure detection.
+**Pattern Missed:** True cross-service atomicity is impossible (different services). Least overhead approximation = single function with compensating transaction. Streams-based approach is asynchronous and loses the ability to compensate synchronously on failure.
+**Review Action:** "Atomic across two services + least overhead" = single Lambda with compensating transaction logic. Streams/async approaches cannot guarantee same-transaction rollback.
+
+---
+
+### Q53 Miss -- February 26, 2026
+**Topic:** KMS custom key store + CloudHSM vs SSE-C key transmission
+**User's Answer:** C (SSE-C + CloudHSM)
+**Correct Answer:** D (SSE-KMS with custom key store backed by CloudHSM)
+**Knowledge Gap:** Student selected SSE-C, which transmits the key material to AWS on every S3 API call -- the key physically leaves the on-premises HSM and travels over the network. This violates "key material must never leave the company's on-premises HSM." SSE-C also has no centralized revocation mechanism -- disabling one key does not make all encrypted data inaccessible. KMS custom key store backed by CloudHSM keeps key material inside the HSM permanently; KMS delegates cryptographic operations to the HSM cluster. Disabling the KMS key immediately makes all data inaccessible without deleting it.
+**Pattern Missed:** SSE-C = key travels to AWS on every request (leaves HSM). KMS custom key store = key never leaves HSM, KMS delegates to it. Immediate revocation without data deletion = custom key store only.
+**Review Action:** Imported KMS key material = copy stored in AWS KMS (left HSM). SSE-C = transmitted on every API call (leaves HSM). CloudHSM custom key store = key material stays in HSM permanently. Only custom key store meets "never leaves HSM."
+
+---
+
+### Q54 Miss -- February 26, 2026
+**Topic:** ECS task roles vs environment variable credentials
+**User's Answer:** D (AWS credentials as environment variables in task definitions)
+**Correct Answer:** B (Separate IAM task roles per task definition)
+**Knowledge Gap:** Student selected environment variables for credentials -- a critical security antipattern. Credentials stored as environment variables are visible in task definitions, CloudFormation templates, and potentially logs. They cannot be rotated without redeployment and violate every AWS security best practice. ECS task roles are the purpose-built solution: IAM role assigned per task definition, credentials automatically injected via ECS task metadata endpoint, automatically rotated by STS, no credential management required.
+**Pattern Missed:** Never store credentials as environment variables in ECS (or anywhere). ECS task roles = automatic, temporary, rotated, per-task-definition IAM credentials. Also: Fargate has no underlying EC2 instances -- instance profiles do not apply.
+**Review Action:** ECS least privilege = one IAM task role per microservice/task definition with only required permissions. Environment variables for credentials = automatic disqualifier on the exam.
+
+---
+
+### Q57 Miss -- February 26, 2026
+**Topic:** DynamoDB RCU math for eventually consistent reads
+**User's Answer:** B (20,000 WCUs and 5,000 RCUs)
+**Correct Answer:** B -- WCUs correct (20,000), RCUs overstated (correct is 2,500)
+**Note:** No correct answer option included 20,000 WCUs + 2,500 RCUs. B (5,000 RCUs) was the closest available option and accepted as correct. However, the precise RCU math was wrong.
+**Knowledge Gap:** WCU math correct: 2 KB item = 2 WCUs per write, 10,000 writes x 2 = 20,000 WCUs. RCU math: 1 RCU = 4 KB strongly consistent OR 8 KB eventually consistent. Each 4 KB item under eventual consistency = 4/8 = 0.5 RCU. 5,000 reads x 0.5 = 2,500 RCUs. Student calculated 5,000 RCUs (strongly consistent rate, not eventually consistent).
+**Pattern Missed:** Eventually consistent reads = divide by 2 (double the read unit size to 8 KB). Strongly consistent = 4 KB per RCU. Always identify read consistency model before calculating.
+**Review Action:** WCU: ceil(item_size_KB / 1) per write. RCU strongly consistent: ceil(item_size_KB / 4) per read. RCU eventually consistent: ceil(item_size_KB / 4) / 2 per read (or equivalently ceil(item_size_KB / 8)).
+
+---
+
+### Q60 Miss -- February 26, 2026
+**Topic:** AWS Batch + Spot for independent batch job processing
+**User's Answer:** A (Lambda with SQS trigger)
+**Correct Answer:** D (AWS Batch with managed compute environment using Spot Instances)
+**Knowledge Gap:** Student selected Lambda, which technically handles the duration (under 15 minutes) but is not cost-optimal for CPU-intensive image processing. Lambda charges per GB-second at high memory allocation. AWS Batch with Spot Instances provisions EC2 only when jobs exist, terminates when queue is empty (zero idle cost), and Spot pricing reduces cost up to 90%. Batch is purpose-built for independent batch jobs at variable volume.
+**Pattern Missed:** "Independent jobs + batch processing + variable duration + unpredictable volume + minimize cost" = AWS Batch + Spot. Lambda = lightweight event-driven functions, not heavy CPU/memory batch processing workloads where Batch + Spot is dramatically cheaper.
+**Review Action:** AWS Batch trigger words: independent jobs, batch workloads, variable job duration, HPC, minimize cost. Batch with Spot = maximum cost savings for non-interruptible batch work (Batch handles Spot interruptions with automatic retry).
+
+---
+
+### Q64 Miss -- February 26, 2026
+**Topic:** DMS + CDC for live database migration with tight downtime window
+**User's Answer:** C (Snowball for 15 TB transfer)
+**Correct Answer:** A (DMS with SCT + CDC continuous replication until cutover)
+**Knowledge Gap:** Student selected Snowball, which handles the initial 15 TB bulk transfer but cannot bridge the change gap. The Oracle database keeps accepting writes during the days/weeks the Snowball is in transit -- after loading Snowball data, a large gap of missed changes exists with no mechanism to sync them into Aurora without DMS CDC. For a 24/7 active database with a 2-hour cutover window, DMS is the only viable pattern.
+**Pattern Missed:** Snowball = bulk data movement where internet is too slow. NOT for live database migration with tight downtime. Tight downtime + live database + heterogeneous migration = DMS + SCT + CDC. The CDC component keeps Aurora synchronized with Oracle until the exact moment of cutover, minimizing the downtime window to minutes.
+**Review Action:** DMS trigger words: "actively used," "minimize downtime," "heterogeneous migration," "continuous replication," "tight cutover window." Snowball trigger words: "large data," "slow internet," "physical transfer," "offline migration."
+
+---
+
+### Q65 Miss -- February 26, 2026
+**Topic:** DynamoDB capacity mode selection -- On-Demand at launch vs Provisioned
+**User's Answer:** C (On-Demand permanently -- always more cost-effective)
+**Correct Answer:** B (On-Demand at launch, switch to Provisioned + Auto Scaling after traffic stabilizes)
+**Knowledge Gap:** Student selected permanent On-Demand, believing it is always cheaper. On-Demand costs approximately 6x more per RCU/WCU than Provisioned at the same throughput level. At steady-state high traffic (50M users), Provisioned + Auto Scaling is dramatically cheaper. On-Demand is correct at launch (unknown traffic patterns), but the cost-optimal long-term strategy is Provisioned with Auto Scaling after patterns are understood.
+**Pattern Missed:** On-Demand = correct for unpredictable/new workloads. NOT permanently optimal. After traffic stabilizes (typically weeks), switch to Provisioned + Auto Scaling for 6x cost reduction at scale. "Always more cost-effective" = false and an exam trap.
+**Review Action:** DynamoDB capacity decision tree: New/unpredictable = On-Demand. Stable/predictable = Provisioned + Auto Scaling. Growing rapidly = On-Demand until stable, then evaluate. On-Demand is NEVER permanently optimal at high volume.
+
+---
+
+## February 26, 2026 - Day 42 Targeted Weakness Drill: #47 Lambda Concurrency + #50 Kinesis Shard Math -- 7/10 (70%)
+
+### Drill Results Summary
+**Score:** 7/10 (70%) -- BELOW TARGET (target: 80%+ for weakness drills)
+**Focus Areas:** Lambda Reserved vs Provisioned Concurrency (#47), Kinesis Shard Throughput Math (#50)
+**Days to Exam:** 4
+
+**Question Results:**
+| Q | Topic | Result |
+|---|---|---|
+| Q1 | Fraud detection latency SLA -- Provisioned Concurrency eliminates cold starts | CORRECT |
+| Q2 | Shard math: 4,500 rec/sec at 800 bytes -- records/sec binding constraint = 5 shards | CORRECT |
+| Q3 | Payment vs batch starvation -- Reserved on BOTH functions required, not just batch | INCORRECT |
+| Q4 | Single shard headroom risk -- valid now but architectural flaw at 80% capacity | INCORRECT |
+| Q5 | Provisioned Concurrency overflow -- requests 21-25 cold start, not throttled | CORRECT |
+| Q6 | IoT shard math: 10,000 devices at 1.2 KB -- throughput binding constraint = 12 shards | CORRECT |
+| Q7 | Reserved vs Provisioned as a cap -- Provisioned does NOT cap, Reserved is the only cap | INCORRECT |
+| Q8 | Global ordering across ALL groups -- SQS FIFO per-group only, Kinesis single shard required | INCORRECT |
+| Q9 | Reserved + Provisioned used together -- warm floor 30, on-demand 31-50, throttle 51-60 | CORRECT |
+| Q10 | Combined: shard math + latency SLA -- 6 shards + Provisioned Concurrency | CORRECT |
+
+**Weaknesses Status:** #47 and #50 remain ACTIVE -- sub-patterns still causing misses
+
+---
+
+### Q3 Miss -- February 26, 2026 -- Weakness #47 Reinforced
+**Topic:** Lambda starvation protection -- which function(s) need Reserved Concurrency
+**User's Answer:** B (Reserved Concurrency on the batch reporting function only)
+**Correct Answer:** D (Reserved Concurrency on BOTH the batch function to cap it AND the payment function to reserve its slice)
+**Knowledge Gap:** Student correctly identified capping the bad actor (batch function) but missed that the payment processing function also needs its own Reserved Concurrency reservation. Capping the batch function does not guarantee the payment function gets its allocation -- other functions in the account could still consume the remaining pool. Reserved Concurrency on the critical function directly protects it from all other consumers, not just the known bad actor.
+**Pattern Missed:** When a critical function is being starved, the COMPLETE solution requires (1) cap the problematic function AND (2) reserve capacity for the critical function. B alone leaves the critical function exposed to any other function in the account.
+**Review Action:** Any scenario with a high-priority function being starved = Reserved Concurrency on the critical function is almost always part of the correct answer. Capping the offender alone is not sufficient.
+
+---
+
+### Q4 Miss -- February 26, 2026 -- Weakness #50 Reinforced
+**Topic:** Single shard global ordering -- architectural risk assessment, not just current math
+**User's Answer:** A (Currently valid -- fits within single shard limits)
+**Correct Answer:** C (Valid now but critical architectural flaw -- at 80% capacity with no growth headroom, re-sharding would break global ordering guarantee)
+**Knowledge Gap:** Student correctly did the math (800 rec/sec fits under 1,000 rec/sec limit, 400 KB/sec fits under 1 MB/sec limit) but stopped at "currently works." The exam rewards identifying architectural risks, not just verifying current state. A single-shard stream at 80% capacity with a global ordering requirement is fragile because any traffic increase past the limit requires re-sharding, which immediately destroys global ordering.
+**Pattern Missed:** "Is this architecture valid?" questions require checking current state AND scalability/growth risk. When global ordering = single shard AND the workload is near the shard limit, the correct answer identifies both the current validity AND the architectural fragility.
+**Review Action:** Single shard = global ordering ceiling is immovable. If the scenario shows workload near shard capacity AND requires global ordering, that tension is what the question is testing. Always assess headroom, not just current fit.
+
+---
+
+### Q7 Miss -- February 26, 2026 -- Weakness #47 Reinforced
+**Topic:** Provisioned Concurrency as a cap -- it is NOT a cap
+**User's Answer:** D (Provisioned Concurrency set to 100 reserves 100 environments from account pool, preventing overconsumption)
+**Correct Answer:** B (Provisioned Concurrency does not cap. Reserved Concurrency set to 100 is the correct configuration)
+**Knowledge Gap:** Student selected Provisioned Concurrency as the solution for capping a function. While Provisioned Concurrency does allocate environments from the account pool (a side effect), it does NOT prevent the function from scaling beyond the provisioned count using on-demand cold-start capacity. Reserved Concurrency is the ONLY Lambda mechanism that creates a hard ceiling. The scenario explicitly stated no latency requirements -- that hint eliminates Provisioned entirely.
+**Pattern Missed:** "Prevents overconsumption / cap / limit concurrency" = Reserved Concurrency exclusively. Provisioned Concurrency is only for latency. When the scenario says no latency requirement, eliminate Provisioned immediately.
+**Exam Hint Pattern:** No latency requirement mentioned = Provisioned Concurrency is wrong. Throttle / cap / starve / limit = Reserved Concurrency. These are NOT interchangeable.
+**Review Action:** Write out the two definitions from memory until the keyword triggers instant elimination. Provisioned = warm floor only. Reserved = hard ceiling only. Neither does the other's job.
+
+---
+
+### Q8 Miss -- February 26, 2026 -- Weakness #50 Reinforced
+**Topic:** Global ordering across ALL message groups -- SQS FIFO per-group vs Kinesis single shard
+**User's Answer:** B (SQS FIFO with message group IDs -- 3,000 msg/sec with batching)
+**Correct Answer:** A (Kinesis single shard -- 500 rec/sec fits within 1,000 rec/sec limit, true global ordering)
+**Knowledge Gap:** Student knew SQS FIFO provides ordering but missed the critical distinction: SQS FIFO message group IDs guarantee ordering WITHIN each group independently. Different message groups are processed in parallel with no cross-group ordering guarantee. "Ordering across ALL groups" means one unified sequence -- only achievable with a single Kinesis shard where all records pass through sequentially.
+**Pattern Missed:** "Strict FIFO order across ALL message groups" / "globally ordered" / "ordering regardless of which group" = Kinesis single shard. SQS FIFO = per-group ordering only, parallel across groups. The phrase "across all groups" is the exam's signal to eliminate SQS FIFO.
+**Review Action:** Burn in: SQS FIFO = ordering within a group. Kinesis single shard = ordering across ALL records globally. Any exam scenario using "all groups" or "global" ordering = single Kinesis shard, even at lower throughputs where SQS FIFO would technically handle the TPS.
 
 ---
 

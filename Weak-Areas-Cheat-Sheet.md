@@ -860,3 +860,143 @@ Question: "Grant third-party vendors temporary access for 24 hours"
 ---
 
 **Now go study this before Day 6. You're on the edge - time to sharpen up.** ⚠️
+
+---
+
+## 🚨 FEBRUARY 2026 - EXAM WEEK PATTERNS (Day 42 - 4 Days to Exam)
+
+**These are the patterns you are still missing with 4 days left. Get these locked or they will cost you points on March 2.**
+
+---
+
+### 🚨 CRITICAL: Lambda Reserved vs Provisioned Concurrency (Weakness #47)
+
+**You have missed a version of this question in EVERY recent session. Stop guessing.**
+
+| Feature | Reserved Concurrency | Provisioned Concurrency |
+|---------|---------------------|------------------------|
+| **What it does** | Sets a HARD CAP — function cannot exceed this number | Pre-initializes N execution environments |
+| **Cold starts?** | ❌ Does NOT eliminate cold starts | ✅ ELIMINATES cold starts for pre-warmed N |
+| **Throttling?** | ✅ YES — requests above cap get 429 error | ❌ NO — requests above N cold-start on-demand |
+| **Costs extra?** | ❌ No extra charge | ✅ YES — you pay for pre-warmed environments |
+| **Use case** | Prevent function from starving other functions / cap concurrency | Latency SLA / predictable low-latency at burst |
+
+#### The Two Guarantees Are Different:
+- Reserved: "Guarantees this function gets N from the account pool" → **reservation from pool only**
+- Provisioned: "Guarantees N executions are already warm" → **actual pre-initialization**
+
+#### Decision Tree - Lambda Concurrency:
+```
+Scenario mentions cold starts / latency SLA / 200ms requirement / "initialization delays"?
+└─> PROVISIONED CONCURRENCY (pre-warm the environments)
+
+Scenario mentions throttling other functions / starving account / "never consume more than N"?
+└─> RESERVED CONCURRENCY (set the cap)
+
+Scenario mentions "no strict latency requirements" but needs a cap?
+└─> RESERVED CONCURRENCY (Provisioned is useless here - the question is telling you this)
+
+Both concerns present (cap + latency)?
+└─> BOTH: Reserved sets ceiling, Provisioned sets warm floor
+    - Requests 1-Provisioned: warm, no cold start
+    - Requests Provisioned+1 to Reserved: on-demand, cold start
+    - Requests above Reserved: 429 throttled
+```
+
+#### Trap Language to Recognize Immediately:
+- "Guarantees capacity is always available" → TRAP — sounds like pre-warm but = Reserved (pool reservation)
+- "Pre-initialized environments" → Provisioned
+- "Cap the function at N concurrent" → Reserved
+- "No latency requirement" in the same sentence as Provisioned → Provisioned is WRONG, pick Reserved
+
+---
+
+### 🚨 CRITICAL: Kinesis Shard Throughput Math (Weakness #50)
+
+**Always check BOTH constraints. The binding constraint is whichever requires MORE shards.**
+
+#### Shard Limits (Memorize These Cold):
+- **Write:** 1,000 records/second OR 1 MB/second (whichever is hit first)
+- **Read:** 2 MB/second, up to 5 read transactions/second
+- Multiple shards multiply linearly
+
+#### The Two-Check Method (Do This Every Time):
+```
+Step 1 — Records check: total records/sec ÷ 1,000 = X shards (round up)
+Step 2 — Throughput check: (records/sec × record size in KB) ÷ 1,024 = MB/sec ÷ 1 = Y shards (round up)
+Step 3 — Take MAX(X, Y). That is your answer.
+```
+
+#### Example Math:
+- 4,500 rec/sec × 800 bytes: Records = 4.5→5 shards, Throughput = 3.6 MB/sec→4 shards → **5 shards** (records binding)
+- 10,000 rec/sec × 1.2 KB: Records = 10 shards, Throughput = 12 MB/sec→12 shards → **12 shards** (throughput binding)
+- 6,000 rec/sec × 600 bytes: Records = 6 shards, Throughput = 3.6 MB/sec→4 shards → **6 shards** (records binding)
+
+#### Ordering Rules:
+- **Global ordering (across ALL records)** = single shard only. Period.
+- **Per-partition ordering** = multiple shards with partition keys
+- **SQS FIFO** = per-message-group ordering ONLY (NOT global ordering across all groups)
+- **SQS FIFO throughput cap** = 300 TPS (3,000 with batching) — cannot match Kinesis at scale
+
+#### Architecture Validity Trap:
+- "Current load fits in 1 shard" does NOT mean the architecture is sound
+- If headroom is <20% OR global ordering + growth is required → architecture has a critical flaw
+- Exam asks "is this valid?" — the correct answer identifies the current state AND the risk
+
+---
+
+### 🚨 CRITICAL: Reserved Concurrency — Apply It to the RIGHT Function
+
+**Mistake pattern: You cap the bad actor instead of protecting the victim.**
+
+When a low-priority function starves a high-priority function:
+- ✅ Reserve concurrency on the **HIGH-PRIORITY function** (guarantees its slice)
+- ✅ ALSO cap the **LOW-PRIORITY function** (prevents it consuming the pool)
+- ❌ Capping only the low-priority function leaves the high-priority function unprotected from other consumers
+
+**Exam pattern:** "Critical function being throttled by lower-priority function" → Reserved Concurrency on BOTH. The critical function gets its guaranteed slice. The noisy neighbor gets capped.
+
+---
+
+### 🚨 CRITICAL: SQS FIFO Per-Group vs Kinesis Global Ordering
+
+| Scenario Language | Correct Answer |
+|------------------|---------------|
+| "Ordered within each group independently" | SQS FIFO with message group IDs |
+| "Strict FIFO across ALL messages / globally ordered" | Kinesis single shard |
+| "Ordered at 500 msg/sec" | Check SQS FIFO cap first (300 TPS no batching, 3,000 with batching) |
+| "Ordered at >3,000 msg/sec" | Kinesis only option |
+| "Global ordering + growth possible" | Kinesis single shard (but note the headroom concern) |
+
+**Memory trick:** "Across ALL groups" or "globally" = single Kinesis shard. SQS FIFO = per-group ordering only, always.
+
+---
+
+### 📝 Exam Week Self-Test — Lambda & Kinesis
+
+**Answer without looking:**
+
+1. Does Provisioned Concurrency cap the function's max concurrency? **NO — only Reserved Concurrency caps**
+2. Does Reserved Concurrency eliminate cold starts? **NO — only Provisioned Concurrency eliminates cold starts**
+3. If requests exceed Provisioned Concurrency but are below Reserved Concurrency, what happens? **Cold start on-demand (NOT throttled)**
+4. If requests exceed Reserved Concurrency, what happens? **429 ThrottlingException**
+5. Kinesis shard write limit in records/sec? **1,000 records/sec**
+6. Kinesis shard write limit in MB/sec? **1 MB/sec**
+7. 8,000 records/sec at 300 bytes each — how many shards? **Records: 8 shards, Throughput: 2.4 MB→3 shards → 8 shards**
+8. SQS FIFO guarantees ordering across ALL message groups? **NO — per-group only**
+9. Which provides true global ordering for 500 rec/sec? **Kinesis single shard (500 < 1,000 rec/sec limit)**
+10. "No strict latency requirements, must cap at 50 concurrent" — which concurrency type? **Reserved Concurrency**
+
+**If you miss any of these, re-read the sections above before the practice exam.**
+
+---
+
+### ⚡ Exam Week "Never Miss Again" Additions
+
+24. **Provisioned Concurrency = warm floor, NOT a cap** — function scales beyond provisioned count via on-demand cold starts
+25. **Reserved Concurrency = hard ceiling = throttle above this number** — 429 if exceeded
+26. **"No latency requirement" in the scenario = Provisioned Concurrency is the wrong answer**
+27. **Kinesis shard math: always check BOTH records/sec AND MB/sec, take the higher**
+28. **SQS FIFO = per-group ordering only** — "across all groups / globally ordered" = Kinesis single shard
+29. **Single Kinesis shard = global ordering BUT has a 1,000 rec/sec hard ceiling** — growth risk
+30. **Critical function being starved = Reserve concurrency on BOTH functions** (protect victim + cap bad actor)

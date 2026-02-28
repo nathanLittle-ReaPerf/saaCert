@@ -157,6 +157,139 @@
 
 ---
 
+## Day 42 -- February 26, 2026 -- 4 Days to Exam
+
+**Topic:** Targeted Weakness Seal Drill (#47 Lambda Concurrency + #50 Kinesis Shard Math)
+**Time Spent:** ~45 minutes
+**Score:** 6/10 (60%) -- below target, key patterns still not automated
+
+**Drill Focus:**
+- Weakness #47: Lambda Reserved vs Provisioned Concurrency (cold start behavior)
+- Weakness #50: Kinesis shard throughput math (1,000 rec/sec write, 1 MB/sec write, 2 MB/sec read)
+
+**Miss Analysis:**
+- Lambda Reserved Concurrency (starvation trap): Reserved only allocates from pool -- does NOT pre-warm. Provisioned Concurrency eliminates cold starts. Trap: both sound like "concurrency management."
+- Kinesis shard architecture: Multi-shard with consistent partition key = per-entity ordering WITHOUT global ordering and without single-shard bottleneck
+
+**Weaknesses Status:**
+- #47 Lambda Concurrency: STILL ACTIVE -- requires additional drilling
+- #50 Kinesis Shard Math: Partially reinforced -- architecture pattern needs more reps
+
+**Materials Created:** None (drill only)
+
+**Tomorrow's Plan (Day 43):** Full 65-question practice exam
+
+---
+
+## Day 43 -- February 26-27, 2026 -- 3 Days to Exam
+
+**Topic:** Full 65-Question SAA-C03 Practice Exam
+**Time Spent:** Full session
+**Score:** 49/65 (75.4%) -- AT passing threshold (2 acknowledged typos on Q54/Q65 adjusted; raw score 47/65)
+
+**Domain Breakdown (estimated):**
+- Domain 1 Resilient Architectures: ~10/14 (~71%)
+- Domain 2 High-Performing Architectures: ~11/16 (~69%)
+- Domain 3 Secure Applications: ~15/20 (~75%)
+- Domain 4 Cost-Optimized Architectures: ~11/13 (~77%)
+
+**Questions Missed (16 raw / 14 adjusted):**
+- Q13: CloudFront + ALB lockdown -- prefix list on SG + custom header (selected Shield Advanced)
+- Q17: Per-customer ordering -- SQS FIFO with customer group ID, not Kinesis single shard
+- Q20: DR 4hr RTO -- Pilot Light (not Warm Standby)
+- Q21: S3 storage class for monthly access -- S3 Standard-IA (not Glacier Flexible)
+- Q23: SNS fan-out pattern miss
+- Q28: Aurora reader endpoint -- reader endpoint load balances readers, not cluster endpoint
+- Q31: EFS lifecycle miss
+- Q33: AZ fault tolerance -- min=6 instances across AZs for correct answer
+- Q34: S3 Block Public Access -- preventive control at org level
+- Q37: DynamoDB GSI vs LSI -- GSI can be added anytime, LSI cannot (creation-only)
+- Q38: Fargate GPU -- Fargate cannot run GPU workloads, requires ECS EC2 launch type
+- Q41: Redshift Spectrum is NOT serverless (distractor)
+- Q42: DynamoDB atomicity pattern miss
+- Q53: SSE-C vs KMS custom key store for HSM requirements
+- Q60: Lambda vs Batch+Spot for long-running batch jobs
+- Q64: DMS+SCT for database migration (not Snowball)
+
+**7 Miss Patterns Identified for Targeted Drill:**
+1. SQS FIFO per-group vs Kinesis global ordering (Q17)
+2. Preventive vs reactive controls (Q34)
+3. DR RTO/RPO strategy mapping (Q20)
+4. Fargate GPU limitation (Q38)
+5. DynamoDB capacity modes at launch vs stable (Q65)
+6. Aurora reader vs cluster endpoint (Q28)
+7. AWS Batch + Spot vs Lambda for batch (Q60)
+
+**Weaknesses Identified / Updated:**
+- SQS FIFO ordering scope: Per-group ✅, cross-group ❌ -- needs drilling
+- Aurora endpoints: Cluster = writer only, reader = load balances all readers
+- DR Active/Active: "processes live traffic continuously" = Active/Active trigger phrase
+- Weakness-Tracker.md updated with 16 miss analyses
+
+**Exam Projection:** ~75% (fragile passing -- 3% buffer)
+
+---
+
+## Day 44 -- February 28, 2026 -- 2 Days to Exam
+
+**Topic:** 14-Question Targeted Drill (7 Miss Patterns) + 4-Question Flash Drill
+**Time Spent:** ~1.5 hours
+**Overall Score: 15/18 (83.3%) -- ABOVE TARGET across both drills**
+
+### Session Breakdown
+
+**1. 14-Question Targeted Drill (7 patterns, 2 questions each): 11/14 (78.6%)**
+
+| Pattern | Score | Verdict |
+|---|---|---|
+| P1: SQS FIFO vs Kinesis Ordering | 0/2 | STILL BROKEN |
+| P2: Preventive vs Reactive Controls | 2/2 | SOLID |
+| P3: DR RTO/RPO Mapping | 1/2 | PARTIAL (missed Active/Active trigger) |
+| P4: Fargate Limitations | 2/2 | SOLID |
+| P5: DynamoDB On-Demand vs Provisioned | 2/2 | SOLID |
+| P6: Aurora Endpoints | 2/2 | SOLID |
+| P7: AWS Batch + Spot vs Lambda | 2/2 | SOLID |
+
+Misses: Q1 (SQS FIFO per-group ordering attacked instead of cross-group failure), Q2 (SQS FIFO 3,000 TPS write cap + Kinesis multi-shard partition key), Q6 (Active/Active "live traffic continuously" qualifier missed -- seduced by Aurora Global Database)
+
+**2. 4-Question Flash Drill (SQS FIFO + DR Active/Active patterns): 4/4 (100%)**
+- P1 SQS FIFO: 2/2 -- Per-group ordering ✅, 300 TPS without batching ✅
+- P2 DR Active/Active: 2/2 -- "live traffic continuously" trigger locked ✅, Aurora Global = standby ✅
+
+**Key Patterns Locked (after flash drill):**
+- SQS FIFO: Per-group = guaranteed. Cross-group = interleaved. 300 TPS without batching / 3,000 with batching -- HARD CAPS
+- DR Active/Active: "processes live production traffic continuously" = Active/Active, no exceptions. Aurora Global DB = still standby regardless of RTO/RPO specs
+- Fargate: No GPU, no custom kernel modules, no elevated Linux capabilities -- any OS-level requirement = ECS EC2 launch type
+- AWS Batch + Spot: Jobs > 15 min, high compute, cost-sensitive, independent = Batch. Lambda eliminated by 15-min timeout AND 10 GB memory AND GB-second pricing
+- Aurora endpoints: Cluster = writer ONLY. Reader = load balances ALL readers. Never use cluster endpoint for read workloads
+- DynamoDB: On-Demand at launch → Provisioned + Auto Scaling after pattern stabilizes (6x cost savings)
+- Scheduled Scaling: Known spike time + known magnitude = Scheduled Scaling (not Auto Scaling ramp-up)
+
+**Weaknesses CLOSED Today:**
+- DR Active/Active trigger phrase: LOCKED after flash drill (4/4 on both pattern questions)
+- Aurora reader vs cluster endpoint: SOLID (2/2 in targeted drill)
+- Fargate GPU/OS limitations: SOLID (2/2 in targeted drill)
+- AWS Batch vs Lambda: SOLID (2/2 in targeted drill)
+- DynamoDB capacity modes: SOLID (2/2 in targeted drill)
+
+**Weaknesses STILL ACTIVE:**
+- SQS FIFO ordering scope + TPS caps: Still drilling needed -- scored 0/2 in targeted drill, 2/2 in flash drill -- WATCH CLOSELY on exam day
+
+**Materials Updated:**
+- Weakness-Tracker.md: Day 44 targeted drill entries (quiz master updated)
+- Weak-Areas-Cheat-Sheet.md: February 2026 exam week patterns section added
+
+**Exam Projection:** ~77% (passing -- 5% buffer if SQS FIFO pattern holds)
+- Days to Exam: 2 (March 2, 2026 at 5:15 PM EST)
+
+**Tomorrow's Agenda (Day 45 -- March 1, 2026 -- EVE OF EXAM):**
+1. Light review only -- no new material
+2. Flash card pass through all active weakness patterns
+3. Review Weak-Areas-Cheat-Sheet.md exam week section
+4. Early rest -- exam is at 5:15 PM, be sharp
+
+---
+
 ## 📊 Fresh Start - January 2026 Study Period
 
 ### Week 1: Foundation Reset (Jan 5-11)
