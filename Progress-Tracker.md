@@ -1,6 +1,6 @@
 # AWS SAA-C03 Study Progress Tracker
 
-**Exam Date:** March 2, 2026 at 5:15 PM EST
+**Exam Date:** March 2, 2026 at 9:00 AM EST
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Target:** Pass with 72%+ (720+ out of 1000 points)
 
@@ -286,7 +286,46 @@ Misses: Q1 (SQS FIFO per-group ordering attacked instead of cross-group failure)
 1. Light review only -- no new material
 2. Flash card pass through all active weakness patterns
 3. Review Weak-Areas-Cheat-Sheet.md exam week section
-4. Early rest -- exam is at 5:15 PM, be sharp
+4. Early rest -- exam is at 9:00 AM EST, be sharp
+
+---
+
+## Day 45 -- March 1, 2026 -- EXAM EVE
+
+**Topic:** SQS FIFO Targeted Drill + Re-Drill on Missed Patterns
+**Time Spent:** ~45 minutes
+**Exam Time:** 9:00 AM EST (corrected from previously noted 5:15 PM)
+
+### Session Breakdown
+
+**1. Initial 6-Question SQS FIFO Drill: 3/6 (50%) ❌**
+
+| Q | Pattern | Result |
+|---|---|---|
+| Q1: Per-group ordering via message group IDs | ✅ | SOLID |
+| Q2: Two-requirement evaluation (ordering + throughput) | ❌ | Picked C (fails both) — correct: B (fails throughput only) |
+| Q3: Deduplication 5-min window mechanics | ❌ | Picked C (DLQ) — correct: B (silent discard, no DLQ) |
+| Q4: Head-of-line blocking isolation (groups independent) | ✅ | SOLID |
+| Q5: TPS cap identification (400 TPS, no batching = eliminated) | ✅ | SOLID |
+| Q6: Scenario trap — head-of-line blocking + biz requirement | ❌ | Picked B (UUID concern) — correct: C (blocking risk) |
+
+**2. Re-Drill on 3 Missed Patterns: 3/3 (100%) ✅ LOCKED**
+
+| Pattern | Score | Status |
+|---|---|---|
+| Two-requirement evaluation + write-side TPS cap | 1/1 | ✅ LOCKED |
+| Deduplication — 5-min window, silent discard, no DLQ | 1/1 | ✅ LOCKED |
+| Head-of-line blocking + business requirement reading | 1/1 | ✅ LOCKED |
+
+### Patterns Confirmed for Exam Day
+
+- **TPS caps:** 300 TPS without batching / 3,000 TPS with batching — WRITE-SIDE hard caps. Consumer count is irrelevant to ingestion limits.
+- **Deduplication:** 5-minute window, silent discard, zero DLQ involvement. DLQ = processing failures (exceeded max receive count) only. These mechanisms never interact.
+- **Head-of-line blocking:** A failed message blocks ALL subsequent messages in the same group only — other groups unaffected. Business risk: indefinitely frozen customer lane without DLQ/visibility timeout escape strategy.
+- **Two-requirement evaluation:** Evaluate each requirement independently. Ordering can pass while throughput fails. Don't let one failure condemn everything.
+
+**Overall SQS FIFO Status: CLEARED for exam day**
+**Exam Projection:** ~77% (passing, 5% buffer)
 
 ---
 

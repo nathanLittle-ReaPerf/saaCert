@@ -1,9 +1,50 @@
 # AWS SAA-C03 Weakness Tracker - Living Document
 
-**Last Updated:** February 28, 2026 (Day 44 -- 7-Pattern Targeted Drill -- 11/14 (78.6%) -- 2 days to exam -- Q1 and Q2 (SQS FIFO throughput + global ordering scope) and Q6 (Active/Active live traffic requirement) remain as drill misses)
-**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (3 days remaining)
+**Last Updated:** February 28, 2026 (Day 44 -- SQS FIFO Exam-Eve Targeted Drill -- 3/6 (50%) -- SQS FIFO pattern NOT locked -- deduplication window, two-requirement evaluation, and scenario trap reading remain fragile)
+**Exam Date:** RESCHEDULED to March 2, 2026 at 5:15 PM EST (2 days remaining)
 **Study Period:** January 5 - March 1, 2026 (56 days)
 **Purpose:** Track weaknesses, monitor improvement, ensure no weak spots remain for exam
+
+---
+
+## February 28, 2026 - Day 44 SQS FIFO Exam-Eve Drill -- 3/6 (50%)
+
+### Drill Results Summary
+**Score:** 3/6 (50%) -- CRITICAL -- pattern not locked 2 days before exam
+**Topic:** SQS FIFO ordering scope, TPS caps, deduplication, head-of-line blocking, scenario traps
+**Days to Exam:** 2
+**Correct:** Q1 (per-group ordering), Q4 (head-of-line blocking isolation), Q5 (TPS cap identification)
+**Missed:** Q2 (two-requirement evaluation + TPS cap), Q3 (deduplication window), Q6 (scenario trap -- requirement reading)
+
+---
+
+### Exam-Eve Q2 Miss -- February 28, 2026
+**Topic:** SQS FIFO two-requirement evaluation -- ordering vs throughput failure
+**User's Answer:** C (FIFO fails both requirements -- ordering AND throughput)
+**Correct Answer:** B (FIFO satisfies ordering, fails throughput -- 5,000 TPS exceeds 3,000 TPS batching cap)
+**Knowledge Gap:** Student panicked on a two-requirement question and selected the answer that said FIFO fails both, avoiding the need to evaluate each requirement independently. FIFO ordering via message group ID is sound. The only failure is the write-side throughput cap of 3,000 TPS with batching. Adding consumers is irrelevant -- the cap is on the queue's ingestion side, not the consumer side. Student also incorrectly applied the multi-consumer ordering failure concept from a different question type.
+**Pattern Missed:** Two-requirement questions require independent evaluation of each requirement. Pick the answer that correctly identifies WHICH requirement fails, not the answer that says everything fails.
+**Review Action:** Run the two-question framework: (1) Is ordering scope per-group or global? (2) Does TPS exceed 300 (no batching) or 3,000 (batching)? Answer each independently before selecting an option.
+
+---
+
+### Exam-Eve Q3 Miss -- February 28, 2026
+**Topic:** SQS FIFO deduplication ID -- behavior and window duration
+**User's Answer:** C (duplicate routed to DLQ automatically)
+**Correct Answer:** B (duplicate silently discarded within 5-minute deduplication window)
+**Knowledge Gap:** Student reached for DLQ as the answer to "what happens to a bad message" for the second time in this drill. DLQ and deduplication are completely separate mechanisms. DLQ = messages that fail processing after exceeding max receive count. Deduplication = messages silently dropped before ever entering the queue if MessageDeduplicationId matches within the 5-minute window. The duplicate never gets delivered. No error. No DLQ. Silent discard.
+**Pattern Missed:** When the question involves MessageDeduplicationId, the answer involves silent discard within a 5-minute window. DLQ is never involved in deduplication.
+**Review Action:** Burn in: deduplication window = 5 minutes. Mechanism = silent discard before queue entry. DLQ = processing failures only, completely unrelated to deduplication.
+
+---
+
+### Exam-Eve Q6 Miss -- February 28, 2026
+**Topic:** SQS FIFO scenario trap -- head-of-line blocking risk vs UUID deduplication behavior
+**User's Answer:** B (UUID deduplication IDs cause duplicate orders to be processed twice)
+**Correct Answer:** C (head-of-line blocking risk -- failed order blocks all subsequent orders for that customer indefinitely without DLQ strategy)
+**Knowledge Gap:** Student identified a technically accurate mechanical behavior (UUIDs generate unique dedup IDs per submission, so retries are not deduplicated) but incorrectly labeled it a flaw. The business requirement did not ask for retry deduplication -- it asked that each order submission be treated as unique. The actual concern the question was testing was the head-of-line blocking consequence of the stated business requirement: if a failed order must block subsequent orders for that customer, then a poisoned message with no DLQ or max receive count strategy will block that customer's lane permanently. Student failed to connect the business requirement to its operational consequence.
+**Pattern Missed:** Read the business requirement before evaluating options. A technically accurate statement about system behavior is not automatically a valid concern -- it must be a concern in the context of the stated requirements. Always ask: "is this actually a problem given what the question says the system needs to do?"
+**Review Action:** On scenario questions, underline the business requirements first. Evaluate each option against whether it is a problem given THOSE requirements, not whether it describes real AWS behavior.
 
 ---
 
