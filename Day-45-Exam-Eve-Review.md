@@ -1,5 +1,5 @@
 # Day 45 -- Exam Eve Review
-## March 1, 2026 | Exam Tomorrow at 5:15 PM EST
+## March 1, 2026 | Exam Tomorrow at 9:00 AM EST
 
 **You have passed every recent practice exam. This is a readiness scan, not a study session. Read it once, close the laptop, get some sleep.**
 
@@ -35,6 +35,35 @@ The exam will present a question with TWO requirements and ask which solution ha
 - Per-entity / per-customer / within a group = SQS FIFO ✅
 - All records / globally / across all groups = Kinesis single shard ✅
 - Per-entity ordering + high throughput = Kinesis multi-shard + consistent partition key ✅
+
+---
+
+### SQS FIFO Deduplication
+
+**MessageDeduplicationId** — if a duplicate message is sent within the **5-minute deduplication window**, it is **silently discarded before it ever enters the queue.** No error. No DLQ. It never gets delivered.
+
+| Mechanism | What Happens | DLQ Involved? |
+|---|---|---|
+| Duplicate within 5-min window | Silent discard — never enters queue | ❌ Never |
+| Message fails processing (exceeds max receive count) | Sent to DLQ | ✅ Yes |
+
+**Burn this in:** DLQ and deduplication are completely separate mechanisms that never interact. DLQ = processing failures only. Deduplication = silent discard before queue entry.
+
+---
+
+### SQS FIFO Head-of-Line Blocking
+
+A failed message **blocks ALL subsequent messages in the same message group** — but **other groups are completely unaffected and continue processing normally.**
+
+| Scenario | Effect |
+|---|---|
+| Message fails in Group A | Group A frozen until message is resolved or DLQ'd |
+| Groups B, C, D | Unaffected — processing continues normally |
+| No DLQ / no visibility timeout strategy | Group A lane frozen **indefinitely** — permanent business risk |
+
+**Exam trap:** The question describes a business requirement that orders from the same customer must be processed in sequence. A failed order with no DLQ escape strategy will freeze that customer's lane permanently. The concern is **not** about UUID deduplication behavior — it's about the **operational consequence of the ordering requirement itself.**
+
+**Burn this in:** Head-of-line blocking = same group only. DLQ is the escape hatch. Without it, one poisoned message owns the lane forever.
 
 ---
 
@@ -226,7 +255,7 @@ RDS Proxy + Auto Scaling delay: New readers take time to enter reader endpoint r
 
 ## Exam Day Protocol
 
-**March 2, 2026 -- 5:15 PM EST**
+**March 2, 2026 -- 9:00 AM EST**
 
 1. Arrive 30 minutes early
 2. Read each question twice before looking at answers
