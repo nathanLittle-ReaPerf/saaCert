@@ -6,6 +6,19 @@
 
 ---
 
+## EXAM RESULT -- March 2, 2026
+
+**PASSED -- 789 / 1000**
+
+- Passing score: 720
+- Margin: +69 points above passing
+- Study period: 56 days (Jan 5 - Mar 1, 2026)
+- Final practice score going in: 76.9% (Day 40), with targeted drilling through Day 45
+
+**The grind worked. AWS Certified Solutions Architect - Associate.**
+
+---
+
 ## Day 40 -- February 23, 2026 -- 7 Days to Exam
 
 **Topic:** Full 65-Question SAA-C03 Domain Distribution Projection Exam
